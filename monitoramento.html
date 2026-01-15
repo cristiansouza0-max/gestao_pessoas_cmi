@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Monitoramento de Viagens</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="monitoramento.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html" class="active">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="header-dashboard">
+                <h1>Importação de Dados Operacionais</h1>
+                <div class="header-controls">
+                    <div class="filter-group">
+                        <label>Importar como:</label>
+                        <select id="tipo-dia-importacao">
+                            <option value="uteis">Úteis</option>
+                            <option value="sabados">Sábados</option>
+                            <option value="domingos">Domingos</option>
+                            <option value="feriados">Feriados</option>
+                        </select>
+                    </div>
+                    <button onclick="document.getElementById('input-file').click()" class="btn-generate">
+                        <i class="fa-solid fa-file-import"></i> Selecionar Arquivos
+                    </button>
+                    <input type="file" id="input-file" accept=".xls,.xlsx" multiple style="display: none;" onchange="lerArquivos(this)">
+                </div>
+            </div>
+
+            <!-- Área de Prévia Calculada -->
+            <div id="area-previa" class="previa-container" style="display: none;">
+                <div class="previa-header">
+                    <h3><i class="fa-solid fa-calculator"></i> Viagens Identificadas para Importação</h3>
+                    <button onclick="confirmarImportacao()" class="btn-confirm">Salvar no Banco</button>
+                </div>
+                <div id="resumo-previa" class="resumo-grid"></div>
+            </div>
+
+            <div class="quadro-geral-container">
+                <div class="search-bar">
+                    <button onclick="limparMonitoramento()" class="btn-clear-db" title="Limpar Banco de Dados">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                    <select id="search-empresa-view" onchange="filtrarTabelas()">
+                        <option value="">Todas Empresas</option>
+                        <option value="AVUL">AVUL</option>
+                        <option value="VCCL">VCCL</option>
+                        <option value="VSBL">VSBL</option>
+                    </select>
+                    <select id="search-segmento" onchange="filtrarTabelas()">
+                        <option value="">Todos os Segmentos</option>
+                    </select>
+                    <select id="search-linha" onchange="filtrarTabelas()">
+                        <option value="">Todas as Linhas</option>
+                    </select>
+                </div>
+
+                <div class="scroll-tabelas">
+                    <div id="section-manha" class="secao-tabela">
+                        <h2 class="titulo-periodo"><i class="fa-solid fa-sun"></i> Período Manhã</h2>
+                        <div class="monitoramento-wrapper">
+                            <table id="tabela-manha">
+                                <thead>
+                                    <tr>
+                                        <th class="col-linhas-header">Linhas</th>
+                                        <th>Úteis</th><th>Sábados</th><th>Domingos</th><th>Feriados</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="corpo-manha"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="section-tarde" class="secao-tabela">
+                        <h2 class="titulo-periodo"><i class="fa-solid fa-cloud-sun"></i> Período Tarde</h2>
+                        <div class="monitoramento-wrapper">
+                            <table id="tabela-tarde">
+                                <thead>
+                                    <tr>
+                                        <th class="col-linhas-header">Linhas</th>
+                                        <th>Úteis</th><th>Sábados</th><th>Domingos</th><th>Feriados</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="corpo-tarde"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="monitoramento.js"></script>
+</body>
+</html>

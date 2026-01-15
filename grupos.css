@@ -1,0 +1,155 @@
+.content { height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px; }
+
+/* Filtros Superiores Centralizados */
+.header-controls-groups {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: flex-end;
+    justify-content: center;
+    background: white;
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+/* Container de Blocos */
+.lista-vertical-blocos {
+    flex-grow: 1;
+    overflow-y: auto;
+    width: 100%;
+}
+
+/* O Bloco Centralizado que Preenche a Tela */
+.secao-bloco-monitoramento {
+    width: 100%;
+    background: white;
+    padding: 20px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo-sessao-bloco {
+    width: 100%;
+    font-size: 1.25rem;
+    color: #2c3e50;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #3498db;
+    font-weight: 800;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    text-transform: uppercase;
+}
+
+/* Flag de seleção do Bloco (Apenas a caixa) */
+.box-selecao-bloco { 
+    position: absolute; 
+    right: 10px; 
+    display: flex; 
+    align-items: center; 
+}
+.check-bloco { width: 20px; height: 20px; cursor: pointer; }
+
+/* Grid de cards ocupando a largura total */
+.grid-cards-lado-a-lado {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Card Dinâmico */
+.card-grupo-monitor {
+    background: white;
+    flex: 1;
+    min-width: 120px;
+    border: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.header-card-grupo { padding: 10px 5px; color: white; text-align: center; }
+.item-avul { background: #c0392b; } 
+.item-vccl { background: #2980b9; } 
+
+/* Título do Card em Linha Única */
+.header-card-grupo h3 { 
+    font-size: 0.72rem; 
+    font-weight: 900; 
+    margin: 0; 
+    line-height: 1.2;
+    white-space: nowrap; 
+}
+
+.header-card-grupo .badge-total { align-self: flex-end; font-size: 1.1rem; font-weight: 900; margin-top: -3px; padding-right: 5px; }
+
+/* Sub-cabeçalho Linha / Viagens */
+.sub-header-card {
+    display: flex;
+    justify-content: space-between;
+    background: #f1f1f1;
+    padding: 5px 10px;
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    text-transform: uppercase;
+}
+
+.lista-linhas-grupo { list-style: none; padding: 0; flex-grow: 1; }
+.lista-linhas-grupo li {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+/* Cores Segmentos */
+.seg-dark-blue { background-color: #1a237e !important; color: white !important; }
+.seg-light-yellow { background-color: #fff9c4 !important; color: #333 !important; }
+.seg-light-blue { background-color: #b3e5fc !important; color: #333 !important; }
+.seg-dark-red { background-color: #b71c1c !important; color: white !important; }
+.seg-light-red { background-color: #ffcdd2 !important; color: #333 !important; }
+.seg-light-green { background-color: #c8e6c9 !important; color: #333 !important; }
+
+/* Switch Filtro */
+.switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 34px; transition: .4s; }
+.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; border-radius: 50%; transition: .4s; }
+input:checked + .slider { background-color: #3498db; }
+input:checked + .slider:before { transform: translateX(16px); }
+
+/* Botões */
+.btn-generate-groups { background: #6c5ce7; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-clear-groups { background: #95a5a6; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.btn-print-groups { background: #2c3e50; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+/* IMPRESSÃO OTIMIZADA PARA UMA PÁGINA */
+@media print {
+    @page { size: A4 landscape; margin: 5mm; }
+    body { background: white; }
+    .sidebar, .header-controls-groups, .header-dashboard, .no-print { display: none !important; }
+    .content { padding: 0; margin: 0; width: 100%; height: auto; overflow: visible; display: block; }
+    
+    .secao-bloco-monitoramento { 
+        border: none; padding: 0; margin: 0; width: 100%; 
+        page-break-inside: avoid;
+        transform: scale(0.98);
+        transform-origin: top center;
+    }
+    
+    .grid-cards-lado-a-lado { flex-wrap: nowrap !important; gap: 4px; }
+    .card-grupo-monitor { border: 1.5px solid black; flex: 1; }
+    .titulo-sessao-bloco { border-bottom: 2.5px solid black; font-size: 1.3rem; margin-bottom: 10px; }
+    .header-card-grupo { -webkit-print-color-adjust: exact; color: white !important; border-bottom: 1.5px solid black; }
+}

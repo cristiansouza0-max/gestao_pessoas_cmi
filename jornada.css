@@ -1,0 +1,28 @@
+.content { margin-left: 250px; padding: 15px; height: 100vh; display: flex; flex-direction: column; overflow-y: auto; background-color: #f0f2f5; }
+
+.escala-grid-6-columns { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; width: 100%; padding-bottom: 50px; }
+.tabela-individual-wrapper { display: flex; flex-direction: column; width: 100%; }
+.box-nome-func { border: 1.5px solid black; background: #ffffcc; text-align: center; padding: 3px; font-weight: 800; font-size: 0.75rem; margin-bottom: 3px; text-transform: uppercase; }
+
+.tabela-jornada { border-collapse: collapse; width: 100%; border: 1.5px solid black; background: white; table-layout: fixed; }
+.tabela-jornada th, .tabela-jornada td { border: 1px solid black; padding: 1px; font-size: 0.6rem; text-align: center; height: 20px; vertical-align: middle; }
+.tabela-jornada thead th { background: #f2f2f2; font-weight: bold; }
+
+/* CORES DE LINHA SOLICITADAS */
+.row-feriado { background-color: #ebfbee !important; color: black !important; font-weight: bold !important; } /* Verde Claro */
+.row-sabado { background-color: #fff4e6 !important; color: black !important; font-weight: bold !important; }  /* Laranja Claro */
+.row-domingo { background-color: #e7f5ff !important; color: black !important; font-weight: bold !important; } /* Azul Claro */
+
+/* MESCLAGENS */
+.celula-ferias-mesclada { background-color: #f3e5f5 !important; color: black !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+.celula-outros-mesclada { background-color: #fff3e0 !important; color: black !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+
+/* TEXTOS DE FOLGA */
+.folga-pedida { color: #e74c3c !important; font-weight: bold; }
+.folga-marcada { color: #000 !important; font-weight: bold; font-style: italic; }
+.folga-programada { color: #000 !important; font-weight: bold; }
+.folga-escala { color: #000 !important; font-weight: bold; }
+
+.footer-total { background: #bfbfbf; font-weight: bold; font-size: 0.6rem; }
+.btn-save-blue { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.cabecalho-equipe-master { text-align: center; font-weight: 800; font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; color: #2c3e50; }

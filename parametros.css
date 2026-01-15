@@ -1,0 +1,64 @@
+.content { height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px 40px; }
+.header-dashboard { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+.header-controls { display: flex; gap: 10px; align-items: center; }
+
+.parametros-scroll-container { flex-grow: 1; overflow-y: auto; overflow-x: hidden; padding-right: 15px; padding-bottom: 50px; }
+.parametros-scroll-container::-webkit-scrollbar { width: 8px; }
+.parametros-scroll-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+.filter-group { display: flex; align-items: center; gap: 8px; background: white; padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.filter-group label { font-size: 0.75rem; font-weight: bold; color: #666; }
+.btn-calendar-top { background: #3498db; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+.btn-save-top { background: #27ae60; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+
+.colunas-feriados { display: flex; gap: 15px; margin-bottom: 30px; align-items: flex-start; }
+.empresa-col { flex: 1; background: #ebedef; padding: 15px; border-radius: 8px; min-width: 300px; }
+.empresa-col h2 { font-size: 1.1rem; text-align: center; border-bottom: 2px solid #ccc; margin-bottom: 25px; padding-bottom: 12px; font-weight: bold; text-transform: uppercase; }
+.titulo-avul { color: #c0392b; border-bottom-color: #c0392b !important; }
+.titulo-vccl { color: #2980b9; border-bottom-color: #2980b9 !important; }
+.titulo-vsbl { color: #27ae60; border-bottom-color: #27ae60 !important; }
+
+.card-feriado { background: white; border-radius: 8px; margin-bottom: 15px; border-left: 6px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.feriado-header { padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: bold; font-size: 0.8rem; color: #3498db; }
+.grid-periodos { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 12px; }
+.periodo-input-box { display: flex; flex-direction: column; align-items: center; }
+.periodo-input-box label { font-size: 0.6rem; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; }
+.periodo-input-box input { width: 100%; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-align: center; font-size: 0.8rem; }
+
+.titulo-secao-aprendiz { font-size: 1.2rem; color: #2c3e50; margin: 30px 0 15px 0; border-left: 5px solid #f39c12; padding-left: 10px; }
+.grid-aprendizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; }
+.card-aprendiz { background: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 5px solid #f39c12; }
+
+.card-aprendiz-header { padding: 12px 15px; background: #fffaf0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.card-aprendiz-header h4 { font-size: 0.95rem; color: #2c3e50; white-space: normal; overflow: visible; word-wrap: break-word; flex: 1; }
+.aprendiz-actions { display: flex; gap: 12px; padding-top: 2px; align-items: center; }
+.aprendiz-actions i { cursor: pointer; font-size: 1rem; }
+.fa-floppy-disk { color: #27ae60; } .fa-eraser { color: #95a5a6; } .fa-pencil { color: #f39c12; }
+
+.card-aprendiz-body { padding: 15px; }
+.dias-uteis-group { display: flex; justify-content: space-between; margin-bottom: 15px; }
+.flag-dia { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: bold; color: #7f8c8d; }
+.escala-aprendiz-group { border-top: 1px dashed #ddd; padding-top: 10px; }
+.escala-aprendiz-group select { width: 100%; padding: 8px; border-radius: 5px; border: 1px solid #ddd; font-size: 0.82rem; margin-top: 5px; color: #333; }
+
+/* Switch Toggle Style */
+.switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #27ae60; }
+input:checked + .slider:before { transform: translateX(16px); }
+
+/* Modal e Calendário */
+.modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+.modal-content { background: white; margin: 5% auto; padding: 25px; width: 380px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; padding-bottom: 15px; margin-bottom: 20px; }
+.modal-header h2 { font-size: 1.2rem; color: #2c3e50; }
+.close-modal { font-size: 24px; cursor: pointer; color: #95a5a6; line-height: 1; }
+.close-modal:hover { color: #e74c3c; }
+.calendar-days-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; font-size: 0.75rem; color: #7f8c8d; margin-bottom: 10px; }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.calendar-day { aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; border: 1px solid #f0f0f0; border-radius: 8px; color: #2c3e50; transition: 0.2s; }
+.day-holiday { background-color: #e74c3c !important; color: white !important; font-weight: bold; border-color: #c0392b; }
+.day-sunday { color: #e74c3c; font-weight: bold; background-color: #fff5f5; }
+.day-empty { border: none; background: none; }

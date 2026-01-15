@@ -1,0 +1,9 @@
+# Ignorar arquivos de configuração sensíveis
+.env
+
+# Ignorar pastas de dependências (caso você use npm futuramente)
+node_modules/
+
+# Ignorar arquivos do sistema
+.DS_Store
+Thumbs.db

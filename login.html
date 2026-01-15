@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Pessoas - CMI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="login-container">
+        <!-- Tela de Login Principal -->
+        <div id="box-login" class="login-box">
+            <div class="login-header">
+                <i class="fa-solid fa-users-gear"></i>
+                <h1>Gestão de Pessoas</h1>
+                <p>CMI - Tráfego</p>
+            </div>
+            <form id="form-login">
+                <div class="input-group">
+                    <label>Usuário</label>
+                    <input type="text" id="login-user" required placeholder="Digite seu login">
+                </div>
+                <div class="input-group">
+                    <label>Senha</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="login-pass" required placeholder="Digite sua senha">
+                        <i class="fa-solid fa-eye" id="togglePassword"></i>
+                    </div>
+                </div>
+                
+                <div class="form-footer">
+                    <a href="#" onclick="solicitarReset()">Esqueci a senha</a>
+                </div>
+
+                <button type="submit" class="btn-login">Entrar</button>
+                <p id="error-msg" class="error-msg"></p>
+            </form>
+        </div>
+
+        <!-- Tela de Nova Senha Obrigatória -->
+        <div id="box-reset" class="login-box" style="display: none;">
+            <div class="login-header">
+                <i class="fa-solid fa-key"></i>
+                <h2>Nova Senha</h2>
+                <p>Crie uma senha definitiva</p>
+            </div>
+            <form id="form-reset">
+                <div class="row-flex">
+                    <div class="input-group">
+                        <label>Usuário</label>
+                        <input type="text" id="reset-login" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label>Provisória</label>
+                        <input type="text" id="reset-prov" disabled>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Nova Senha</label>
+                    <input type="password" id="new-pass" required placeholder="Mínimo 4 caracteres">
+                </div>
+                <div class="input-group">
+                    <label>Confirme a Nova Senha</label>
+                    <input type="password" id="confirm-pass" required placeholder="Repita a senha">
+                </div>
+                <button type="submit" class="btn-change">Salvar e Acessar</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

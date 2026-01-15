@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Parâmetros do Sistema</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="parametros.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html" class="active">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="header-dashboard">
+                <h1>Parâmetros do Sistema</h1>
+                <div class="header-controls">
+                    <div class="filter-group">
+                        <label>Mês:</label>
+                        <select id="filtro-mes-param" onchange="renderizarFeriados()">
+                            <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                            <option value="3">Março</option><option value="4">Abril</option>
+                            <option value="5">Maio</option><option value="6">Junho</option>
+                            <option value="7">Julho</option><option value="8">Ago</option>
+                            <option value="9">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ano:</label>
+                        <input type="number" id="filtro-ano-param" value="2025" onchange="renderizarFeriados()">
+                    </div>
+                    <div class="filter-group">
+                        <label>Folgas:</label>
+                        <input type="number" id="folgas-mes-param" value="5" style="width: 50px;">
+                    </div>
+                    <button onclick="abrirCalendarioConsulta()" class="btn-calendar-top" title="Ver Calendário"><i class="fa-solid fa-calendar-days"></i></button>
+                    <button onclick="salvarConfiguracaoFeriados()" class="btn-save-top"><i class="fa-solid fa-floppy-disk"></i> Salvar Feriados</button>
+                </div>
+            </div>
+
+            <div class="parametros-scroll-container">
+                <!-- COLUNAS DE FERIADOS -->
+                <div class="colunas-feriados">
+                    <div class="empresa-col"><h2 class="titulo-avul">Feriados AVUL</h2><div id="lista-feriados-avul"></div></div>
+                    <div class="empresa-col"><h2 class="titulo-vccl">Feriados VCCL</h2><div id="lista-feriados-vccl"></div></div>
+                    <div class="empresa-col"><h2 class="titulo-vsbl">Feriados VSBL</h2><div id="lista-feriados-vsbl"></div></div>
+                </div>
+
+                <h2 class="titulo-secao-aprendiz">Atuação dos Aprendizes (Dados Fixos)</h2>
+                <div id="lista-aprendizes" class="grid-aprendizes"></div>
+
+                <h2 class="titulo-secao-aprendiz">Regras de Folgas Específicas</h2>
+                <div id="regras-especiais" class="grid-aprendizes">
+                    
+                    <!-- CARTÃO EQUIPE MANHÃ AVUL -->
+                    <div class="card-aprendiz" style="border-top-color: #27ae60;">
+                        <div class="card-aprendiz-header" style="background: #f0fff4;">
+                            <h4>Equipe Manhã (AVUL)</h4>
+                            <div class="aprendiz-actions">
+                                <label class="switch">
+                                    <input type="checkbox" id="regra-equipe-manha" onchange="salvarRegraEspecial('equipeManha')">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-aprendiz-body">
+                            <p style="font-size: 0.7rem; color: #666;">
+                                <strong>Regra Milena (Fev/26):</strong> Intercala Sábado/Domingo. <br>
+                                <strong>Habilitado:</strong> Inclui <b>Eloah</b> no rodízio de Sábado. <br>
+                                <strong>Desabilitado:</strong> Eloah folga todos os Domingos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- CARTÃO OSMAIR -->
+                    <div class="card-aprendiz">
+                        <div class="card-aprendiz-header">
+                            <h4>Osmair (Noite - AVUL)</h4>
+                            <div class="aprendiz-actions">
+                                <label class="switch">
+                                    <input type="checkbox" id="regra-osmair" onchange="salvarRegraEspecial('osmair')">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-aprendiz-body">
+                            <p style="font-size: 0.8rem; color: #666;">Folga fixa (X) no <strong>último Domingo</strong> de cada mês.</p>
+                        </div>
+                    </div>
+
+                    <!-- CARTÃO FÁBIO -->
+                    <div class="card-aprendiz">
+                        <div class="card-aprendiz-header">
+                            <h4>Fábio (Noite - VCCL)</h4>
+                            <div class="aprendiz-actions">
+                                <label class="switch">
+                                    <input type="checkbox" id="regra-fabio" onchange="salvarRegraEspecial('fabio')">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-aprendiz-body">
+                            <p style="font-size: 0.8rem; color: #666;">Folga fixa (X) no <strong>Sábado que antecede</strong> o último Domingo.</p>
+                        </div>
+                    </div>
+
+                    <!-- CARTÃO EQUIPE TARDE AVUL -->
+                    <div class="card-aprendiz" style="border-top-color: #3498db;">
+                        <div class="card-aprendiz-header" style="background: #eef7ff;">
+                            <h4>Equipe Tarde (AVUL)</h4>
+                            <div class="aprendiz-actions">
+                                <label class="switch">
+                                    <input type="checkbox" id="regra-equipe-tarde" onchange="salvarRegraEspecial('equipeTarde')">
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="card-aprendiz-body">
+                            <p style="font-size: 0.72rem; color: #666;">
+                                <strong>Rodízio Inteligente:</strong> Lucas P. (Jan/26). Sequência: Angelo > Renato > Lucas > Roberto > Valter.
+                            </p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="modal-calendario" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-titulo">Calendário</h2>
+                <span class="close-modal" onclick="fecharModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="calendar-days-header">
+                    <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+                </div>
+                <div id="calendar-grid" class="calendar-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="parametros.js"></script>
+</body>
+</html>

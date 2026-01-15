@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Configuração de Escalas e Jornadas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="escalas.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html" class="active">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <h1>Configuração de Escalas e Jornadas</h1>
+            
+            <!-- BLOCO 1: ESCALAS -->
+            <div class="section-container-escalas">
+                <h2 class="titulo-secao-interna">Cadastro de Escalas</h2>
+                <form id="form-escala" class="form-linha">
+                    <input type="hidden" id="edit-id-escala" value="">
+                    <div class="input-group-compact"><label>Início</label><input type="time" id="inicio-jornada" required></div>
+                    <div class="input-group-compact"><label>Fim</label><input type="time" id="fim-jornada" required></div>
+                    <div class="btn-group-linha">
+                        <button type="submit" class="btn-save" id="btn-save-escala">Salvar Escala</button>
+                        <button type="button" onclick="limparFormEscala()" class="btn-clear">Limpar</button>
+                    </div>
+                </form>
+                <div id="lista-escalas-cards" class="grid-escalas-wrap"></div>
+            </div>
+
+            <!-- BLOCO 2: JORNADAS -->
+            <div class="section-container-jornadas">
+                <div class="header-jornada-top">
+                    <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
+                    <div class="filtro-empresa-wrapper">
+                        <label>Exibir Empresa:</label>
+                        <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
+                            <option value="AVUL">AVUL</option>
+                            <option value="VCCL">VCCL</option>
+                            <option value="VSBL">VSBL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <form id="form-jornada" class="form-jornada-linha">
+                    <input type="hidden" id="edit-id-jornada" value="">
+                    <div class="input-group-j"><label>Empresa</label><select id="jornada-empresa">
+                        <option value="AVUL">AVUL</option>
+                        <option value="VCCL">VCCL</option>
+                        <option value="VSBL">VSBL</option>
+                    </select>
+                </div>
+                    <div class="input-group-j"><label>Período</label><select id="jornada-periodo">
+                        <option value="Manhã">Manhã</option>
+                        <option value="Intermediário">Intermediário</option>
+                        <option value="Tarde">Tarde</option>
+                        <option value="Noite">Noite</option>
+                        <option value="Integral">Integral</option>
+                    </select>
+                </div>
+                    <div class="input-group-j" style="max-width: 60px;"><label>Ordem</label><input type="number" id="jornada-ordem" min="1" placeholder="Nº"></div>
+                    <div class="input-group-j"><label>Úteis</label><select id="select-escala-util" class="select-escala-ref"></select></div>
+                    <div class="input-group-j"><label>Sáb</label><select id="select-escala-sabado" class="select-escala-ref"></select></div>
+                    <div class="input-group-j"><label>Dom</label><select id="select-escala-domingo" class="select-escala-ref"></select></div>
+                    <div class="input-group-j"><label>Fer</label><select id="select-escala-feriado" class="select-escala-ref"></select></div>
+                    <div class="btn-group-j">
+                        <button type="submit" class="btn-save">Salvar</button>
+                        <button type="button" onclick="limparFormJornada()" class="btn-clear">Limpar</button>
+                    </div>
+                </form>
+
+                <div class="colunas-jornadas-wrapper">
+                    <div class="jor-col"><h3 class="t-col manha">Manhã</h3><div id="col-j-Manhã" class="scroll-v"></div></div>
+                    <div class="jor-col"><h3 class="t-col intermediario">Intermediário</h3><div id="col-j-Intermediário" class="scroll-v"></div></div>
+                    <div class="jor-col"><h3 class="t-col tarde">Tarde</h3><div id="col-j-Tarde" class="scroll-v"></div></div>
+                    <div class="jor-col"><h3 class="t-col noite">Noite</h3><div id="col-j-Noite" class="scroll-v"></div></div>
+                    <div class="jor-col"><h3 class="t-col integral">Integral</h3><div id="col-j-Integral" class="scroll-v"></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="escalas.js"></script>
+</body>
+</html>

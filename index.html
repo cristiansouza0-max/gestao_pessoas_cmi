@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Controle - Gestão de Escalas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html" class="active">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="header-dashboard">
+                <h1>Painel de Controle</h1>
+                <div class="header-controls">
+                    <div class="filter-group">
+                        <label>Filtrar Empresa:</label>
+                        <select id="filtro-empresa-home" onchange="carregarDashboard()">
+                            <option value="TODAS">TODAS</option>
+                            <option value="AVUL">AVUL</option>
+                            <option value="VCCL">VCCL</option>
+                            <option value="VSBL">VSBL</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-scroll-area">
+                <div class="stats-grid">
+                    <div class="card-stat"><h3>Total</h3><p id="total-func">0</p><span>Efetivo Ativo</span></div>
+                    <div class="card-stat"><h3>Auxiliares</h3><p id="total-aux">0</p></div>
+                    <div class="card-stat"><h3>Assistentes</h3><p id="total-ast">0</p></div>
+                    <div class="card-stat"><h3>Líderes</h3><p id="total-lid">0</p></div>
+                    <div class="card-stat"><h3>Intermediários</h3><p id="total-int">0</p></div>
+                    <div class="card-stat"><h3>Aprendizes</h3><p id="total-apr">0</p></div>
+                </div>
+
+                <div class="anniversaries-container">
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>🎂 Aniversariantes</h3></div>
+                        <ul id="lista-aniversario-vida" class="anniversary-list"></ul>
+                    </div>
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>🏢 Tempo de Casa</h3></div>
+                        <ul id="lista-aniversario-empresa" class="anniversary-list"></ul>
+                    </div>
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>👨‍🎓 Aprendizes Hoje</h3></div>
+                        <ul id="lista-aprendizes-hoje" class="anniversary-list"></ul>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="card-summary red"><h3 id="titulo-faltas-mes">Faltas do Mês</h3><ul id="lista-faltas-mes" class="summary-list"></ul></div>
+                    <div class="card-summary green"><h3 id="titulo-folgas-proximo">Próximas Folgas</h3><ul id="lista-folgas-proximo" class="summary-list"></ul></div>
+                    <div class="card-summary orange"><h3>Afastamentos/Licenças</h3><ul id="lista-afastamentos-ativos" class="summary-list"></ul></div>
+                </div>
+
+                <!-- Planejamento de Férias -->
+                <div class="card-large timeline-section">
+                    <div class="card-header-timeline">
+                        <h3 class="timeline-title"><i class="fa-solid fa-timeline"></i> Planejamento de Férias</h3>
+                        <div class="timeline-filters">
+                            <div class="filter-item">
+                                <label>Período:</label>
+                                <select id="filtro-periodo-timeline" onchange="renderizarTimelineFerias()">
+                                    <option value="TODOS">TODOS</option>
+                                    <option value="Manhã">Manhã</option>
+                                    <option value="Tarde">Tarde</option>
+                                    <option value="Intermediário">Intermediário</option>
+                                    <option value="Integral">Integral</option>
+                                    <option value="Noite">Noite</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Funcionário:</label>
+                                <select id="filtro-func-timeline" onchange="renderizarTimelineFerias()">
+                                    <option value="TODOS">TODOS</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Início:</label>
+                                <input type="date" id="filtro-data-timeline" onchange="renderizarTimelineFerias()" value="2025-11-01">
+                            </div>
+                            <div class="filter-item">
+                                <label>Fim:</label>
+                                <input type="date" id="filtro-data-fim-timeline" onchange="renderizarTimelineFerias()" value="2026-01-31">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-wrapper">
+                        <table id="tabela-ferias-timeline">
+                            <thead>
+                                <tr id="header-timeline">
+                                    <th class="col-fixa">Funcionários</th>
+                                    <th class="col-vencimento">Vencimento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-timeline"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modais de Alerta -->
+            <div id="alerta-vencimento-overlay" class="alerta-vencimento-overlay" style="display: none;">
+                <div class="alerta-vencimento-modal">
+                    <i class="fa-solid fa-bell-exclamation"></i>
+                    <h2>Vencimento de Férias</h2>
+                    <div id="lista-alertas-vencimento" class="lista-alertas"></div>
+                    <button class="btn-fechar-alerta" onclick="fecharAlertaVencimento()">Fechar</button>
+                </div>
+            </div>
+
+            <div id="alerta-conflito-overlay" class="alerta-vencimento-overlay" style="display: none;">
+                <div class="alerta-vencimento-modal" style="border-top-color: #f39c12;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #f39c12;"></i>
+                    <h2>Conflito Identificado</h2>
+                    <p style="font-size: 0.85rem; margin-bottom: 10px;">Sobreposição de férias no mesmo setor (> 1 dia):</p>
+                    <div id="lista-alertas-conflito" class="lista-alertas"></div>
+                    <button class="btn-fechar-alerta" onclick="document.getElementById('alerta-conflito-overlay').style.display='none'">Fechar</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="index.js"></script>
+</body>
+</html>

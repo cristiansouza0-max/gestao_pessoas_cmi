@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Funcionários</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="funcionarios.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html" class="active">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="scrollable-area">
+                <h1>Cadastro de Funcionários</h1>
+                
+                <form id="form-func" class="form-container">
+                    <input type="hidden" id="edit-id" value="">
+                    
+                    <!-- Linha 1 -->
+                    <div class="row">
+                        <div class="col"><label>Nome Completo</label><input type="text" id="nome" required></div>
+                        <div class="col"><label>Apelido</label><input type="text" id="apelido"></div>
+                        <div class="col"><label>Registro</label><input type="text" id="registro" required></div>
+                    </div>
+
+                    <!-- Linha 2 -->
+                    <div class="row">
+                        <div class="col"><label>Data de Nascimento</label><input type="date" id="nascimento" required></div>
+                        <div class="col">
+                            <label>Empresa</label>
+                            <select id="empresa" onchange="atualizarFiltroJornadas()">
+                                <option value="AVUL">AVUL</option>
+                                <option value="VCCL">VCCL</option>
+                                <option value="VSBL">VSBL</option> <!-- VSBL Adicionada -->
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label>Função</label>
+                            <select id="funcao">
+                                <option value="Auxiliar">Auxiliar</option>
+                                <option value="Assistente">Assistente</option>
+                                <option value="Líder">Líder</option>
+                                <option value="Aprendiz">Aprendiz</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Linha 3 -->
+                    <div class="row">
+                        <div class="col">
+                            <label>Período Base</label>
+                            <select id="periodo" onchange="atualizarFiltroJornadas()">
+                                <option value="Manhã">Manhã</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Intermediário">Intermediário</option>
+                                <option value="Integral">Integral</option>
+                                <option value="Noite">Noite</option>
+                            </select>
+                        </div>
+                        <div class="col" style="max-width: 180px;">
+                            <label>Status</label>
+                            <div class="status-flags">
+                                <label class="radio-label"><input type="radio" name="status" value="Ativo" checked onclick="toggleDataStatus()"> Ativo</label>
+                                <label class="radio-label"><input type="radio" name="status" value="Inativo" onclick="toggleDataStatus()"> Inativo</label>
+                            </div>
+                        </div>
+                        <div class="col"><label>Data de Admissão</label><input type="date" id="admissao" required></div>
+                        <div class="col" id="col-demissao" style="visibility: hidden;"><label>Data de Demissão</label><input type="date" id="demissao"></div>
+                    </div>
+
+                    <!-- Linha 4: Associar Jornada -->
+                    <div class="row">
+                        <div class="col">
+                            <label class="label-destaque"><i class="fa-solid fa-route"></i> Associar Jornada de Trabalho</label>
+                            <div id="jornadas-selection-wrapper" class="jornadas-selection-grid"></div>
+                        </div>
+                    </div>
+
+                    <div class="row-botoes-final">
+                        <button type="submit" class="btn-save" id="btn-submit">Salvar Funcionário</button>
+                        <button type="button" onclick="limparFormulario()" class="btn-clear">Limpar</button>
+                    </div>
+                </form>
+
+                <h2 class="titulo-sessao-central">Funcionários Cadastrados no CMI Tráfego</h2>
+                
+                <div class="colunas-empresas">
+                    <div class="empresa-col">
+                        <h2 class="titulo-avul">Funcionários AVUL</h2>
+                        <div id="lista-avul" class="lista-rolagem"></div>
+                    </div>
+                    <div class="empresa-col">
+                        <h2 class="titulo-vccl">Funcionários VCCL</h2>
+                        <div id="lista-vccl" class="lista-rolagem"></div>
+                    </div>
+                    <!-- Nova Coluna VSBL -->
+                    <div class="empresa-col">
+                        <h2 class="titulo-vsbl">Funcionários VSBL</h2>
+                        <div id="lista-vsbl" class="lista-rolagem"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="funcionarios.js"></script>
+</body>
+</html>

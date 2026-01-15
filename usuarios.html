@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Usuários - Controle de Acesso</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="usuarios.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html" class="active">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <h1 class="fixed-title">Controle de Acesso</h1>
+            
+            <form id="form-usuario" class="form-container">
+                <input type="hidden" id="edit-id-usuario" value="">
+                
+                <div class="row">
+                    <div class="col" style="flex: 2;">
+                        <label>Funcionário Responsável</label>
+                        <select id="select-funcionario-usuario" required>
+                            <option value="">Carregando funcionários...</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label>Login (Usuário)</label>
+                        <input type="text" id="usuario-login" required>
+                    </div>
+                    <div class="col">
+                        <label>Senha Provisória</label>
+                        <input type="password" id="usuario-senha" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label>Status da Conta</label>
+                        <div class="status-flags">
+                            <label class="radio-label"><input type="radio" name="usuario-status" value="Ativo" checked> Ativo</label>
+                            <label class="radio-label"><input type="radio" name="usuario-status" value="Bloqueado"> Bloqueado</label>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label>Tipo de Perfil</label>
+                        <div class="status-flags">
+                            <label class="radio-label" style="color: #d4af37;">
+                                <input type="checkbox" id="usuario-master"> <i class="fa-solid fa-crown"></i> Perfil Master
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col">
+                        <label class="label-permissoes"><i class="fa-solid fa-layer-group"></i> Habilitar Acesso às Telas:</label>
+                        <div class="permissoes-grid">
+                            <label class="chk-permissao"><input type="checkbox" value="index"> 🏠 Início</label>
+                            <label class="chk-permissao"><input type="checkbox" value="funcionarios"> 👥 Funcionários</label>
+                            <label class="chk-permissao"><input type="checkbox" value="escalas"> 📅 Tipos de Escala</label>
+                            <label class="chk-permissao"><input type="checkbox" value="ausencias"> 🤒 Ausências</label>
+                            <label class="chk-permissao"><input type="checkbox" value="parametros"> ⚙️ Parâmetros</label>
+                            <label class="chk-permissao"><input type="checkbox" value="grupos"> 📦 Monitoramento</label>
+                            <label class="chk-permissao"><input type="checkbox" value="monitoramento"> 📥 Importação</label>
+                            <label class="chk-permissao"><input type="checkbox" value="mapa"> 🗺️ Mapa de Folgas</label>
+                            <label class="chk-permissao"><input type="checkbox" value="jornada"> 📋 Escala Trabalho</label>
+                            <label class="chk-permissao"><input type="checkbox" value="usuarios"> 🔐 Usuários</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" style="justify-content: flex-end; margin-top: 10px;">
+                    <div class="btn-group-user">
+                        <button type="submit" class="btn-save" id="btn-save-usuario">Salvar Usuário</button>
+                        <button type="button" onclick="limparFormUsuario()" class="btn-clear">Limpar</button>
+                    </div>
+                </div>
+            </form>
+
+            <h2 class="titulo-secao">Usuários Cadastrados</h2>
+            
+            <!-- ÁREA COM SCROLL APENAS PARA OS CARDS -->
+            <div class="usuarios-scroll-area">
+                <div id="lista-usuarios-grid" class="usuarios-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="usuarios.js"></script>
+</body>
+</html>

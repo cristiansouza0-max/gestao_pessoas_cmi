@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Grupos de Monitoramento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="grupos.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <h2>Gestão de Escalas</h2>
+            <ul>
+                <li><a href="index.html">🏠 Início</a></li>
+                <li><a href="funcionarios.html">👥 Funcionários</a></li>
+                <li><a href="escalas.html">📅 Tipos de Escala</a></li>
+                <li><a href="ausencias.html">🤒 Ausências</a></li>
+                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+                <li><a href="grupos.html" class="active">📦 Monitoramento</a></li>
+                <li><a href="usuarios.html">🔐 Usuários</a></li>
+                <hr>
+                <li><a href="monitoramento.html">Importação de Dados</a></li>
+                <li><a href="mapa.html">Mapa de Folgas</a></li>
+                <li><a href="jornada.html">Escala de Trabalho</a></li>                
+            </ul>
+        </nav>
+
+        <main class="content">
+            <div class="header-dashboard no-print">
+                <h1>Gestão de Grupos de Monitoramento</h1>
+            </div>
+
+            <!-- FILTROS CENTRALIZADOS -->
+            <div class="header-controls-groups no-print">
+                <div class="filter-group">
+                    <label>Empresa:</label>
+                    <select id="filt-empresa" onchange="reagirAosFiltros()">
+                        <option value="AVUL">AVUL</option>
+                        <option value="VCCL">VCCL</option>
+                        <option value="VSBL">VSBL</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Período:</label>
+                    <select id="filt-periodo" onchange="reagirAosFiltros()">
+                        <option value="manha">Manhã</option>
+                        <option value="tarde">Tarde</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Tipo de Dia:</label>
+                    <select id="filt-dia" onchange="reagirAosFiltros()">
+                        <option value="uteis">Úteis</option>
+                        <option value="sabados">Sábados</option>
+                        <option value="domingos">Domingos</option>
+                        <option value="feriados">Feriados</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Qtd. Funcionários:</label>
+                    <input type="number" id="filt-qtd" value="1" min="1" style="width: 60px;" onchange="reagirAosFiltros()">
+                </div>
+
+                <div class="filter-group toggle-box">
+                    <label>Filtro</label>
+                    <label class="switch">
+                        <input type="checkbox" id="flag-filtro" onchange="alternarModoFiltro()">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                
+                <button id="btn-gerar" onclick="distribuirLinhasParaGrupos()" class="btn-generate-groups">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Gerar Grupos
+                </button>
+
+                <button onclick="limparGruposFiltrados()" class="btn-clear-groups">
+                    <i class="fa-solid fa-eraser"></i> Limpar
+                </button>
+
+                <button onclick="imprimirSelecionados()" class="btn-print-groups">
+                    <i class="fa-solid fa-print"></i> Imprimir
+                </button>
+            </div>
+
+            <div id="container-blocos-grupos" class="lista-vertical-blocos">
+                <!-- Blocos preenchendo a tela aparecerão aqui -->
+            </div>
+        </main>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="grupos.js"></script>
+</body>
+</html>
