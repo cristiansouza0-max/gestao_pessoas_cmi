@@ -81,17 +81,17 @@ async function gerarEscalaEquipe() {
             }
         });
 
-       const [snapJor, snapEsc, snapAus, docRegras, snapFerParam] = await Promise.all([
-    db.collection("jornadas").get(),
-    db.collection("escalas").get(),
-    db.collection("ausencias").get(), // Removemos o .where("status", "==", "Aprovado")
-    db.collection("parametros_regras").doc("especiais").get(),
-    db.collection("parametros_feriados").doc(`${ano}-${mes + 1}`).get()
-]);
+        const [snapJor, snapEsc, snapAus, docRegras, snapFerParam] = await Promise.all([
+            db.collection("jornadas").get(),
+            db.collection("escalas").get(),
+            db.collection("ausencias").get(),
+            db.collection("parametros_regras").doc("especiais").get(),
+            db.collection("parametros_feriados").doc(`${ano}-${mes + 1}`).get()
+        ]);
 
         const jornadas = snapJor.docs.map(d => ({ id: d.id, ...d.data() }));
         const escalas = {}; snapEsc.forEach(d => { escalas[d.id] = d.data(); });
-        const todasAusencias = snapAus.docs .map(d => d.data()).filter(a => a.status !== "Reprovado");
+        const todasAusencias = snapAus.docs.map(d => d.data());
         const regrasAtivas = docRegras.exists ? docRegras.data() : {};
         const feriadosParam = snapFerParam.exists ? snapFerParam.data() : {};
 
@@ -119,28 +119,18 @@ async function gerarEscalaEquipe() {
                 const diaSemFmt = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SÁB"][sem];
                 const eFeriado = feriadosParam[`${f.empresa}-${d}-${f.periodo}`] > 0;
                 let classeRow = eFeriado ? "row-feriado" : (sem === 6 ? "row-sabado" : (sem === 0 ? "row-domingo" : ""));
-                const ausBloco = todasAusencias.find(a => 
-    a.funcionario.trim() === f.apelido.trim() && 
-    ["Férias", "Licença", "Afastamento", "Falta"].includes(a.tipo) && // Adicionado "Falta" aqui
-    isDataNoRange(dataAtu, a)
-);
+                const ausBloco = todasAusencias.find(a => a.funcionario === f.apelido && ["Férias", "Licença", "Afastamento"].includes(a.tipo) && isDataNoRange(dataAtu, a));
 
-                if (ausBloco) { rowsHtml += `<tr class="${classeRow}"><td>${dataFmt}</td><td>${diaSemFmt}</td>`;
-                const idMesclagem = `${f.apelido}-${ausBloco.datas}-${ausBloco.tipo}`;
-    
-                if (!jaProcessada.has(idMesclagem)) {
-                const dts = processarDatasJornada(ausBloco);
-                 const count = dts.filter(dt => dt.getMonth() === mes && dt.getFullYear() === ano && dt.getDate() >= d).length;
-        
-        // Mapeamento de classe de cor
-            let classeCor = "outros";
-            if (ausBloco.tipo === 'Férias') classeCor = "ferias";
-            if (ausBloco.tipo === 'Falta') classeCor = "falta"; // Nova classe para falta
-        
-                rowsHtml += `<td colspan="3" rowspan="${count}" class="celula-${classeCor}-mesclada">${ausBloco.tipo}</td>`;
-                jaProcessada.add(idMesclagem);}
-                rowsHtml += `</tr>`;
-            } else {
+                if (ausBloco) {
+                    rowsHtml += `<tr class="${classeRow}"><td>${dataFmt}</td><td>${diaSemFmt}</td>`;
+                    if (!jaProcessada.has(ausBloco.datas)) {
+                        const dts = processarDatasJornada(ausBloco);
+                        const count = dts.filter(dt => dt.getMonth() === mes && dt.getDate() >= d).length;
+                        rowsHtml += `<td colspan="3" rowspan="${count}" class="celula-${ausBloco.tipo === 'Férias'?'ferias':'outros'}-mesclada">${ausBloco.tipo}</td>`;
+                        jaProcessada.add(ausBloco.datas);
+                    }
+                    rowsHtml += `</tr>`;
+                } else {
                     const ausFolga = todasAusencias.find(a => a.funcionario === f.apelido && a.tipo === "Folga" && isDataNoRange(dataAtu, a));
                     const folgaEscala = sim[`${chave}-${f.apelido}`];
                     if (ausFolga || folgaEscala) {

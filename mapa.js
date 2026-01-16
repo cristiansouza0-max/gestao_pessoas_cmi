@@ -37,16 +37,10 @@ function processarDatas(reg) {
     return dates;
 }
 
-// Localize e substitua esta função no mapa.js
-function getDiasAusencia(apelido, lista, tipos, m, y) {
+function getDiasAusencia(apelido, lista, tipo, m, y) {
     let dias = [];
-    // Transforma em array se for apenas uma string para facilitar a busca
-    const tiposBusca = Array.isArray(tipos) ? tipos : [tipos];
-    
-    lista.filter(a => a.funcionario === apelido && tiposBusca.includes(a.tipo)).forEach(reg => {
-        processarDatas(reg).forEach(dt => { 
-            if (dt.getMonth() + 1 === m && dt.getFullYear() === y) dias.push(dt.getDate()); 
-        });
+    lista.filter(a => a.funcionario === apelido && a.tipo === tipo).forEach(reg => {
+        processarDatas(reg).forEach(dt => { if (dt.getMonth() + 1 === m && dt.getFullYear() === y) dias.push(dt.getDate()); });
     });
     return dias;
 }
@@ -98,9 +92,13 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
         }
         if (regrasAtivas.equipeTarde) {
             if (sem === 6) {
+                const dSeg = new Date(y, m - 1, d + 2);
+                let doms = []; for(let i=1; i<=31; i++){ let t=new Date(y,m-1,i); if(t.getMonth()+1!==m) break; if(t.getDay()===0) doms.push(i); }
+                const eSabadoDo3Domingo = (d === doms[2] - 1);
                 const marciaFeriasAgora = emFeriasGlobal("Márcia", d, m, y, ausencias);
-                if (!marciaFeriasAgora && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia`] = true;
-                else {
+                if (!marciaFeriasAgora && !eSabadoDo3Domingo) mTardeAvul[`${chave}-Márcia`] = true;
+                const gatilhoRodizio = eSabadoDo3Domingo || marciaFeriasAgora;
+                if (gatilhoRodizio) {
                     let t = 0; while (t < 5) {
                         let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
                         if (!emFeriasGlobal(cand, d, m, y, ausencias)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
@@ -164,6 +162,7 @@ async function gerarMapa() {
     try {
         const [snapFunc, snapAus, docRegras] = await Promise.all([db.collection("funcionarios").get(), db.collection("ausencias").get(), db.collection("parametros_regras").doc("especiais").get()]);
         const regrasAtivas = docRegras.exists ? docRegras.data() : {};
+        const diaUltDom = obterUltimoDomingo(ano, mes), diaFabioSab = diaUltDom - 1;
         let ausencias = snapAus.docs.map(d => d.data());
         let funcionarios = snapFunc.docs.map(d => d.data()).filter(f => f.funcao !== "Aprendiz" && f.status !== "Inativo");
         
@@ -179,8 +178,7 @@ async function gerarMapa() {
 
             perSel.forEach(per => {
                 const funcsPeriodo = funcsEmpresa.filter(f => f.periodo === per);
-                // --- IDENTIFICAÇÃO DO USUÁRIO LOGADO (Resiliente) ---
-                const listaFinal = isMaster ? funcsPeriodo : funcsPeriodo.filter(f => f.nome.trim().toLowerCase() === usuarioLogado.nomeCompleto.trim().toLowerCase());
+                const listaFinal = isMaster ? funcsPeriodo : funcsPeriodo.filter(f => f.nome === usuarioLogado.nomeCompleto);
                 if (listaFinal.length === 0) return;
                 const sub = document.createElement('div'); sub.className = "periodo-subtitle"; sub.innerText = `PERÍODO: ${per}`;
                 section.appendChild(sub);
@@ -194,102 +192,34 @@ async function gerarMapa() {
                 }
                 tableHtml += `</tr></thead><tbody>`;
 
-listaFinal.forEach(f => {
-    tableHtml += `<tr><td class="col-func">${f.apelido} - ${f.registro}</td>`;
-    
-    // 1. Buscamos as ausências (Ajustado para incluir Licença junto com Afastamento)
-    let ferias = getDiasAusencia(f.apelido, ausencias, "Férias", mes, ano);
-    let outrosAfast = getDiasAusencia(f.apelido, ausencias, ["Afastamento", "Licença"], mes, ano);
-    let faltas = getDiasAusencia(f.apelido, ausencias, "Falta", mes, ano);
-    let folgasInfo = getDetalhesFolgas(f.apelido, ausencias, mes, ano);
+                listaFinal.forEach(f => {
+                    tableHtml += `<tr><td class="col-func">${f.apelido} - ${f.registro}</td>`;
+                    let ferias = getDiasAusencia(f.apelido, ausencias, "Férias", mes, ano);
+                    let afastamentos = getDiasAusencia(f.apelido, ausencias, "Afastamento", mes, ano);
+                    let faltas = getDiasAusencia(f.apelido, ausencias, "Falta", mes, ano);
+                    let folgasInfo = getDetalhesFolgas(f.apelido, ausencias, mes, ano);
 
-    for (let d = 1; d <= diasNoMes; d++) {
-        const dObj = new Date(ano, mes-1, d);
-        const sem = dObj.getDay();
-        const eFer = feriadosBase.some(fer => fer.dia === d && fer.mes === mes && (fer.tipo !== "municipal" || fer.empresa === empresa));
-        const chave = `${d}-${mes}-${ano}`;
-        
-        // Símbolo de Aniversário
-        let simboloA = "";
-        if (f.nascimento) { 
-            const [yN, mN, dN] = f.nascimento.split('-').map(Number); 
-            if (dN === d && mN === mes) simboloA = `<span class="symbol-a">A</span>`; 
-        }
+                    for (let d = 1; d <= diasNoMes; d++) {
+                        const sem = new Date(ano, mes-1, d).getDay(), eFer = feriadosBase.some(fer => fer.dia === d && fer.mes === mes && (fer.tipo !== "municipal" || fer.empresa === empresa));
+                        const chave = `${d}-${mes}-${ano}`;
+                        let simboloA = "";
+                        if (f.nascimento) { const [yN, mN, dN] = f.nascimento.split('-').map(Number); if (dN === d && mN === mes) simboloA = `<span class="symbol-a">A</span>`; }
+                        
+                        if (ferias.includes(d)) { let count = 1; while(ferias.includes(d+count)) count++; tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`; d += (count-1); continue; }
+                        if (afastamentos.includes(d)) { let count = 1; while(afastamentos.includes(d+count)) count++; tableHtml += `<td colspan="${count}" class="dia-afastamento">${simboloA}AFAST.</td>`; d += (count-1); continue; }
+                        if (faltas.includes(d)) { tableHtml += `<td class="dia-falta">${simboloA}Falta</td>`; continue; }
 
-        // --- LÓGICA DE CÉLULAS MESCLADAS ---
-
-        // 1. FÉRIAS (Mesclado)
-        if (ferias.includes(d)) {
-            let count = 1;
-            while(ferias.includes(d + count)) count++;
-            tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`;
-            d += (count - 1); continue;
-        }
-
-// 2. AFASTAMENTOS E LICENÇAS (Mesclado com lógica de texto dinâmica)
-        if (outrosAfast.includes(d)) {
-            let count = 1;
-            while(outrosAfast.includes(d + count)) count++;
-
-            // Descobrir o tipo exato da ausência para este dia específico
-            const dtRef = new Date(ano, mes - 1, d).getTime();
-            const ausEncontrada = ausencias.find(a => 
-                a.funcionario === f.apelido && 
-                ["Afastamento", "Licença"].includes(a.tipo) && 
-                processarDatas(a).some(dt => dt.getTime() === dtRef)
-            );
-
-            let tipoReal = ausEncontrada ? ausEncontrada.tipo : "Afastamento";
-            let textoExibir = "";
-
-            if (count <= 3) {
-                // Até 3 dias: Siglas AF ou LI
-                textoExibir = (tipoReal === "Afastamento") ? "AF" : "LI";
-            } else {
-                // Mais de 3 dias: Nome completo em caixa alta
-                textoExibir = tipoReal.toUpperCase();
-            }
-
-            tableHtml += `<td colspan="${count}" class="dia-afastamento">${simboloA}${textoExibir}</td>`;
-            d += (count - 1); continue;
-        }
-
-        // 3. FALTAS (Novo: Agora mescla se houver mais de um dia)
-        if (faltas.includes(d)) {
-            let count = 1;
-            while(faltas.includes(d + count)) count++;
-            tableHtml += `<td colspan="${count}" class="dia-falta">${simboloA}FALTA</td>`;
-            d += (count - 1); continue;
-        }
-
-        // --- CÉLULAS NORMAIS (FOLGAS E ESCALA) ---
-        let conteudo = "", decidido = false;
-        if (folgasInfo[d]) { 
-            conteudo = `<span class="${folgasInfo[d]==='Pedida'?'folga-pedida':(folgasInfo[d]==='Marcada'?'folga-marcada':'folga-programada')}">${folgasInfo[d]==='Programada'?'F':'X'}</span>`; 
-            decidido = true; 
-        }
-        
-        if (!decidido && empresa === "VCCL" && sim.vccl[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
-        if (!decidido && empresa === "AVUL" && per === "Manhã" && sim.manhaAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
-        if (!decidido && empresa === "AVUL" && per === "Tarde" && sim.tardeAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
-        if (!decidido && f.periodo === "Noite") { 
-            if (sem === 6) { 
-                if (f.apelido === "Fábio" && d === (obterUltimoDomingo(ano,mes)-1)) { conteudo = '<b>X</b>'; decidido = true; } 
-                else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } 
-            } else if (sem === 0) { 
-                if (f.apelido === "Osmair" && d === obterUltimoDomingo(ano,mes)) { conteudo = '<b>X</b>'; decidido = true; } 
-                else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } 
-            } 
-        }
-        if (!decidido) { 
-            if (f.funcao === "Líder" && (sem === 0 || sem === 6 || eFer)) conteudo = '<b>X</b>'; 
-            else if (sem === 0 && d < diasNoMes && new Date(ano,mes-1,d+1).getDay() === 1 && emFeriasGlobal(f.apelido, d+1, mes, ano, ausencias)) conteudo = '<b>X</b>'; 
-        }
-
-        tableHtml += `<td class="${eFer?'dia-feriado':(sem===0?'dia-domingo':(sem===6?'dia-sabado':''))}">${simboloA}${conteudo}</td>`;
-    }
-    tableHtml += `</tr>`;
-});
+                        let conteudo = "", decidido = false;
+                        if (folgasInfo[d]) { conteudo = `<span class="${folgasInfo[d]==='Pedida'?'folga-pedida':(folgasInfo[d]==='Marcada'?'folga-marcada':'folga-programada')}">${folgasInfo[d]==='Programada'?'F':'X'}</span>`; decidido = true; }
+                        if (!decidido && empresa === "VCCL" && sim.vccl[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
+                        if (!decidido && empresa === "AVUL" && per === "Manhã" && sim.manhaAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
+                        if (!decidido && empresa === "AVUL" && per === "Tarde" && sim.tardeAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
+                        if (!decidido && f.periodo === "Noite") { if (sem === 6) { if (f.apelido === "Fábio" && d === diaFabioSab) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } } else if (sem === 0) { if (f.apelido === "Osmair" && d === diaUltDom) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } } }
+                        if (!decidido) { if (f.funcao === "Líder" && (sem === 0 || sem === 6 || eFer)) conteudo = '<b>X</b>'; else if (sem === 0 && new Date(ano,mes-1,d+1).getDay() === 1 && emFeriasGlobal(f.apelido, d+1, mes, ano, ausencias)) conteudo = '<b>X</b>'; }
+                        tableHtml += `<td class="${eFer?'dia-feriado':(sem===0?'dia-domingo':(sem===6?'dia-sabado':''))}">${simboloA}${conteudo}</td>`;
+                    }
+                    tableHtml += `</tr>`;
+                });
                 wrapper.innerHTML = tableHtml + `</tbody></table>`;
                 section.appendChild(wrapper);
             });
@@ -313,11 +243,33 @@ async function salvarMapaDefinitivo() {
 }
 
 function ajustarSidebar() {
+    const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
+    if (!usuarioLogado) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
+    const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
+
+    // 1. Esconde os links da sidebar que o usuário não tem acesso
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
-        const pagina = link.getAttribute('href').replace('.html', '');
-        if (!isMaster && !permissoes.includes(pagina) && pagina !== "index") link.parentElement.style.display = 'none';
+        const href = link.getAttribute('href').replace('.html', '');
+        
+        // Regra: Se não for Master E não tiver a permissão E não for a home
+        if (!isMaster && !permissoes.includes(href) && href !== "index") {
+            link.parentElement.style.display = 'none';
+        } else {
+            link.parentElement.style.display = 'block'; // Garante que os permitidos apareçam
+        }
     });
+
+    // 2. Trava de segurança: Se o usuário tentou entrar via URL em página proibida
+    if (!isMaster && paginaAtual !== "index" && !permissoes.includes(paginaAtual)) {
+        alert("Você não tem permissão para acessar esta tela.");
+        window.location.href = "index.html";
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => { 
@@ -329,8 +281,3 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.filtro-emp, .filtro-per').forEach(el => el.addEventListener('change', gerarMapa));
     gerarMapa(); 
 });
-
-function logout() {
-    sessionStorage.removeItem('usuarioAtivo');
-    window.location.href = 'login.html';
-}

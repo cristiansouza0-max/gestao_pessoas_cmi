@@ -43,10 +43,11 @@ h1 { font-size: 1.8rem; color: #000; margin-bottom: 20px; flex-shrink: 0; font-w
 .card-ausencia.pendente { background-color: #fffbe6 !important; /* Amarelo Claro */ border: 1px solid #ffe58f; border-left: 8px solid #f1c40f;}
 .btn-aprovar { color: #27ae60; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
 .btn-reprovar { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+.btn-icon-edit { color: #f39c12; background: none; border: none; cursor: pointer; font-size: 1.1rem; margin-bottom: 5px;}
 
 /* Badge de Status para o usuário comum */
 .badge-status-ausencia { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; margin-left: 8px; display: inline-block; vertical-align: middle;}
-.status-aprovado { background: #27ae60; color: white; box-shadow: 0 2px 4px rgba(39, 174, 96, 0.2);}
+.status-aprovada { background: #27ae60; color: white; box-shadow: 0 2px 4px rgba(39, 174, 96, 0.2);}
 .status-pendente { background: #f1c40f; color: black; }
 
 /* POP-UP DE ALERTA */
