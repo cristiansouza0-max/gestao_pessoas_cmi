@@ -125,20 +125,57 @@ function renderizarResumos(lista, hoje) {
 }
 
 function processarResumosAusencia(ausencias, dataHoje) {
-    const mesA = dataHoje.getMonth(), anoA = dataHoje.getFullYear();
-    const hojeStr = dataHoje.toDateString();
-    let faltas = {}, folgas = {}, afastados = [];
+    const mesA = dataHoje.getMonth(); // 0-11
+    const anoA = dataHoje.getFullYear();
+
+    // Cálculos de meses para o card de Afastamentos
+    const mesPassado = mesA === 0 ? 11 : mesA - 1;
+    const anoPassado = mesA === 0 ? anoA - 1 : anoA;
+
+    const mesProximo = mesA === 11 ? 0 : mesA + 1;
+    const anoProximo = mesA === 11 ? anoA + 1 : anoA;
+
+    let faltas = {}, folgas = {};
+    
+    // Objetos para acumular dias de afastamento por mês
+    let afastAnterior = {}, afastAtual = {}, afastProximo = {};
+
     ausencias.forEach(a => {
         const dts = parseDatas(a);
-        let afastadoHoje = false;
+        
         dts.forEach(d => {
-            const dStr = d.toDateString();
-            if (a.tipo === "Falta" && d.getMonth() === mesA && d.getFullYear() === anoA) faltas[a.funcionario] = (faltas[a.funcionario] || 0) + 1;
-            if (a.tipo === "Folga" && d.getMonth() === (mesA + 1) % 12) folgas[a.funcionario] = (folgas[a.funcionario] || 0) + 1;
-            if (["Afastamento", "Licença"].includes(a.tipo) && dStr === hojeStr) afastadoHoje = true;
+            const m = d.getMonth();
+            const y = d.getFullYear();
+
+            // 1. Lógica para Faltas (Mês Atual) - Card Vermelho
+            if (a.tipo === "Falta" && m === mesA && y === anoA) {
+                faltas[a.funcionario] = (faltas[a.funcionario] || 0) + 1;
+            }
+
+            // 2. Lógica para Folgas (Próximo Mês) - Card Verde
+            if (a.tipo === "Folga" && m === mesProximo && y === anoProximo) {
+                folgas[a.funcionario] = (folgas[a.funcionario] || 0) + 1;
+            }
+
+            // 3. Lógica para Afastamentos/Licenças - Card Laranja
+            if (["Afastamento", "Licença"].includes(a.tipo)) {
+                // Mês Passado
+                if (m === mesPassado && y === anoPassado) {
+                    afastAnterior[a.funcionario] = (afastAnterior[a.funcionario] || 0) + 1;
+                }
+                // Mês Atual
+                if (m === mesA && y === anoA) {
+                    afastAtual[a.funcionario] = (afastAtual[a.funcionario] || 0) + 1;
+                }
+                // Próximo Mês
+                if (m === mesProximo && y === anoProximo) {
+                    afastProximo[a.funcionario] = (afastProximo[a.funcionario] || 0) + 1;
+                }
+            }
         });
-        if (afastadoHoje) afastados.push(`<li class="summary-item"><span>${a.funcionario}</span><span class="qty">${a.tipo}</span></li>`);
     });
+
+    // Renderizar Faltas e Folgas
     const fill = (id, obj) => {
         const el = document.getElementById(id);
         const ent = Object.entries(obj);
@@ -146,7 +183,24 @@ function processarResumosAusencia(ausencias, dataHoje) {
     };
     fill('lista-faltas-mes', faltas);
     fill('lista-folgas-proximo', folgas);
-    document.getElementById('lista-afastamentos-ativos').innerHTML = afastados.length ? afastados.join('') : '<li class="empty-info">Ninguém hoje</li>';
+
+    // Renderizar Afastamentos (Card Laranja com Subtítulos)
+    const elAfast = document.getElementById('lista-afastamentos-ativos');
+    
+    const gerarHtmlSetor = (titulo, obj) => {
+        const itens = Object.entries(obj);
+        if (itens.length === 0) return "";
+        let html = `<li class="summary-item" style="background:#fff3e0; font-weight:bold; font-size:0.65rem; border:none; margin-top:5px; color:#e67e22;">${titulo}</li>`;
+        html += itens.map(([n, q]) => `<li class="summary-item"><span>${n}</span><span class="qty">${q} d</span></li>`).join('');
+        return html;
+    };
+
+    let htmlFinal = "";
+    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesPassado]} (Anterior)`, afastAnterior);
+    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesA]} (Atual)`, afastAtual);
+    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesProximo]} (Próximo)`, afastProximo);
+
+    elAfast.innerHTML = htmlFinal || '<li class="empty-info">Nenhum afastamento no período</li>';
 }
 
 async function renderizarTimelineFerias() {
@@ -251,4 +305,8 @@ if (isMaster) {
             }
         });
     });
+}
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
 }

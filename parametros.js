@@ -232,3 +232,8 @@ function abrirCalendarioConsulta() {
 
 function fecharModal() { document.getElementById('modal-calendario').style.display = "none"; }
 window.onclick = function(e) { if (e.target == document.getElementById('modal-calendario')) fecharModal(); }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

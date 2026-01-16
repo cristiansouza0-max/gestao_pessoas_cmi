@@ -114,3 +114,8 @@ function limparFormUsuario() {
     document.getElementById('edit-id-usuario').value = "";
     document.getElementById('btn-save-usuario').innerText = "Salvar Usuário";
 }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

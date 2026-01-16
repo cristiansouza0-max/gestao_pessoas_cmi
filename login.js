@@ -116,3 +116,8 @@ function logarSucesso(dados) {
     sessionStorage.setItem('usuarioAtivo', JSON.stringify(dados));
     window.location.href = "index.html";
 }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

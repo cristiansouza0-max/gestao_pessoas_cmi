@@ -249,3 +249,8 @@ async function limparGruposFiltrados() {
         carregarGruposExistentes();
     } catch (e) { console.error(e); }
 }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

@@ -43,7 +43,7 @@ h1 { font-size: 1.8rem; color: #000; font-weight: bold; }
 .summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
 .card-summary { background: white; padding: 15px; border-radius: 10px; border-top: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-height: 150px; }
 .card-summary h3 { font-size: 0.8rem; color: #555; margin-bottom: 12px; font-weight: bold; text-transform: uppercase; }
-.summary-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #eee; }
+.summary-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 0.6px dashed #eee; }
 .summary-item .qty { font-weight: bold; color: #2c3e50; background: #f0f2f5; padding: 2px 6px; border-radius: 4px; }
 
 .red { border-top-color: #e74c3c; } .green { border-top-color: #27ae60; } .orange { border-top-color: #f39c12; }

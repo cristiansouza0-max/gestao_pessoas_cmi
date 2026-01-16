@@ -145,3 +145,8 @@ async function editarJornada(id) {
 
 function limparFormJornada() { document.getElementById('form-jornada').reset(); document.getElementById('edit-id-jornada').value = ""; }
 async function excluirJornada(id) { if (confirm("Excluir jornada?")) { await db.collection("jornadas").doc(id).delete(); renderizarJornadas(); } }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

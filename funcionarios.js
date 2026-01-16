@@ -187,3 +187,7 @@ function limparFormulario() {
     document.getElementById('col-demissao').style.visibility = 'hidden';
     atualizarFiltroJornadas();
 }
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

@@ -16,6 +16,7 @@
 /* MESCLAGENS */
 .celula-ferias-mesclada { background-color: #f3e5f5 !important; color: black !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
 .celula-outros-mesclada { background-color: #fff3e0 !important; color: black !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
+.celula-falta-mesclada { background-color: #ffcccc !important; color: #cc0000 !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; }
 
 /* TEXTOS DE FOLGA */
 .folga-pedida { color: #e74c3c !important; font-weight: bold; }

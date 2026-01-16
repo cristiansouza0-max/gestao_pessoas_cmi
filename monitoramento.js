@@ -123,3 +123,8 @@ async function limparMonitoramento() {
         carregarTabelas();
     }
 }
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
+}

@@ -143,6 +143,7 @@ async function renderizarAusencias() {
     const fFunc = document.getElementById('filtro-func-hist') ? document.getElementById('filtro-func-hist').value : "TODOS";
     const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
     const meuApelido = meuFunc ? meuFunc.apelido : "";
+    
     const containers = {
         "Folga": document.getElementById('lista-Folga'),
         "Falta": document.getElementById('lista-Falta'),
@@ -150,26 +151,36 @@ async function renderizarAusencias() {
         "Licença": document.getElementById('lista-Outros'),
         "Afastamento": document.getElementById('lista-Outros')
     };
+
     Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
+
     try {
         const snapshot = await db.collection("ausencias").orderBy("criadoEm", "desc").get();
         cacheAusencias = [];
+
         snapshot.forEach(doc => {
             const aus = doc.data();
             const id = doc.id;
-            const statusAtual = aus.status || "Aprovado";
+            const statusAtual = aus.status || "Aprovado"; // Se não tiver status, assume Aprovado (antigos)
             cacheAusencias.push({ id, ...aus, status: statusAtual });
+
             let passaFiltro = true;
             if (!isMaster && aus.funcionario !== meuApelido) passaFiltro = false;
             if (isMaster && fFunc !== "TODOS" && aus.funcionario !== fFunc) passaFiltro = false;
+
             if (passaFiltro) {
                 const target = containers[aus.tipo];
                 if (target) {
                     const total = calcularTotalDias(aus.datas, aus.modo);
                     const isPendente = statusAtual === "Pendente";
+                    
                     const card = document.createElement('div');
                     card.className = `card-ausencia ${isPendente ? 'pendente' : ''}`;
+
+                    // Lógica de Ações e Selos
+                    let badgeStatus = `<span class="badge-status-ausencia ${isPendente ? 'status-pendente' : 'status-aprovado'}">${statusAtual}</span>`;
                     let acoes = "";
+
                     if (isMaster) {
                         if (isPendente) {
                             acoes = `
@@ -177,12 +188,16 @@ async function renderizarAusencias() {
                                 <button onclick="decidirAusencia('${id}', 'Reprovado', '${aus.funcionario}')" class="btn-reprovar" title="Reprovar"><i class="fa-solid fa-circle-xmark"></i></button>
                             `;
                         } else {
+                            // Mesmo para o Master, mostramos o selo de aprovado e o botão de excluir
                             acoes = `<button onclick="excluirAusencia('${id}')" class="btn-icon-delete"><i class="fa-solid fa-trash-can"></i></button>`;
                         }
                     }
-                    const badgeStatus = !isMaster ? `<span class="badge-status-ausencia ${isPendente ? 'status-pendente' : 'status-aprovado'}">${statusAtual}</span>` : "";
+
                     card.innerHTML = `
-                        <div class="card-header-func">${aus.funcionario} ${badgeStatus} <span class="badge-dias">${total} ${total > 1 ? 'dias' : 'dia'}</span></div>
+                        <div class="card-header-func">
+                            <div>${aus.funcionario} ${badgeStatus}</div>
+                            <span class="badge-dias">${total} ${total > 1 ? 'dias' : 'dia'}</span>
+                        </div>
                         <div class="card-body-ausencia">
                             <div class="ausencia-info">${aus.datas} - ${aus.observacao}</div>
                             <div class="card-action-column">${acoes}</div>
@@ -191,7 +206,14 @@ async function renderizarAusencias() {
                 }
             }
         });
-        Object.keys(containers).forEach(key => { if(containers[key] && containers[key].innerHTML === "") containers[key].innerHTML = "<p style='font-size:0.7rem; color:gray; text-align:center; padding-top:10px;'>Vazio</p>"; });
+
+        // Mensagem de vazio
+        Object.keys(containers).forEach(key => { 
+            if(containers[key] && containers[key].innerHTML === "") {
+                containers[key].innerHTML = "<p style='font-size:0.7rem; color:gray; text-align:center; padding-top:10px;'>Vazio</p>";
+            }
+        });
+
     } catch (e) { console.error(e); }
 }
 
@@ -240,4 +262,9 @@ function limparFormulario() {
     document.getElementById('btn-submit').innerText = "Registrar";
     configurarCalendario();
     if (!isMaster) carregarFuncionarios();
+}
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
 }
