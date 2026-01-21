@@ -39,7 +39,8 @@ function processarDatas(reg) {
 
 function getDiasAusencia(apelido, lista, tipo, m, y) {
     let dias = [];
-    lista.filter(a => a.funcionario === apelido && a.tipo === tipo).forEach(reg => {
+    const tiposBusca = Array.isArray(tipo) ? tipo : [tipo];
+    lista.filter(a => a.funcionario === apelido && tiposBusca.includes(a.tipo)).forEach(reg => {
         processarDatas(reg).forEach(dt => { if (dt.getMonth() + 1 === m && dt.getFullYear() === y) dias.push(dt.getDate()); });
     });
     return dias;
@@ -64,6 +65,13 @@ function fPediuManualGlobal(apelido, dia, m, y, ausencias) {
     return ausencias.some(a => a.funcionario === apelido && a.tipo === "Folga" && (a.observacao === "Pedida" || a.observacao === "Marcada") && processarDatas(a).some(dt => dt.getTime() === dtRef));
 }
 
+// NOVA FUNÇÃO: Verifica se o funcionário tem QUALQUER tipo de ausência no dia (Férias, Falta, Licença, etc)
+function estaAusenteGlobal(apelido, dia, m, y, ausencias) {
+    const dtRef = new Date(y, m - 1, dia).getTime();
+    return ausencias.some(a => a.funcionario === apelido && a.tipo !== "Folga" && processarDatas(a).some(dt => dt.getTime() === dtRef));
+}
+
+// Mantida para compatibilidade com outras partes do código
 function emFeriasGlobal(apelido, dia, m, y, ausencias) {
     const dtRef = new Date(y, m - 1, dia).getTime();
     return ausencias.some(a => a.funcionario === apelido && a.tipo === "Férias" && processarDatas(a).some(dt => dt.getTime() === dtRef));
@@ -76,6 +84,12 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
     const dataMarcoZeroFDSManha = new Date(2026, 0, 31); 
     let pTardeAvul = 0, pManhaRodizio = 0; 
     let mManhaAvul = {}, mTardeAvul = {}, mNoite = {}, mVCCL = {};
+
+    // --- IDENTIFICAÇÃO DINÂMICA DOS GRUPOS VCCL ---
+    const manhaVCCL = funcionarios.filter(f => f.empresa === "VCCL" && f.periodo === "Manhã");
+    const tardeVCCL = funcionarios.filter(f => f.empresa === "VCCL" && f.periodo === "Tarde");
+    const assistenteInterVCCL = funcionarios.find(f => f.empresa === "VCCL" && f.periodo === "Intermediário" && f.funcao === "Assistente");
+    const interApelido = assistenteInterVCCL ? assistenteInterVCCL.apelido : null;
 
     while (dSim <= dFim) {
         const d = dSim.getDate(), m = dSim.getMonth() + 1, y = dSim.getFullYear();
@@ -90,18 +104,15 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 else { mNoite[chave + "-VCCL"] = true; mNoite[`${dDom.getDate()}-${dDom.getMonth()+1}-${dDom.getFullYear()}-AVUL`] = true; }
             }
         }
+
         if (regrasAtivas.equipeTarde) {
             if (sem === 6) {
-                const dSeg = new Date(y, m - 1, d + 2);
-                let doms = []; for(let i=1; i<=31; i++){ let t=new Date(y,m-1,i); if(t.getMonth()+1!==m) break; if(t.getDay()===0) doms.push(i); }
-                const eSabadoDo3Domingo = (d === doms[2] - 1);
-                const marciaFeriasAgora = emFeriasGlobal("Márcia", d, m, y, ausencias);
-                if (!marciaFeriasAgora && !eSabadoDo3Domingo) mTardeAvul[`${chave}-Márcia`] = true;
-                const gatilhoRodizio = eSabadoDo3Domingo || marciaFeriasAgora;
-                if (gatilhoRodizio) {
+                const marciaFeriasAgora = estaAusenteGlobal("Márcia", d, m, y, ausencias);
+                if (!marciaFeriasAgora && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia`] = true;
+                else {
                     let t = 0; while (t < 5) {
                         let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
-                        if (!emFeriasGlobal(cand, d, m, y, ausencias)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
+                        if (!estaAusenteGlobal(cand, d, m, y, ausencias)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
                         pTardeAvul++; t++;
                     }
                 }
@@ -112,6 +123,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 SEQ_TARDE_AVUL.forEach(nome => { if (!mTardeAvul[`${chaveSab}-${nome}`] || (getDetalhesFolgas(nome, ausencias, m, y)[d] === "Programada")) mTardeAvul[`${chave}-${nome}`] = true; });
             }
         }
+
         if (dSim < dataMarcoZeroFDSManha) {
             if (sem === 6) {
                 let quemPediu = SEQ_MANHA_BASE.find(nome => fPediuManualGlobal(nome, d, m, y, ausencias));
@@ -128,7 +140,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 else {
                     let t = 0; while (t < equipeRodManha.length) {
                         let titular = equipeRodManha[pManhaRodizio % equipeRodManha.length];
-                        if (!emFeriasGlobal(titular, d, m, y, ausencias)) { mManhaAvul[`${chave}-${titular}`] = true; pManhaRodizio++; break; }
+                        if (!estaAusenteGlobal(titular, d, m, y, ausencias)) { mManhaAvul[`${chave}-${titular}`] = true; pManhaRodizio++; break; }
                         pManhaRodizio++; t++;
                     }
                 }
@@ -140,13 +152,45 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 if (!regrasAtivas.equipeManha) mManhaAvul[`${chave}-Eloah`] = true;
             }
         }
+
+        // --- NOVO BLOCO VCCL DINÂMICO ---
         if (sem === 6 || sem === 0) {
-            const duplas = [{ p1: "Cristiane", p2: "Vanessa" }, { p1: "Jaqueline", p2: "Evandro" }];
-            duplas.forEach(dupla => {
-                let natOff = (sem === 6) ? (idxFDSGeral % 2 === 0 ? dupla.p1 : dupla.p2) : (idxFDSGeral % 2 !== 0 ? dupla.p1 : dupla.p2);
-                if (natOff) mVCCL[`${chave}-${natOff}`] = true;
+            const duplasVCCL = [
+                { p1: manhaVCCL[0]?.apelido, p2: manhaVCCL[1]?.apelido },
+                { p1: tardeVCCL[0]?.apelido, p2: tardeVCCL[1]?.apelido }
+            ];
+
+            let interAtivoNoDia = false;
+
+            duplasVCCL.forEach(dupla => {
+                if (!dupla.p1 || !dupla.p2) return;
+
+                let titularA = dupla.p1, titularB = dupla.p2;
+
+                // Substituição Automática por QUALQUER ausência (estaAusenteGlobal)
+                if (estaAusenteGlobal(titularA, d, m, y, ausencias) && interApelido) { titularA = interApelido; interAtivoNoDia = true; }
+                else if (estaAusenteGlobal(titularB, d, m, y, ausencias) && interApelido) { titularB = interApelido; interAtivoNoDia = true; }
+
+                let natOff = (sem === 6) ? (idxFDSGeral % 2 === 0 ? titularA : titularB) : (idxFDSGeral % 2 !== 0 ? titularA : titularB);
+                let natWork = (natOff === titularA) ? titularB : titularA;
+                let darFolgaPara = natOff;
+
+                if (sem === 6) {
+                    const amanha = new Date(y, m-1, d+1), segunda = new Date(y, m-1, d+2);
+                    if (fPediuManualGlobal(natOff, amanha.getDate(), amanha.getMonth()+1, amanha.getFullYear(), ausencias) || estaAusenteGlobal(natOff, segunda.getDate(), segunda.getMonth()+1, segunda.getFullYear(), ausencias)) darFolgaPara = natWork;
+                } else if (sem === 0) { 
+                    const segunda = new Date(y, m-1, d+1); 
+                    if (estaAusenteGlobal(natWork, segunda.getDate(), segunda.getMonth()+1, segunda.getFullYear(), ausencias)) darFolgaPara = null; 
+                }
+
+                if (fPediuManualGlobal((darFolgaPara === titularA ? titularB : titularA), d, m, y, ausencias)) darFolgaPara = null;
+                if (darFolgaPara) mVCCL[`${chave}-${darFolgaPara}`] = true;
             });
+
+            // Se o Coringa (Assistente Intermediário) não precisou substituir ninguém, ele folga no Domingo
+            if (!interAtivoNoDia && sem === 0 && interApelido) mVCCL[`${chave}-${interApelido}`] = true;
         }
+
         dSim.setDate(dSim.getDate() + 1);
     }
     return { tardeAvul: mTardeAvul, manhaAvul: mManhaAvul, noite: mNoite, vccl: mVCCL };
@@ -154,18 +198,42 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
 
 async function gerarMapa() {
     const mes = parseInt(document.getElementById('mapa-mes').value), ano = parseInt(document.getElementById('mapa-ano').value);
-    const empSel = isMaster ? Array.from(document.querySelectorAll('.filtro-emp:checked')).map(cb => cb.value) : ["AVUL", "VCCL", "VSBL"];
+    let empSel = isMaster ? Array.from(document.querySelectorAll('.filtro-emp:checked')).map(cb => cb.value) : ["AVUL", "VCCL", "VSBL"];
     const perSel = isMaster ? Array.from(document.querySelectorAll('.filtro-per:checked')).map(cb => cb.value) : ["Manhã", "Intermediário", "Tarde", "Noite", "Integral"];
     const container = document.getElementById('mapa-container');
     container.innerHTML = "Sincronizando...";
 
     try {
-        const [snapFunc, snapAus, docRegras] = await Promise.all([db.collection("funcionarios").get(), db.collection("ausencias").get(), db.collection("parametros_regras").doc("especiais").get()]);
+        const [snapFunc, snapAus, docRegras] = await Promise.all([
+            db.collection("funcionarios").get(), 
+            db.collection("ausencias").get(), 
+            db.collection("parametros_regras").doc("especiais").get()
+        ]);
+
         const regrasAtivas = docRegras.exists ? docRegras.data() : {};
-        const diaUltDom = obterUltimoDomingo(ano, mes), diaFabioSab = diaUltDom - 1;
         let ausencias = snapAus.docs.map(d => d.data());
-        let funcionarios = snapFunc.docs.map(d => d.data()).filter(f => f.funcao !== "Aprendiz" && f.status !== "Inativo");
         
+        const dataInicioMes = new Date(ano, mes - 1, 1);
+        const dataFimMes = new Date(ano, mes, 0);
+
+        // --- FILTRO CORRIGIDO: REMOVE APRENDIZ E VALIDA INATIVOS ---
+        let funcionarios = snapFunc.docs.map(d => d.data()).filter(f => {
+            // 1. Bloqueio Total de Aprendiz no Mapa
+            if (f.funcao === "Aprendiz") return false;
+
+            const dtAdm = new Date(f.admissao + "T00:00:00");
+            const dtDem = f.demissao ? new Date(f.demissao + "T00:00:00") : null;
+
+            const admitidoAteFinalMes = dtAdm <= dataFimMes;
+            // Só mostra inativo se a demissão ocorreu neste mês ou no futuro
+            const ativoOuDemitidoNoMes = f.status === "Ativo" || (dtDem && dtDem >= dataInicioMes);
+
+            return admitidoAteFinalMes && ativoOuDemitidoNoMes;
+        });
+        
+        const meuFunc = funcionarios.find(f => f.nome.trim().toLowerCase() === usuarioLogado.nomeCompleto.trim().toLowerCase());
+        if (!isMaster && meuFunc) { empSel = [meuFunc.empresa]; }
+
         const sim = simularEscalasAnoTodo(ausencias, funcionarios, ano, regrasAtivas);
         const diasNoMes = new Date(ano, mes, 0).getDate();
         container.innerHTML = "";
@@ -173,14 +241,23 @@ async function gerarMapa() {
         empSel.forEach(empresa => {
             const funcsEmpresa = funcionarios.filter(f => f.empresa === empresa);
             if (funcsEmpresa.length === 0) return;
-            const section = document.createElement('div'); section.className = "empresa-section";
+
+            const section = document.createElement('div'); 
+            section.className = "empresa-section";
             section.innerHTML = `<div class="empresa-title">EMPRESA ${empresa}</div>`;
+            
+            let temTabelaParaMostrar = false;
 
             perSel.forEach(per => {
                 const funcsPeriodo = funcsEmpresa.filter(f => f.periodo === per);
-                const listaFinal = isMaster ? funcsPeriodo : funcsPeriodo.filter(f => f.nome === usuarioLogado.nomeCompleto);
+                const listaFinal = isMaster ? funcsPeriodo : funcsPeriodo.filter(f => f.nome.trim().toLowerCase() === usuarioLogado.nomeCompleto.trim().toLowerCase());
+                
                 if (listaFinal.length === 0) return;
-                const sub = document.createElement('div'); sub.className = "periodo-subtitle"; sub.innerText = `PERÍODO: ${per}`;
+                temTabelaParaMostrar = true;
+
+                const sub = document.createElement('div'); 
+                sub.className = "periodo-subtitle"; 
+                sub.innerText = `PERÍODO: ${per}`;
                 section.appendChild(sub);
                 listaFinal.sort((a, b) => a.nome.localeCompare(b.nome));
 
@@ -194,28 +271,73 @@ async function gerarMapa() {
 
                 listaFinal.forEach(f => {
                     tableHtml += `<tr><td class="col-func">${f.apelido} - ${f.registro}</td>`;
+                    
+                    const dtAdm = new Date(f.admissao + "T00:00:00");
+                    // SÓ gera data de demissão se o status for INATIVO
+                    const dtDem = (f.status === "Inativo" && f.demissao) ? new Date(f.demissao + "T00:00:00") : null;
+
                     let ferias = getDiasAusencia(f.apelido, ausencias, "Férias", mes, ano);
-                    let afastamentos = getDiasAusencia(f.apelido, ausencias, "Afastamento", mes, ano);
+                    let outrosAfast = getDiasAusencia(f.apelido, ausencias, ["Afastamento", "Licença"], mes, ano);
                     let faltas = getDiasAusencia(f.apelido, ausencias, "Falta", mes, ano);
                     let folgasInfo = getDetalhesFolgas(f.apelido, ausencias, mes, ano);
 
                     for (let d = 1; d <= diasNoMes; d++) {
-                        const sem = new Date(ano, mes-1, d).getDay(), eFer = feriadosBase.some(fer => fer.dia === d && fer.mes === mes && (fer.tipo !== "municipal" || fer.empresa === empresa));
+                        const dObj = new Date(ano, mes-1, d);
+                        const sem = dObj.getDay();
+                        const eFer = feriadosBase.some(fer => fer.dia === d && fer.mes === mes && (fer.tipo !== "municipal" || fer.empresa === empresa));
                         const chave = `${d}-${mes}-${ano}`;
+                        
+                        if (dObj < dtAdm) {
+                            tableHtml += `<td style="background:#eee"></td>`;
+                            continue;
+                        }
+
+                        // Lógica Demitido Corrigida: Só entra aqui se status for Inativo
+                        if (dtDem && dObj >= dtDem) {
+                            let restoMes = diasNoMes - d + 1;
+                            tableHtml += `<td colspan="${restoMes}" class="dia-demitido">DEMITIDO</td>`;
+                            d = diasNoMes; continue;
+                        }
+
                         let simboloA = "";
                         if (f.nascimento) { const [yN, mN, dN] = f.nascimento.split('-').map(Number); if (dN === d && mN === mes) simboloA = `<span class="symbol-a">A</span>`; }
                         
-                        if (ferias.includes(d)) { let count = 1; while(ferias.includes(d+count)) count++; tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`; d += (count-1); continue; }
-                        if (afastamentos.includes(d)) { let count = 1; while(afastamentos.includes(d+count)) count++; tableHtml += `<td colspan="${count}" class="dia-afastamento">${simboloA}AFAST.</td>`; d += (count-1); continue; }
-                        if (faltas.includes(d)) { tableHtml += `<td class="dia-falta">${simboloA}Falta</td>`; continue; }
-
+                        if (ferias.includes(d)) { 
+                            let count = 1; while(ferias.includes(d+count)) count++; 
+                            tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`; 
+                            d += (count-1); continue; 
+                        }
+                        if (outrosAfast.includes(d)) {
+                            let count = 1; while(outrosAfast.includes(d + count)) count++;
+                            const dtRef = new Date(ano, mes - 1, d).getTime();
+                            const ausEnc = ausencias.find(a => a.funcionario === f.apelido && ["Afastamento", "Licença"].includes(a.tipo) && processarDatas(a).some(dt => dt.getTime() === dtRef));
+                            let tipoReal = ausEnc ? ausEnc.tipo : "Afastamento";
+                            let txt = (count <= 3) ? (tipoReal === "Afastamento" ? "AF" : "LI") : tipoReal.toUpperCase();
+                            tableHtml += `<td colspan="${count}" class="dia-afastamento">${simboloA}${txt}</td>`;
+                            d += (count-1); continue;
+                        }
+                        if (faltas.includes(d)) {
+                            let count = 1; while(faltas.includes(d + count)) count++;
+                            tableHtml += `<td colspan="${count}" class="dia-falta">${simboloA}FALTA</td>`;
+                            d += (count-1); continue;
+                        }
+                       
                         let conteudo = "", decidido = false;
                         if (folgasInfo[d]) { conteudo = `<span class="${folgasInfo[d]==='Pedida'?'folga-pedida':(folgasInfo[d]==='Marcada'?'folga-marcada':'folga-programada')}">${folgasInfo[d]==='Programada'?'F':'X'}</span>`; decidido = true; }
                         if (!decidido && empresa === "VCCL" && sim.vccl[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && empresa === "AVUL" && per === "Manhã" && sim.manhaAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && empresa === "AVUL" && per === "Tarde" && sim.tardeAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
-                        if (!decidido && f.periodo === "Noite") { if (sem === 6) { if (f.apelido === "Fábio" && d === diaFabioSab) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } } else if (sem === 0) { if (f.apelido === "Osmair" && d === diaUltDom) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } } }
-                        if (!decidido) { if (f.funcao === "Líder" && (sem === 0 || sem === 6 || eFer)) conteudo = '<b>X</b>'; else if (sem === 0 && new Date(ano,mes-1,d+1).getDay() === 1 && emFeriasGlobal(f.apelido, d+1, mes, ano, ausencias)) conteudo = '<b>X</b>'; }
+                        
+                        if (!decidido && f.periodo === "Noite") { 
+                            if (sem === 6) { 
+                                if (f.apelido === "Fábio" && d === (obterUltimoDomingo(ano,mes)-1)) { conteudo = '<b>X</b>'; decidido = true; } 
+                                else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } 
+                            } else if (sem === 0) { 
+                                if (f.apelido === "Osmair" && d === obterUltimoDomingo(ano,mes)) { conteudo = '<b>X</b>'; decidido = true; } 
+                                else if ((sim.noite[chave + "-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave + "-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } 
+                            } 
+                        }
+                        if (!decidido) { if (f.funcao === "Líder" && (sem === 0 || sem === 6 || eFer)) conteudo = '<b>X</b>'; else if (sem === 0 && d < diasNoMes && new Date(ano,mes-1,d+1).getDay() === 1 && emFeriasGlobal(f.apelido, d+1, mes, ano, ausencias)) conteudo = '<b>X</b>'; }
                         tableHtml += `<td class="${eFer?'dia-feriado':(sem===0?'dia-domingo':(sem===6?'dia-sabado':''))}">${simboloA}${conteudo}</td>`;
                     }
                     tableHtml += `</tr>`;
@@ -223,7 +345,7 @@ async function gerarMapa() {
                 wrapper.innerHTML = tableHtml + `</tbody></table>`;
                 section.appendChild(wrapper);
             });
-            container.appendChild(section);
+            if (temTabelaParaMostrar) { container.appendChild(section); }
         });
         toggleSimbolosExtras();
     } catch (e) { console.error(e); }
@@ -244,32 +366,32 @@ async function salvarMapaDefinitivo() {
 
 function ajustarSidebar() {
     const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
-    if (!usuarioLogado) {
-        window.location.href = 'login.html';
-        return;
-    }
-
+    if (!usuarioLogado) { window.location.href = 'login.html'; return; }
     const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
 
-    // 1. Esconde os links da sidebar que o usuário não tem acesso
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
-        
-        // Regra: Se não for Master E não tiver a permissão E não for a home
-        if (!isMaster && !permissoes.includes(href) && href !== "index") {
+        if (link.getAttribute('href') === "#" || href === "index") {
+            link.parentElement.style.display = 'block';
+            return;
+        }
+        if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
-            link.parentElement.style.display = 'block'; // Garante que os permitidos apareçam
+            link.parentElement.style.display = 'block';
         }
     });
 
-    // 2. Trava de segurança: Se o usuário tentou entrar via URL em página proibida
-    if (!isMaster && paginaAtual !== "index" && !permissoes.includes(paginaAtual)) {
-        alert("Você não tem permissão para acessar esta tela.");
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
+}
+
+function logout() {
+    sessionStorage.removeItem('usuarioAtivo');
+    window.location.href = 'login.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => { 

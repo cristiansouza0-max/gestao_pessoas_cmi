@@ -12,15 +12,7 @@ body { background-color: #f0f2f5; display: flex; }
 .filter-group select, .filter-group input { border: 1px solid #ddd; padding: 4px; border-radius: 4px; outline: none; font-size: 0.85rem; }
 
 /* Novo Estilo para os Filtros Visíveis de Empresa e Período */
-.filter-group-visible {
-    display: flex;
-    gap: 12px;
-    background: white;
-    padding: 8px 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    align-items: center;
-}
+.filter-group-visible { display: flex; gap: 12px; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); align-items: center; }
 .check-item { font-size: 0.75rem; font-weight: bold; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 .check-item input { cursor: pointer; accent-color: #3498db; width: 15px; height: 15px; }
 
@@ -70,34 +62,10 @@ thead th { background: #f8f9fa; color: black; font-weight: bold; pz-index: 20; }
     .empresa-title { background: #eee !important; color: black !important; border: 1px solid black; }
 }
 /* --- Estilos da Legenda e Toggle --- */
-.legenda-mapa { 
-    display: flex; 
-    justify-content: space-between; /* Alinha itens à esquerda e toggle à direita */
-    align-items: center;
-    gap: 15px; 
-    margin-bottom: 10px; 
-    background: white; 
-    padding: 10px 15px; 
-    border-radius: 8px; 
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-}
-
+.legenda-mapa { display: flex; justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 10px; background: white; padding: 10px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .legenda-itens-group { display: flex; gap: 15px; flex-wrap: wrap; }
-
-.legenda-controls {
-    border-left: 2px solid #eee;
-    padding-left: 15px;
-}
-
-.switch-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.75rem;
-    font-weight: bold;
-    color: #2c3e50;
-    cursor: pointer;
-}
+.legenda-controls { border-left: 2px solid #eee; padding-left: 15px; }
+.switch-label { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: bold; color: #2c3e50; cursor: pointer; }
 
 /* --- Símbolo de Aniversário --- */
 .symbol-a { color: #e74c3c !important; font-weight: bold; font-size: 0.85rem; margin-right: 2px; }
@@ -105,27 +73,12 @@ thead th { background: #f8f9fa; color: black; font-weight: bold; pz-index: 20; }
 /* --- Lógica para Ocultar Símbolos --- */
 /* Usamos visibility para não alterar o tamanho da célula ao esconder */
 .hide-extras .symbol-a, 
-.hide-extras .folga-programada { 
-    visibility: hidden; 
-}
+.hide-extras .folga-programada { visibility: hidden; }
 
-@media print {
-    .legenda-controls { display: none !important; }
-}
+@media print {.legenda-controls { display: none !important; }}
 /* Cores para Ausências Especiais */
-.dia-afastamento { 
-    background-color: #e67e22 !important; /* Laranja */
-    color: white !important; 
-    font-weight: bold; 
-    text-transform: uppercase;
-}
-
-.dia-falta { 
-    background-color: #e74c3c !important; /* Vermelho */
-    color: white !important; 
-    font-weight: bold;
-    text-transform: uppercase;
-}
+.dia-afastamento { background-color: #e67e22 !important; color: white !important; font-weight: bold; text-transform: uppercase; }
+.dia-falta { background-color: #e74c3c !important; color: white !important; font-weight: bold; text-transform: uppercase; }
 /* Cores Células Legenda e Tabela */
 .s-sab { background-color: #fff4e6; } 
 .s-dom { background-color: #e7f5ff; } 
@@ -138,3 +91,4 @@ thead th { background: #f8f9fa; color: black; font-weight: bold; pz-index: 20; }
 .dia-ferias { background-color: #9b59b6 !important; color: white !important; font-weight: bold; text-transform: uppercase; }
 .dia-falta { background-color: #e74c3c !important; color: white !important; font-weight: bold; text-transform: uppercase; }
 .dia-afastamento { background-color: #e67e22 !important; color: white !important; font-weight: bold; text-transform: uppercase; }
+.dia-demitido { background-color: #000 !important; color: #fff !important; font-weight: bold; text-transform: uppercase; text-align: center; font-size: 0.8rem; }

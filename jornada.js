@@ -30,21 +30,26 @@ function ajustarSidebar() {
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
 
-    // 1. Esconde os links da sidebar que o usuário não tem acesso
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
         
-        // Regra: Se não for Master E não tiver a permissão E não for a home
-        if (!isMaster && !permissoes.includes(href) && href !== "index") {
+        // --- A CORREÇÃO ESTÁ AQUI ---
+        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
+        if (link.getAttribute('href') === "#" || href === "index") {
+            link.parentElement.style.display = 'block';
+            return; // Pula para o próximo link
+        }
+
+        // Regra para as outras páginas
+        if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
-            link.parentElement.style.display = 'block'; // Garante que os permitidos apareçam
+            link.parentElement.style.display = 'block';
         }
     });
 
-    // 2. Trava de segurança: Se o usuário tentou entrar via URL em página proibida
-    if (!isMaster && paginaAtual !== "index" && !permissoes.includes(paginaAtual)) {
-        alert("Você não tem permissão para acessar esta tela.");
+    // Trava de segurança para acesso via URL
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
 }

@@ -29,21 +29,26 @@ function ajustarSidebar() {
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
 
-    // 1. Esconde os links da sidebar que o usuário não tem acesso
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
         
-        // Regra: Se não for Master E não tiver a permissão E não for a home
-        if (!isMaster && !permissoes.includes(href) && href !== "index") {
+        // --- A CORREÇÃO ESTÁ AQUI ---
+        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
+        if (link.getAttribute('href') === "#" || href === "index") {
+            link.parentElement.style.display = 'block';
+            return; // Pula para o próximo link
+        }
+
+        // Regra para as outras páginas
+        if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
-            link.parentElement.style.display = 'block'; // Garante que os permitidos apareçam
+            link.parentElement.style.display = 'block';
         }
     });
 
-    // 2. Trava de segurança: Se o usuário tentou entrar via URL em página proibida
-    if (!isMaster && paginaAtual !== "index" && !permissoes.includes(paginaAtual)) {
-        alert("Você não tem permissão para acessar esta tela.");
+    // Trava de segurança para acesso via URL
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
 }
@@ -125,82 +130,95 @@ function renderizarResumos(lista, hoje) {
 }
 
 function processarResumosAusencia(ausencias, dataHoje) {
-    const mesA = dataHoje.getMonth(); // 0-11
+    const mesA = dataHoje.getMonth();
     const anoA = dataHoje.getFullYear();
 
-    // Cálculos de meses para o card de Afastamentos
     const mesPassado = mesA === 0 ? 11 : mesA - 1;
     const anoPassado = mesA === 0 ? anoA - 1 : anoA;
 
     const mesProximo = mesA === 11 ? 0 : mesA + 1;
     const anoProximo = mesA === 11 ? anoA + 1 : anoA;
 
-    let faltas = {}, folgas = {};
-    
-    // Objetos para acumular dias de afastamento por mês
-    let afastAnterior = {}, afastAtual = {}, afastProximo = {};
+    // Acumuladores de dados por funcionário
+    let faltasData = {}, folgasData = {}, afastData = { anterior: {}, atual: {}, proximo: {} };
+
+    // Funções auxiliares de formatação
+    const formatarDiasLista = (dias) => {
+        const d = [...new Set(dias)].sort((a, b) => a - b);
+        if (d.length === 1) return String(d[0]).padStart(2, '0');
+        const ultimo = d.pop();
+        return d.map(n => String(n).padStart(2, '0')).join(', ') + ' e ' + String(ultimo).padStart(2, '0');
+    };
+
+    const formatarDeAa = (dias) => {
+        const d = [...new Set(dias)].sort((a, b) => a - b);
+        if (d.length === 1) return String(d[0]).padStart(2, '0');
+        return `de ${String(d[0]).padStart(2, '0')} a ${String(d[d.length - 1]).padStart(2, '0')}`;
+    };
 
     ausencias.forEach(a => {
         const dts = parseDatas(a);
-        
         dts.forEach(d => {
+            const diaNum = d.getDate();
             const m = d.getMonth();
             const y = d.getFullYear();
 
-            // 1. Lógica para Faltas (Mês Atual) - Card Vermelho
+            // Faltas (Mês Atual)
             if (a.tipo === "Falta" && m === mesA && y === anoA) {
-                faltas[a.funcionario] = (faltas[a.funcionario] || 0) + 1;
+                if (!faltasData[a.funcionario]) faltasData[a.funcionario] = [];
+                faltasData[a.funcionario].push(diaNum);
             }
 
-            // 2. Lógica para Folgas (Próximo Mês) - Card Verde
+            // Folgas (Próximo Mês)
             if (a.tipo === "Folga" && m === mesProximo && y === anoProximo) {
-                folgas[a.funcionario] = (folgas[a.funcionario] || 0) + 1;
+                const dataFormatada = `${String(diaNum).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}`;
+                if (!folgasData[a.funcionario]) folgasData[a.funcionario] = { texto: dataFormatada, qtd: 0 };
+                folgasData[a.funcionario].qtd++;
             }
 
-            // 3. Lógica para Afastamentos/Licenças - Card Laranja
+            // Afastamentos / Licenças
             if (["Afastamento", "Licença"].includes(a.tipo)) {
-                // Mês Passado
-                if (m === mesPassado && y === anoPassado) {
-                    afastAnterior[a.funcionario] = (afastAnterior[a.funcionario] || 0) + 1;
-                }
-                // Mês Atual
-                if (m === mesA && y === anoA) {
-                    afastAtual[a.funcionario] = (afastAtual[a.funcionario] || 0) + 1;
-                }
-                // Próximo Mês
-                if (m === mesProximo && y === anoProximo) {
-                    afastProximo[a.funcionario] = (afastProximo[a.funcionario] || 0) + 1;
+                let ref;
+                if (m === mesPassado && y === anoPassado) ref = afastData.anterior;
+                else if (m === mesA && y === anoA) ref = afastData.atual;
+                else if (m === mesProximo && y === anoProximo) ref = afastData.proximo;
+
+                if (ref) {
+                    if (!ref[a.funcionario]) ref[a.funcionario] = [];
+                    ref[a.funcionario].push(diaNum);
                 }
             }
         });
     });
 
-    // Renderizar Faltas e Folgas
-    const fill = (id, obj) => {
-        const el = document.getElementById(id);
-        const ent = Object.entries(obj);
-        el.innerHTML = ent.length ? ent.map(([n, q]) => `<li class="summary-item"><span>${n}</span><span class="qty">${q} d</span></li>`).join('') : `<li class="empty-info">Nenhum registro</li>`;
-    };
-    fill('lista-faltas-mes', faltas);
-    fill('lista-folgas-proximo', folgas);
+    // Renderizar Faltas
+    const elFaltas = document.getElementById('lista-faltas-mes');
+    elFaltas.innerHTML = Object.entries(faltasData).map(([nome, dias]) => 
+        `<li class="summary-item"><span>${nome} - ${formatarDiasLista(dias)}</span> <span class="qty">${dias.length} dias</span></li>`
+    ).join('') || '<li class="empty-info">Nenhuma falta</li>';
 
-    // Renderizar Afastamentos (Card Laranja com Subtítulos)
+    // Renderizar Folgas
+    const elFolgas = document.getElementById('lista-folgas-proximo');
+    elFolgas.innerHTML = Object.entries(folgasData).map(([nome, info]) => 
+        `<li class="summary-item"><span>${nome} ${info.texto}</span> <span class="qty">${info.qtd} ${info.qtd > 1 ? 'dias' : 'dia'}</span></li>`
+    ).join('') || '<li class="empty-info">Nenhuma folga</li>';
+
+    // Renderizar Afastamentos
     const elAfast = document.getElementById('lista-afastamentos-ativos');
-    
-    const gerarHtmlSetor = (titulo, obj) => {
+    const gerarSetor = (titulo, obj) => {
         const itens = Object.entries(obj);
         if (itens.length === 0) return "";
-        let html = `<li class="summary-item" style="background:#fff3e0; font-weight:bold; font-size:0.65rem; border:none; margin-top:5px; color:#e67e22;">${titulo}</li>`;
-        html += itens.map(([n, q]) => `<li class="summary-item"><span>${n}</span><span class="qty">${q} d</span></li>`).join('');
+        let html = `<li class="summary-item" style="background:#fff3e0; font-weight:bold; font-size:0.65rem; color:#e67e22; border:none; margin-top:5px; padding-left:5px;">${titulo}</li>`;
+        html += itens.map(([nome, dias]) => 
+            `<li class="summary-item"><span>${nome} ${formatarDeAa(dias)}</span> <span class="qty">${dias.length} dias</span></li>`
+        ).join('');
         return html;
     };
 
-    let htmlFinal = "";
-    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesPassado]} (Anterior)`, afastAnterior);
-    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesA]} (Atual)`, afastAtual);
-    htmlFinal += gerarHtmlSetor(`${mesesNomes[mesProximo]} (Próximo)`, afastProximo);
-
-    elAfast.innerHTML = htmlFinal || '<li class="empty-info">Nenhum afastamento no período</li>';
+    let htmlAfast = gerarSetor(`${mesesNomes[mesPassado]} (Anterior)`, afastData.anterior) +
+                    gerarSetor(`${mesesNomes[mesA]} (Atual)`, afastData.atual) +
+                    gerarSetor(`${mesesNomes[mesProximo]} (Próximo)`, afastData.proximo);
+    elAfast.innerHTML = htmlAfast || '<li class="empty-info">Nenhum registro</li>';
 }
 
 async function renderizarTimelineFerias() {
@@ -271,22 +289,74 @@ function parseDatas(reg) {
 
 async function renderizarAprendizesDashboard(empFiltro) {
     const diasS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const hojeD = diasS[new Date().getDay()];
+    const hojeObj = new Date();
+    const hojeD = diasS[hojeObj.getDay()];
     const el = document.getElementById('lista-aprendizes-hoje');
     if (!el) return;
+
     try {
-        const [sConf, sEsc] = await Promise.all([db.collection("config_aprendizes").get(), db.collection("escalas").get()]);
+        const [sConf, sEsc] = await Promise.all([
+            db.collection("config_aprendizes").get(), 
+            db.collection("escalas").get()
+        ]);
         const confs = {}; sConf.forEach(d => confs[d.id] = d.data());
         const escs = {}; sEsc.forEach(d => escs[d.id] = d.data());
-        let html = "";
-        cacheFuncionarios.filter(f => f.funcao === "Aprendiz" && f.status === "Ativo").forEach(f => {
+        
+        const hojeDataApenas = new Date(hojeObj.getFullYear(), hojeObj.getMonth(), hojeObj.getDate());
+        let listaParaSort = [];
+
+        cacheFuncionarios.filter(f => f.funcao === "Aprendiz").forEach(f => {
             if (empFiltro !== "TODAS" && f.empresa !== empFiltro) return;
+
+            const dtDem = f.demissao ? new Date(f.demissao + "T00:00:00") : null;
+            
+            // 1. Caso: Demitido (Tarja Preta)
+            if (f.status === "Inativo" && dtDem && hojeDataApenas >= dtDem) {
+                const mesAtual = hojeObj.getMonth();
+                const anoAtual = hojeObj.getFullYear();
+                if (dtDem.getMonth() === mesAtual && dtDem.getFullYear() === anoAtual) {
+                    listaParaSort.push({
+                        apelido: f.apelido,
+                        empresa: f.empresa,
+                        horario: "99:99", // Vai para o fim da lista no sort de horário
+                        exibicao: "DEMITIDO",
+                        estilo: "background:#000; color:#fff; padding:2px 8px; border-radius:4px; margin-bottom:2px;"
+                    });
+                }
+                return;
+            }
+
+            // 2. Caso: Ativo ou Demissão Futura (Horário Normal)
             const c = confs[f.id];
             if (c && c.dias.includes(hojeD)) {
                 const e = escs[c.escalaId];
-                html += `<li class="anniversary-item"><span>${f.apelido}</span><span class="anniversary-date">${e ? e.inicioJornada : '--:--'}</span></li>`;
+                const h = e ? e.inicioJornada : "00:00";
+                listaParaSort.push({
+                    apelido: f.apelido,
+                    empresa: f.empresa,
+                    horario: h,
+                    exibicao: h,
+                    estilo: ""
+                });
             }
         });
+
+        // --- ORDENAÇÃO: Primeiro por Horário (Jornada), depois por Empresa ---
+        listaParaSort.sort((a, b) => {
+            if (a.horario !== b.horario) return a.horario.localeCompare(b.horario);
+            return a.empresa.localeCompare(b.empresa);
+        });
+
+        // Gerar HTML final
+        let html = "";
+        listaParaSort.forEach(item => {
+            const corTextoHorario = item.exibicao === "DEMITIDO" ? "color:#fff" : "";
+            html += `<li class="anniversary-item" style="${item.estilo}">
+                        <span>${item.apelido} <small style="font-size:0.6rem; opacity:0.6">(${item.empresa})</small></span>
+                        <span class="anniversary-date" style="${corTextoHorario}">${item.exibicao}</span>
+                     </li>`;
+        });
+
         el.innerHTML = html || '<li class="empty-info">Ninguém hoje</li>';
     } catch (e) { console.error(e); }
 }

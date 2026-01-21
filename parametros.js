@@ -39,13 +39,38 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function ajustarSidebar() {
+    const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
+    if (!usuarioLogado) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
+    const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
+
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
-        const pagina = link.getAttribute('href').replace('.html', '');
-        if (!isMaster && !permissoes.includes(pagina) && pagina !== "index") {
+        const href = link.getAttribute('href').replace('.html', '');
+        
+        // --- A CORREÇÃO ESTÁ AQUI ---
+        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
+        if (link.getAttribute('href') === "#" || href === "index") {
+            link.parentElement.style.display = 'block';
+            return; // Pula para o próximo link
+        }
+
+        // Regra para as outras páginas
+        if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
+        } else {
+            link.parentElement.style.display = 'block';
         }
     });
+
+    // Trava de segurança para acesso via URL
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
+        window.location.href = "index.html";
+    }
 }
 
 function configurarDataPadrao() {

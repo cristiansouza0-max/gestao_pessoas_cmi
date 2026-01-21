@@ -6,31 +6,52 @@ const isMaster = usuarioLogado.perfilMaster === true;
 let fp; 
 let cacheFuncionarios = [];
 let cacheAusencias = [];
+let unsubscribeAusencias = null; // Para gerenciar a escuta em tempo real
 
 document.addEventListener('DOMContentLoaded', () => {
     ajustarSidebar();
     configurarCalendario();
-    carregarDadosIniciais();
-    if (!isMaster) verificarJustificativas();
+    
+    // Primeiro carregamos os funcionários, depois iniciamos as escutas
+    carregarFuncionarios().then(() => {
+        iniciarEscutaAusencias(); // Nova função para a lista em tempo real
+        monitorarNotificacoes(); // Pop-ups
+    });
 });
 
 function ajustarSidebar() {
+    const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
+    if (!usuarioLogado) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
+
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
-        if (!isMaster && !permissoes.includes(href) && href !== "index") {
+        
+        // --- A CORREÇÃO ESTÁ AQUI ---
+        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
+        if (link.getAttribute('href') === "#" || href === "index") {
+            link.parentElement.style.display = 'block';
+            return; // Pula para o próximo link
+        }
+
+        // Regra para as outras páginas
+        if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
+        } else {
+            link.parentElement.style.display = 'block';
         }
     });
-    if (!isMaster && paginaAtual !== "index" && !permissoes.includes(paginaAtual)) {
+
+    // Trava de segurança para acesso via URL
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
-}
-
-async function carregarDadosIniciais() {
-    await carregarFuncionarios();
-    await renderizarAusencias();
 }
 
 async function carregarFuncionarios() {
@@ -48,13 +69,9 @@ async function carregarFuncionarios() {
             const f = doc.data();
             if (f.status !== "Inativo") {
                 cacheFuncionarios.push(f);
-                
                 const opt = `<option value="${f.apelido}">${f.apelido}</option>`;
                 selectForm.innerHTML += opt;
-                
-                if (filtroHist) {
-                    filtroHist.innerHTML += `<option value="${f.apelido}">${f.apelido}</option>`;
-                }
+                if (filtroHist) filtroHist.innerHTML += opt;
             }
         });
 
@@ -80,60 +97,31 @@ function configurarCalendario() {
     });
 }
 
-document.getElementById('form-ausencia').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('btn-submit');
-    const idEdicao = document.getElementById('edit-id').value;
-    const funcionarioNome = document.getElementById('select-funcionario').value;
-    const tipo = document.getElementById('tipo-ausencia').value;
-    const obs = document.getElementById('obs-ausencia').value;
-    const datas = document.getElementById('calendario-dinamico').value;
-    const modo = document.getElementById('modo-data').value;
-    
-    const statusFinal = isMaster ? "Aprovada" : "Pendente";
+// --- ESCUTA EM TEMPO REAL PARA OS CARTÕES ---
+function iniciarEscutaAusencias() {
+    // Se já houver uma escuta ativa (mudança de filtro), paramos ela
+    if (unsubscribeAusencias) unsubscribeAusencias();
 
-    const dados = { 
-        funcionario: funcionarioNome, 
-        tipo, observacao: obs, datas, modo, 
-        status: statusFinal,
-        solicitadoPor: usuarioLogado.nomeCompleto,
-        criadoEm: idEdicao ? undefined : new Date().getTime(),
-        atualizadoEm: new Date().getTime()
-    };
-
-    btn.disabled = true;
-    try {
-        if (idEdicao === "") {
-            await db.collection("ausencias").add(dados);
-            alert(isMaster ? "Registro salvo!" : "Solicitação enviada!");
-        } else {
-            await db.collection("ausencias").doc(idEdicao).update(dados);
-            alert("Registro atualizado!");
-        }
-        limparFormulario();
-        await renderizarAusencias();
-    } catch (e) { alert("Erro ao salvar."); }
-    btn.disabled = false;
-});
-
-async function renderizarAusencias() {
+    // Filtros de UI
     const fEmpresa = document.getElementById('filtro-empresa-hist').value;
     const fFunc = document.getElementById('filtro-func-hist').value;
     const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
     const meuApelido = meuFunc ? meuFunc.apelido : "";
 
-    const containers = {
-        "Folga": document.getElementById('lista-Folga'),
-        "Falta": document.getElementById('lista-Falta'),
-        "Férias": document.getElementById('lista-Férias'),
-        "Licença": document.getElementById('lista-Outros'),
-        "Afastamento": document.getElementById('lista-Outros')
-    };
+    // Criamos a consulta básica
+    let query = db.collection("ausencias").orderBy("criadoEm", "desc");
 
-    Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
+    // Iniciamos a escuta (onSnapshot em vez de get)
+    unsubscribeAusencias = query.onSnapshot(snapshot => {
+        const containers = {
+            "Folga": document.getElementById('lista-Folga'),
+            "Falta": document.getElementById('lista-Falta'),
+            "Férias": document.getElementById('lista-Férias'),
+            "Licença": document.getElementById('lista-Outros'),
+            "Afastamento": document.getElementById('lista-Outros')
+        };
 
-    try {
-        const snapshot = await db.collection("ausencias").orderBy("criadoEm", "desc").get();
+        Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
         cacheAusencias = [];
 
         snapshot.forEach(doc => {
@@ -194,40 +182,132 @@ async function renderizarAusencias() {
                 containers[key].innerHTML = "<p style='font-size:0.7rem; color:gray; text-align:center; padding-top:10px;'>Vazio</p>";
             }
         });
-    } catch (e) { console.error(e); }
+    });
 }
 
+// Funções para reagir aos filtros do Master e reiniciar a escuta
+document.getElementById('filtro-empresa-hist').addEventListener('change', iniciarEscutaAusencias);
+document.getElementById('filtro-func-hist').addEventListener('change', iniciarEscutaAusencias);
+
+// --- SALVAMENTO ---
+document.getElementById('form-ausencia').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btn-submit');
+    const idEdicao = document.getElementById('edit-id').value;
+    
+    const funcionarioNome = document.getElementById('select-funcionario').value;
+    const tipo = document.getElementById('tipo-ausencia').value;
+    const obs = document.getElementById('obs-ausencia').value;
+    const datas = document.getElementById('calendario-dinamico').value;
+    const modo = document.getElementById('modo-data').value;
+    
+    // Objeto base
+    const dados = { 
+        funcionario: funcionarioNome, 
+        tipo: tipo, 
+        observacao: obs, 
+        datas: datas, 
+        modo: modo, 
+        status: isMaster ? "Aprovada" : "Pendente",
+        notificadoMaster: isMaster ? true : false,
+        notificadoUser: false,
+        justificativa: "",
+        solicitadoPor: usuarioLogado.nomeCompleto,
+        atualizadoEm: new Date().getTime()
+    };
+
+    btn.disabled = true;
+    try {
+        if (idEdicao === "") {
+            // Novo Registro: adiciona data de criação
+            dados.criadoEm = new Date().getTime();
+            await db.collection("ausencias").add(dados);
+            alert(isMaster ? "Registro salvo!" : "Solicitação enviada!");
+        } else {
+            // Edição: Usa update sem mexer no criadoEm
+            await db.collection("ausencias").doc(idEdicao).update(dados);
+            alert("Registro atualizado com sucesso!");
+        }
+        limparFormulario();
+        // O renderizarAusencias() será chamado automaticamente pelo onSnapshot se estiver ativo
+    } catch (e) { 
+        console.error("Erro ao salvar:", e);
+        alert("Erro ao salvar. Verifique o console."); 
+    }
+    btn.disabled = false;
+});
+
+// --- POP-UPS E NOTIFICAÇÕES ---
+function exibirNotificacaoCentral(config) {
+    const overlay = document.createElement('div');
+    overlay.className = 'alerta-overlay';
+    overlay.innerHTML = `
+        <div class="alerta-modal" style="border-top: 10px solid ${config.cor};">
+            <i class="${config.icone}" style="color: ${config.cor}; font-size: 3rem; margin-bottom: 15px;"></i>
+            <h2>${config.titulo}</h2>
+            <p style="margin-bottom: 20px;">${config.mensagem}</p>
+            <button onclick="this.closest('.alerta-overlay').remove();" style="background: ${config.cor}; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold;">ENTENDIDO</button>
+        </div>`;
+    document.body.appendChild(overlay);
+}
+
+async function monitorarNotificacoes() {
+    if (isMaster) {
+        db.collection("ausencias").where("status", "==", "Pendente").where("notificadoMaster", "==", false)
+            .onSnapshot(snap => {
+                let nomes = [];
+                snap.forEach(doc => { 
+                    nomes.push(doc.data().funcionario);
+                    db.collection("ausencias").doc(doc.id).update({ notificadoMaster: true });
+                });
+                if (nomes.length > 0) {
+                    exibirNotificacaoCentral({
+                        titulo: "Novo Pedido", cor: "#3498db", icone: "fa-solid fa-bell",
+                        mensagem: `Há um pedido de Ausência do(s) funcionário(s): <strong>${[...new Set(nomes)].join(", ")}</strong>`
+                    });
+                }
+            });
+    } else {
+        const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
+        if (!meuFunc) return;
+        db.collection("ausencias").where("funcionario", "==", meuFunc.apelido).where("notificadoUser", "==", false)
+            .onSnapshot(snap => {
+                snap.forEach(doc => {
+                    const aus = doc.data();
+                    if (aus.status === "Aprovada") {
+                        exibirNotificacaoCentral({
+                            titulo: "Ausência Aprovada!", cor: "#27ae60", icone: "fa-solid fa-circle-check",
+                            mensagem: `Sua ausência de <strong>${aus.tipo}</strong> foi APROVADA pelo Líder.`
+                        });
+                        db.collection("ausencias").doc(doc.id).update({ notificadoUser: true });
+                    } else if (aus.status === "Recusada") {
+                        exibirNotificacaoCentral({
+                            titulo: "Ausência Recusada", cor: "#e74c3c", icone: "fa-solid fa-circle-xmark",
+                            mensagem: `Sua ausência de <strong>${aus.tipo}</strong> foi RECUSADA pelo Líder devido a: <em>${aus.justificativa}</em>`
+                        });
+                        db.collection("ausencias").doc(doc.id).update({ notificadoUser: true });
+                    }
+                });
+            });
+    }
+}
+
+// --- AÇÕES DO MASTER ---
 async function decidirAusencia(id, decisao, nomeFunc) {
     if (decisao === "Aprovada") {
-        await db.collection("ausencias").doc(id).update({ status: "Aprovada" });
-        alert(`Aprovada!`);
-    } else {
-        const justificativa = prompt(`Motivo da recusa para ${nomeFunc}:`);
-        if (justificativa === null) return;
-        if (justificativa.trim() === "") return alert("Justificativa obrigatória.");
-
         await db.collection("ausencias").doc(id).update({ 
-            status: "Recusada", justificativa: justificativa, lida: false 
+            status: "Aprovada",
+            notificadoUser: false 
         });
-        alert("Recusada!");
+    } else {
+        const motivo = prompt(`Justificativa para recusar a ausência de ${nomeFunc}:`);
+        if (!motivo) return;
+        await db.collection("ausencias").doc(id).update({ 
+            status: "Recusada", 
+            justificativa: motivo, 
+            notificadoUser: false 
+        });
     }
-    renderizarAusencias();
-}
-
-async function verificarJustificativas() {
-    const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
-    if (!meuFunc) return;
-    try {
-        const snap = await db.collection("ausencias")
-            .where("funcionario", "==", meuFunc.apelido)
-            .where("status", "==", "Recusada").where("lida", "==", false).get();
-
-        snap.forEach(async (doc) => {
-            const aus = doc.data();
-            alert(`Sua solicitação de ${aus.tipo} (${aus.datas}) foi RECUSADA.\nMotivo: ${aus.justificativa}`);
-            await db.collection("ausencias").doc(doc.id).update({ lida: true });
-        });
-    } catch (e) { console.error(e); }
 }
 
 function editarAusencia(id) {
@@ -240,17 +320,17 @@ function editarAusencia(id) {
     document.getElementById('modo-data').value = aus.modo;
     configurarCalendario();
     fp.setDate(aus.datas.replace(" até ", " ; ").split(" ; "));
-    document.getElementById('btn-submit').innerText = "Atualizar";
+    document.getElementById('btn-submit').innerText = "Atualizar Registro";
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 async function excluirAusencia(id) {
     if (confirm("Excluir?")) {
         await db.collection("ausencias").doc(id).delete();
-        renderizarAusencias();
     }
 }
 
+// --- AUXILIARES ---
 function calcularTotalDias(strDatas, modo) {
     if (!strDatas) return 0;
     if (modo === 'single') return 1;
