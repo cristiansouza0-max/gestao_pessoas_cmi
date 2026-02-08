@@ -19,16 +19,20 @@ input[type="text"], input[type="date"], select { padding: 10px; border: 1px soli
 .btn-clear { background: #95a5a6; color: white; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
 
 /* LISTAGEM CENTRALIZADA */
-.titulo-sessao-central { text-align: center; font-size: 1.4rem; color: #2c3e50; margin: 20px 0 30px 0; font-weight: 800; text-transform: uppercase; }
+.header-lista-usuarios { display: flex; justify-content: space-between; align-items: center; margin: 30px 0 20px 0; padding: 0 10px; }
+.titulo-sessao-central { margin: 0 !important; font-size: 1.4rem; color: #2c3e50; font-weight: 800; text-transform: uppercase; }
+
+.filtro-setor-container { display: flex; align-items: center; gap: 10px; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.filtro-setor-container label { font-size: 0.75rem; font-weight: 800; color: #666; text-transform: uppercase; }
+.filtro-setor-container select { padding: 5px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; width: 180px; cursor: pointer; outline: none; }
 
 .colunas-empresas { display: flex; gap: 15px; height: 650px; margin-bottom: 50px; }
 .empresa-col { flex: 1; background: #ebedef; padding: 15px; border-radius: 12px; display: flex; flex-direction: column; min-width: 300px; }
 .empresa-col h2 { font-size: 1.1rem; text-align: center; padding-bottom: 10px; border-bottom: 2px solid #ccc; margin-bottom: 15px; font-weight: 800; text-transform: uppercase; }
 
-/* CORES POR EMPRESA */
 .titulo-avul { color: #e74c3c; border-bottom-color: #e74c3c !important; }
 .titulo-vccl { color: #3498db; border-bottom-color: #3498db !important; }
-.titulo-vsbl { color: #27ae60; border-bottom-color: #27ae60 !important; } /* Cor VSBL */
+.titulo-vsbl { color: #27ae60; border-bottom-color: #27ae60 !important; }
 
 .lista-rolagem { overflow-y: auto; flex-grow: 1; padding-right: 8px; }
 .lista-rolagem::-webkit-scrollbar { width: 6px; }
@@ -51,8 +55,6 @@ input[type="text"], input[type="date"], select { padding: 10px; border: 1px soli
 
 .border-avul { border-left-color: #e74c3c !important; }
 .border-vccl { border-left-color: #3498db !important; }
-.border-vsbl { border-left-color: #27ae60 !important; } /* Borda Esquerda VSBL */
-/* Espaçamento das jornadas no cartão */
+.border-vsbl { border-left-color: #27ae60 !important; }
 .container-escalas-card { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e2e8f0; }
-/* Estilo das tags de jornada cinzas */
 .tag-escala-card { display: inline-block; background: #edf2f7; color: #2c3e50; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin: 2px; font-weight: 700; border: 1px solid #cbd5e0; }

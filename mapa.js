@@ -65,13 +65,11 @@ function fPediuManualGlobal(apelido, dia, m, y, ausencias) {
     return ausencias.some(a => a.funcionario === apelido && a.tipo === "Folga" && (a.observacao === "Pedida" || a.observacao === "Marcada") && processarDatas(a).some(dt => dt.getTime() === dtRef));
 }
 
-// NOVA FUNÇÃO: Verifica se o funcionário tem QUALQUER tipo de ausência no dia (Férias, Falta, Licença, etc)
 function estaAusenteGlobal(apelido, dia, m, y, ausencias) {
     const dtRef = new Date(y, m - 1, dia).getTime();
     return ausencias.some(a => a.funcionario === apelido && a.tipo !== "Folga" && processarDatas(a).some(dt => dt.getTime() === dtRef));
 }
 
-// Mantida para compatibilidade com outras partes do código
 function emFeriasGlobal(apelido, dia, m, y, ausencias) {
     const dtRef = new Date(y, m - 1, dia).getTime();
     return ausencias.some(a => a.funcionario === apelido && a.tipo === "Férias" && processarDatas(a).some(dt => dt.getTime() === dtRef));
@@ -85,16 +83,33 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
     let pTardeAvul = 0, pManhaRodizio = 0; 
     let mManhaAvul = {}, mTardeAvul = {}, mNoite = {}, mVCCL = {};
 
-    // --- IDENTIFICAÇÃO DINÂMICA DOS GRUPOS VCCL ---
-    const manhaVCCL = funcionarios.filter(f => f.empresa === "VCCL" && f.periodo === "Manhã");
-    const tardeVCCL = funcionarios.filter(f => f.empresa === "VCCL" && f.periodo === "Tarde");
     const assistenteInterVCCL = funcionarios.find(f => f.empresa === "VCCL" && f.periodo === "Intermediário" && f.funcao === "Assistente");
     const interApelido = assistenteInterVCCL ? assistenteInterVCCL.apelido : null;
+
+    const precisaSubstituicao = (apelido, diaSim) => {
+        if (estaAusenteGlobal(apelido, diaSim.getDate(), diaSim.getMonth() + 1, diaSim.getFullYear(), ausencias)) return true;
+        const fInfo = funcionarios.find(x => x.apelido === apelido);
+        if (fInfo && fInfo.status === "Inativo" && fInfo.demissao) {
+            const dtDem = new Date(fInfo.demissao + "T00:00:00");
+            return diaSim >= dtDem;
+        }
+        return false;
+    };
 
     while (dSim <= dFim) {
         const d = dSim.getDate(), m = dSim.getMonth() + 1, y = dSim.getFullYear();
         const chave = `${d}-${m}-${y}`, sem = dSim.getDay();
         const idxFDSGeral = Math.abs(Math.floor((dSim.getTime() - dataBaseRef.getTime()) / (1000 * 60 * 60 * 24 * 7)));
+
+        // --- FILTRAR QUEM ESTÁ ADMITIDO E NÃO DEMITIDO NESTE DIA ESPECÍFICO ---
+        const funcsDia = funcionarios.filter(f => {
+            const dtAdm = new Date(f.admissao + "T00:00:00");
+            const dtDem = f.demissao ? new Date(f.demissao + "T00:00:00") : null;
+            return dSim >= dtAdm && (!dtDem || dSim < dtDem);
+        });
+
+        const manhaVCCL_Ativos = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Manhã");
+        const tardeVCCL_Ativos = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Tarde");
 
         if (sem === 6) {
             const dDom = new Date(dSim); dDom.setDate(dDom.getDate() + 1);
@@ -107,12 +122,12 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
 
         if (regrasAtivas.equipeTarde) {
             if (sem === 6) {
-                const marciaFeriasAgora = estaAusenteGlobal("Márcia", d, m, y, ausencias);
-                if (!marciaFeriasAgora && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia`] = true;
+                const marciaFora = precisaSubstituicao("Márcia", dSim);
+                if (!marciaFora && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia`] = true;
                 else {
                     let t = 0; while (t < 5) {
                         let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
-                        if (!estaAusenteGlobal(cand, d, m, y, ausencias)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
+                        if (!precisaSubstituicao(cand, dSim)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
                         pTardeAvul++; t++;
                     }
                 }
@@ -140,7 +155,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 else {
                     let t = 0; while (t < equipeRodManha.length) {
                         let titular = equipeRodManha[pManhaRodizio % equipeRodManha.length];
-                        if (!estaAusenteGlobal(titular, d, m, y, ausencias)) { mManhaAvul[`${chave}-${titular}`] = true; pManhaRodizio++; break; }
+                        if (!precisaSubstituicao(titular, dSim)) { mManhaAvul[`${chave}-${titular}`] = true; pManhaRodizio++; break; }
                         pManhaRodizio++; t++;
                     }
                 }
@@ -153,44 +168,53 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             }
         }
 
-        // --- NOVO BLOCO VCCL DINÂMICO ---
+        // --- BLOCO VCCL DINÂMICO COM REVEZAMENTO AUTOMÁTICO DO INTERMEDIÁRIO ---
         if (sem === 6 || sem === 0) {
-            const duplasVCCL = [
-                { p1: manhaVCCL[0]?.apelido, p2: manhaVCCL[1]?.apelido },
-                { p1: tardeVCCL[0]?.apelido, p2: tardeVCCL[1]?.apelido }
-            ];
+            let duplasVCCL = [];
+            let interJaEstaOcupado = false;
 
-            let interAtivoNoDia = false;
+            // Lógica Manhã: Se tiver 2, faz dupla entre eles. Se tiver 1, faz dupla com Intermediário.
+            if (manhaVCCL_Ativos.length === 2) {
+                duplasVCCL.push({ p1: manhaVCCL_Ativos[0].apelido, p2: manhaVCCL_Ativos[1].apelido });
+            } else if (manhaVCCL_Ativos.length === 1 && interApelido) {
+                duplasVCCL.push({ p1: manhaVCCL_Ativos[0].apelido, p2: interApelido });
+                interJaEstaOcupado = true;
+            }
+
+            // Lógica Tarde: Se tiver 2, faz dupla entre eles. Se tiver 1, faz dupla com Intermediário.
+            if (tardeVCCL_Ativos.length === 2) {
+                duplasVCCL.push({ p1: tardeVCCL_Ativos[0].apelido, p2: tardeVCCL_Ativos[1].apelido });
+            } else if (tardeVCCL_Ativos.length === 1 && interApelido) {
+                duplasVCCL.push({ p1: tardeVCCL_Ativos[0].apelido, p2: interApelido });
+                interJaEstaOcupado = true;
+            }
 
             duplasVCCL.forEach(dupla => {
-                if (!dupla.p1 || !dupla.p2) return;
-
                 let titularA = dupla.p1, titularB = dupla.p2;
 
-                // Substituição Automática por QUALQUER ausência (estaAusenteGlobal)
-                if (estaAusenteGlobal(titularA, d, m, y, ausencias) && interApelido) { titularA = interApelido; interAtivoNoDia = true; }
-                else if (estaAusenteGlobal(titularB, d, m, y, ausencias) && interApelido) { titularB = interApelido; interAtivoNoDia = true; }
+                // Substituição pontual por ausência se não for o inter que já está na dupla
+                if (titularA !== interApelido && precisaSubstituicao(titularA, dSim) && interApelido && !interJaEstaOcupado) { titularA = interApelido; interJaEstaOcupado = true; }
+                else if (titularB !== interApelido && precisaSubstituicao(titularB, dSim) && interApelido && !interJaEstaOcupado) { titularB = interApelido; interJaEstaOcupado = true; }
 
                 let natOff = (sem === 6) ? (idxFDSGeral % 2 === 0 ? titularA : titularB) : (idxFDSGeral % 2 !== 0 ? titularA : titularB);
                 let natWork = (natOff === titularA) ? titularB : titularA;
                 let darFolgaPara = natOff;
 
                 if (sem === 6) {
-                    const amanha = new Date(y, m-1, d+1), segunda = new Date(y, m-1, d+2);
-                    if (fPediuManualGlobal(natOff, amanha.getDate(), amanha.getMonth()+1, amanha.getFullYear(), ausencias) || estaAusenteGlobal(natOff, segunda.getDate(), segunda.getMonth()+1, segunda.getFullYear(), ausencias)) darFolgaPara = natWork;
+                    const segunda = new Date(y, m-1, d+2);
+                    if (fPediuManualGlobal(natOff, d+1, m, y, ausencias) || precisaSubstituicao(natOff, segunda)) darFolgaPara = natWork;
                 } else if (sem === 0) { 
                     const segunda = new Date(y, m-1, d+1); 
-                    if (estaAusenteGlobal(natWork, segunda.getDate(), segunda.getMonth()+1, segunda.getFullYear(), ausencias)) darFolgaPara = null; 
+                    if (precisaSubstituicao(natWork, segunda)) darFolgaPara = null; 
                 }
 
                 if (fPediuManualGlobal((darFolgaPara === titularA ? titularB : titularA), d, m, y, ausencias)) darFolgaPara = null;
                 if (darFolgaPara) mVCCL[`${chave}-${darFolgaPara}`] = true;
             });
 
-            // Se o Coringa (Assistente Intermediário) não precisou substituir ninguém, ele folga no Domingo
-            if (!interAtivoNoDia && sem === 0 && interApelido) mVCCL[`${chave}-${interApelido}`] = true;
+            // Se o Intermediário não precisou entrar em revezamento ou substituição, folga no Domingo
+            if (!interJaEstaOcupado && sem === 0 && interApelido) mVCCL[`${chave}-${interApelido}`] = true;
         }
-
         dSim.setDate(dSim.getDate() + 1);
     }
     return { tardeAvul: mTardeAvul, manhaAvul: mManhaAvul, noite: mNoite, vccl: mVCCL };
@@ -212,23 +236,14 @@ async function gerarMapa() {
 
         const regrasAtivas = docRegras.exists ? docRegras.data() : {};
         let ausencias = snapAus.docs.map(d => d.data());
-        
         const dataInicioMes = new Date(ano, mes - 1, 1);
         const dataFimMes = new Date(ano, mes, 0);
 
-        // --- FILTRO CORRIGIDO: REMOVE APRENDIZ E VALIDA INATIVOS ---
         let funcionarios = snapFunc.docs.map(d => d.data()).filter(f => {
-            // 1. Bloqueio Total de Aprendiz no Mapa
             if (f.funcao === "Aprendiz") return false;
-
             const dtAdm = new Date(f.admissao + "T00:00:00");
             const dtDem = f.demissao ? new Date(f.demissao + "T00:00:00") : null;
-
-            const admitidoAteFinalMes = dtAdm <= dataFimMes;
-            // Só mostra inativo se a demissão ocorreu neste mês ou no futuro
-            const ativoOuDemitidoNoMes = f.status === "Ativo" || (dtDem && dtDem >= dataInicioMes);
-
-            return admitidoAteFinalMes && ativoOuDemitidoNoMes;
+            return (dtAdm <= dataFimMes) && (f.status === "Ativo" || (dtDem && dtDem >= dataInicioMes));
         });
         
         const meuFunc = funcionarios.find(f => f.nome.trim().toLowerCase() === usuarioLogado.nomeCompleto.trim().toLowerCase());
@@ -241,17 +256,14 @@ async function gerarMapa() {
         empSel.forEach(empresa => {
             const funcsEmpresa = funcionarios.filter(f => f.empresa === empresa);
             if (funcsEmpresa.length === 0) return;
-
             const section = document.createElement('div'); 
             section.className = "empresa-section";
             section.innerHTML = `<div class="empresa-title">EMPRESA ${empresa}</div>`;
-            
             let temTabelaParaMostrar = false;
 
             perSel.forEach(per => {
                 const funcsPeriodo = funcsEmpresa.filter(f => f.periodo === per);
                 const listaFinal = isMaster ? funcsPeriodo : funcsPeriodo.filter(f => f.nome.trim().toLowerCase() === usuarioLogado.nomeCompleto.trim().toLowerCase());
-                
                 if (listaFinal.length === 0) return;
                 temTabelaParaMostrar = true;
 
@@ -265,17 +277,19 @@ async function gerarMapa() {
                 let tableHtml = `<table><thead><tr><th class="col-func">FUNCIONÁRIO</th>`;
                 for (let d = 1; d <= diasNoMes; d++) {
                     const dObj = new Date(ano, mes - 1, d);
-                    tableHtml += `<th>${String(d).padStart(2,'0')}/${String(mes).padStart(2,'0')}<br>${dObj.toLocaleDateString('pt-BR', {weekday:'short'}).replace('.','')}</th>`;
+                    // Pegamos o texto do dia (qui, sex...)
+                let diaSemanaStr = dObj.toLocaleDateString('pt-BR', {weekday:'short'}).replace('.','');
+                    // Forçamos a primeira letra a ser Maiúscula
+                diaSemanaStr = diaSemanaStr.charAt(0).toUpperCase() + diaSemanaStr.slice(1);
+
+                tableHtml += `<th>${String(d).padStart(2,'0')}/${String(mes).padStart(2,'0')}<br>${diaSemanaStr}</th>`;
                 }
                 tableHtml += `</tr></thead><tbody>`;
 
                 listaFinal.forEach(f => {
                     tableHtml += `<tr><td class="col-func">${f.apelido} - ${f.registro}</td>`;
-                    
                     const dtAdm = new Date(f.admissao + "T00:00:00");
-                    // SÓ gera data de demissão se o status for INATIVO
                     const dtDem = (f.status === "Inativo" && f.demissao) ? new Date(f.demissao + "T00:00:00") : null;
-
                     let ferias = getDiasAusencia(f.apelido, ausencias, "Férias", mes, ano);
                     let outrosAfast = getDiasAusencia(f.apelido, ausencias, ["Afastamento", "Licença"], mes, ano);
                     let faltas = getDiasAusencia(f.apelido, ausencias, "Falta", mes, ano);
@@ -286,48 +300,29 @@ async function gerarMapa() {
                         const sem = dObj.getDay();
                         const eFer = feriadosBase.some(fer => fer.dia === d && fer.mes === mes && (fer.tipo !== "municipal" || fer.empresa === empresa));
                         const chave = `${d}-${mes}-${ano}`;
-                        
-                        if (dObj < dtAdm) {
-                            tableHtml += `<td style="background:#eee"></td>`;
-                            continue;
-                        }
-
-                        // Lógica Demitido Corrigida: Só entra aqui se status for Inativo
+                        if (dObj < dtAdm) { tableHtml += `<td style="background:#eee"></td>`; continue; }
                         if (dtDem && dObj >= dtDem) {
                             let restoMes = diasNoMes - d + 1;
-                            tableHtml += `<td colspan="${restoMes}" class="dia-demitido">DEMITIDO</td>`;
+                            tableHtml += `<td colspan="${restoMes}" class="dia-demitido">Demitido</td>`;
                             d = diasNoMes; continue;
                         }
-
                         let simboloA = "";
                         if (f.nascimento) { const [yN, mN, dN] = f.nascimento.split('-').map(Number); if (dN === d && mN === mes) simboloA = `<span class="symbol-a">A</span>`; }
-                        
-                        if (ferias.includes(d)) { 
-                            let count = 1; while(ferias.includes(d+count)) count++; 
-                            tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`; 
-                            d += (count-1); continue; 
-                        }
+                        if (ferias.includes(d)) { let count = 1; while(ferias.includes(d+count)) count++; tableHtml += `<td colspan="${count}" class="dia-ferias">${simboloA}Férias</td>`; d += (count-1); continue; }
                         if (outrosAfast.includes(d)) {
                             let count = 1; while(outrosAfast.includes(d + count)) count++;
                             const dtRef = new Date(ano, mes - 1, d).getTime();
                             const ausEnc = ausencias.find(a => a.funcionario === f.apelido && ["Afastamento", "Licença"].includes(a.tipo) && processarDatas(a).some(dt => dt.getTime() === dtRef));
                             let tipoReal = ausEnc ? ausEnc.tipo : "Afastamento";
-                            let txt = (count <= 3) ? (tipoReal === "Afastamento" ? "AF" : "LI") : tipoReal.toUpperCase();
+                            let txt = (count <= 2) ? (tipoReal === "Afastamento" ? "AF" : "LI") : tipoReal.toUpperCase();
                             tableHtml += `<td colspan="${count}" class="dia-afastamento">${simboloA}${txt}</td>`;
                             d += (count-1); continue;
                         }
-                        if (faltas.includes(d)) {
-                            let count = 1; while(faltas.includes(d + count)) count++;
-                            tableHtml += `<td colspan="${count}" class="dia-falta">${simboloA}FALTA</td>`;
-                            d += (count-1); continue;
-                        }
-                       
                         let conteudo = "", decidido = false;
                         if (folgasInfo[d]) { conteudo = `<span class="${folgasInfo[d]==='Pedida'?'folga-pedida':(folgasInfo[d]==='Marcada'?'folga-marcada':'folga-programada')}">${folgasInfo[d]==='Programada'?'F':'X'}</span>`; decidido = true; }
                         if (!decidido && empresa === "VCCL" && sim.vccl[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && empresa === "AVUL" && per === "Manhã" && sim.manhaAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && empresa === "AVUL" && per === "Tarde" && sim.tardeAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
-                        
                         if (!decidido && f.periodo === "Noite") { 
                             if (sem === 6) { 
                                 if (f.apelido === "Fábio" && d === (obterUltimoDomingo(ano,mes)-1)) { conteudo = '<b>X</b>'; decidido = true; } 
@@ -370,23 +365,12 @@ function ajustarSidebar() {
     const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
-
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
-        if (link.getAttribute('href') === "#" || href === "index") {
-            link.parentElement.style.display = 'block';
-            return;
-        }
-        if (!isMaster && !permissoes.includes(href)) {
-            link.parentElement.style.display = 'none';
-        } else {
-            link.parentElement.style.display = 'block';
-        }
+        if (link.getAttribute('href') === "#" || href === "index") { link.parentElement.style.display = 'block'; return; }
+        if (!isMaster && !permissoes.includes(href)) { link.parentElement.style.display = 'none'; } else { link.parentElement.style.display = 'block'; }
     });
-
-    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
-        window.location.href = "index.html";
-    }
+    if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) { window.location.href = "index.html"; }
 }
 
 function logout() {

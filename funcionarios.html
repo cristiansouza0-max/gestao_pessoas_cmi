@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Cadastro de Funcionários</title>
+    <title>Funcionários</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="index.css">
     <link rel="stylesheet" href="funcionarios.css">
@@ -10,7 +10,7 @@
 <body>
     <div class="container">
         <nav class="sidebar">
-            <h2>Gestão de Escalas</h2>
+            <h2>Gestão de Pessoas</h2>
             <ul>
                 <li><a href="index.html">🏠 Início</a></li>
                 <li><a href="funcionarios.html" class="active">👥 Funcionários</a></li>
@@ -44,13 +44,19 @@
 
                     <!-- Linha 2 -->
                     <div class="row">
-                        <div class="col"><label>Data de Nascimento</label><input type="date" id="nascimento" required></div>
                         <div class="col">
                             <label>Empresa</label>
                             <select id="empresa" onchange="atualizarFiltroJornadas()">
                                 <option value="AVUL">AVUL</option>
                                 <option value="VCCL">VCCL</option>
-                                <option value="VSBL">VSBL</option> <!-- VSBL Adicionada -->
+                                <option value="VSBL">VSBL</option>
+                            </select>
+                        </div>
+                        <div class="col">
+                            <label>Setor</label>
+                            <select id="setor" required>
+                                <option value="Tráfego">Tráfego</option>
+                                <option value="Monitoramento">Monitoramento</option>
                             </select>
                         </div>
                         <div class="col">
@@ -62,6 +68,7 @@
                                 <option value="Aprendiz">Aprendiz</option>
                             </select>
                         </div>
+                        <div class="col"><label>Data de Nascimento</label><input type="date" id="nascimento" required></div>
                     </div>
 
                     <!-- Linha 3 -->
@@ -101,20 +108,29 @@
                     </div>
                 </form>
 
-                <h2 class="titulo-sessao-central">Funcionários Cadastrados no CMI Tráfego</h2>
+                <div class="header-lista-usuarios">
+                    <h2 class="titulo-sessao-central">Funcionários Cadastrados</h2>
+                    <div class="filtro-setor-container">
+                        <label>Filtrar Setor:</label>
+                        <select id="filtro-setor-lista" onchange="renderizarCards()">
+                            <option value="TODOS">Todos os Setores</option>
+                            <option value="Tráfego">Tráfego</option>
+                            <option value="Monitoramento">Monitoramento</option>
+                        </select>
+                    </div>
+                </div>
                 
                 <div class="colunas-empresas">
                     <div class="empresa-col">
-                        <h2 class="titulo-avul">Funcionários AVUL</h2>
+                        <h2 class="titulo-avul">AVUL</h2>
                         <div id="lista-avul" class="lista-rolagem"></div>
                     </div>
                     <div class="empresa-col">
-                        <h2 class="titulo-vccl">Funcionários VCCL</h2>
+                        <h2 class="titulo-vccl">VCCL</h2>
                         <div id="lista-vccl" class="lista-rolagem"></div>
                     </div>
-                    <!-- Nova Coluna VSBL -->
                     <div class="empresa-col">
-                        <h2 class="titulo-vsbl">Funcionários VSBL</h2>
+                        <h2 class="titulo-vsbl">VSBL</h2>
                         <div id="lista-vsbl" class="lista-rolagem"></div>
                     </div>
                 </div>

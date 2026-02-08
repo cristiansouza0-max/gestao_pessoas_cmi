@@ -24,14 +24,11 @@ function ajustarSidebar() {
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
         
-        // --- A CORREÇÃO ESTÁ AQUI ---
-        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
         if (link.getAttribute('href') === "#" || href === "index") {
             link.parentElement.style.display = 'block';
-            return; // Pula para o próximo link
+            return; 
         }
 
-        // Regra para as outras páginas
         if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
@@ -39,7 +36,6 @@ function ajustarSidebar() {
         }
     });
 
-    // Trava de segurança para acesso via URL
     if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
@@ -101,6 +97,7 @@ document.getElementById('form-func').addEventListener('submit', async function(e
         registro: document.getElementById('registro').value,
         nascimento: document.getElementById('nascimento').value,
         empresa: document.getElementById('empresa').value,
+        setor: document.getElementById('setor').value,
         funcao: document.getElementById('funcao').value,
         periodo: document.getElementById('periodo').value,
         admissao: document.getElementById('admissao').value,
@@ -124,6 +121,9 @@ async function renderizarCards() {
         "VCCL": document.getElementById('lista-vccl'),
         "VSBL": document.getElementById('lista-vsbl') 
     };
+    
+    const filtroSetor = document.getElementById('filtro-setor-lista').value;
+    
     Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
 
     const snap = await db.collection("funcionarios").orderBy("nome").get();
@@ -131,12 +131,12 @@ async function renderizarCards() {
     snap.forEach(doc => {
         const f = doc.data();
         
-        // Texto de Status Detalhado
+        if (filtroSetor !== "TODOS" && f.setor !== filtroSetor) return;
+
         const textoStatus = f.status === "Ativo" 
             ? `Ativo desde ${formatarData(f.admissao)}` 
             : `Inativo em ${formatarData(f.demissao)}`;
 
-        // Montagem das Tags de Jornada
         let jornadasHtml = "";
         if (f.jornadasIds) {
             f.jornadasIds.forEach(jid => {
@@ -154,6 +154,7 @@ async function renderizarCards() {
             </div>
             <div class="card-body-container">
                 <div class="card-info-content">
+                    <div><span>Setor:</span> ${f.setor || 'Tráfego'}</div>
                     <div><span>Apelido:</span> ${f.apelido} - <span>Registro:</span> ${f.registro}</div>
                     <div><span>Data de Nascimento:</span> ${formatarData(f.nascimento)}</div>
                     <div><span>Período:</span> ${f.periodo} - <span>Função:</span> ${f.funcao}</div>
@@ -179,6 +180,7 @@ async function editarFunc(id) {
     document.getElementById('registro').value = f.registro;
     document.getElementById('nascimento').value = f.nascimento;
     document.getElementById('empresa').value = f.empresa;
+    document.getElementById('setor').value = f.setor || "Tráfego";
     document.getElementById('funcao').value = f.funcao;
     document.getElementById('periodo').value = f.periodo;
     document.getElementById('admissao').value = f.admissao;

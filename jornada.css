@@ -27,3 +27,67 @@
 .footer-total { background: #bfbfbf; font-weight: bold; font-size: 0.6rem; }
 .btn-save-blue { background: #3498db; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; }
 .cabecalho-equipe-master { text-align: center; font-weight: 800; font-size: 1rem; margin-bottom: 10px; text-transform: uppercase; color: #2c3e50; }
+.celula-demitido-mesclada { background-color: #000 !important; color: #fff !important; font-weight: bold; font-size: 0.8rem; text-transform: uppercase; text-align: center; border: 1px solid black !important; }
+
+/* Centralização do Cabeçalho */
+.header-dashboard {
+    display: flex;
+    flex-direction: column; /* Título em cima */
+    align-items: center;    /* Centraliza horizontalmente */
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-shrink: 0;
+}
+
+.header-dashboard h1 {
+    width: 100%;
+    text-align: center;
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.header-controls {
+    display: flex;
+    flex-wrap: wrap;        /* Quebra linha se a tela for pequena */
+    justify-content: center; /* Centraliza os filtros */
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+/* Estilo dos Checkboxes de Período */
+.filter-group-checkboxes {
+    display: flex;
+    gap: 12px;
+    background: white;
+    padding: 8px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    align-items: center;
+}
+
+.check-item {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.check-item input {
+    cursor: pointer;
+    accent-color: #3498db;
+    width: 15px;
+    height: 15px;
+}
+
+/* Ajuste no seletor de Mês/Ano para alinhar com o mapa */
+.filter-group select, .filter-group input {
+    text-align: center;
+    text-align-last: center;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px;
+}

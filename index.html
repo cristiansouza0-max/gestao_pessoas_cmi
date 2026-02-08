@@ -2,14 +2,14 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Controle - Gestão de Escalas</title>
+    <title>Painel de Controle</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
     <div class="container">
         <nav class="sidebar">
-            <h2>Gestão de Escalas</h2>
+            <h2>Gestão de Pessoas</h2>
             <ul>
                 <li><a href="index.html" class="active">🏠 Início</a></li>
                 <li><a href="funcionarios.html">👥 Funcionários</a></li>
@@ -34,7 +34,7 @@
                     <div class="filter-group">
                         <label>Filtrar Empresa:</label>
                         <select id="filtro-empresa-home" onchange="carregarDashboard()">
-                            <option value="TODAS">TODAS</option>
+                            <option value="TODAS">Todas</option>
                             <option value="AVUL">AVUL</option>
                             <option value="VCCL">VCCL</option>
                             <option value="VSBL">VSBL</option>
@@ -82,7 +82,7 @@
                             <div class="filter-item">
                                 <label>Período:</label>
                                 <select id="filtro-periodo-timeline" onchange="renderizarTimelineFerias()">
-                                    <option value="TODOS">TODOS</option>
+                                    <option value="TODOS">Todos</option>
                                     <option value="Manhã">Manhã</option>
                                     <option value="Tarde">Tarde</option>
                                     <option value="Intermediário">Intermediário</option>
@@ -93,7 +93,7 @@
                             <div class="filter-item">
                                 <label>Funcionário:</label>
                                 <select id="filtro-func-timeline" onchange="renderizarTimelineFerias()">
-                                    <option value="TODOS">TODOS</option>
+                                    <option value="TODOS">Todos</option>
                                 </select>
                             </div>
                             <div class="filter-item">
