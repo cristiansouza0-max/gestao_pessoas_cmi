@@ -1,5 +1,26 @@
 .content { height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px 40px; }
-h1 { font-size: 1.8rem; color: #000; margin-bottom: 20px; flex-shrink: 0; font-weight: bold; }
+
+/* Cabeçalho Principal */
+.header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+.header-main h1 { font-size: 1.8rem; color: #000; margin: 0; font-weight: bold; }
+
+/* Padronização dos Filtros (Estilo Pill Escura) */
+.filtros-top-global, .filtros-historico { display: flex; gap: 10px; }
+
+.filtro-pill { 
+    background: #2c3e50; 
+    color: white; 
+    padding: 6px 15px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.filtro-pill label { font-weight: 800; text-transform: uppercase; font-size: 0.65rem; color: #bdc3c7; }
+.filtro-pill select { background: transparent; color: white; border: none; font-weight: bold; outline: none; cursor: pointer; font-size: 0.8rem; }
+.filtro-pill select option { background: #2c3e50; color: white; }
 
 .form-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-shrink: 0; margin-bottom: 20px; }
 .row { display: flex; gap: 15px; margin-bottom: 15px; }
@@ -12,10 +33,7 @@ h1 { font-size: 1.8rem; color: #000; margin-bottom: 20px; flex-shrink: 0; font-w
 .btn-clear { background: #95a5a6; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; }
 
 .header-historico { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; flex-shrink: 0; }
-.filtros-historico { display: flex; gap: 15px; }
-.filter-item { display: flex; flex-direction: column; gap: 3px; }
-.filter-item label { font-size: 0.7rem; font-weight: bold; color: #777; text-transform: uppercase; }
-.filter-item select { padding: 5px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.8rem; background: white; outline: none; min-width: 150px; }
+.titulo-secao { font-size: 1.3rem; color: #2c3e50; font-weight: 800; margin: 0; }
 
 .colunas-ausencias-wrapper { display: flex; gap: 15px; flex-grow: 1; overflow-x: hidden; overflow-y: hidden; padding-bottom: 15px; }
 .ausencia-col { flex: 1; background: #ebedef; border-radius: 10px; display: flex; flex-direction: column; min-width: 240px; border-top: 5px solid #bdc3c7; }
@@ -36,26 +54,22 @@ h1 { font-size: 1.8rem; color: #000; margin-bottom: 20px; flex-shrink: 0; font-w
 .card-body-ausencia { display: flex; padding: 12px; justify-content: space-between; align-items: center; }
 .ausencia-info { font-size: 0.82rem; line-height: 1.5; flex: 1; color: #333; font-weight: 500; }
 .card-action-column { display: flex; flex-direction: column; gap: 12px; padding-left: 12px; border-left: 1px solid #eee; }
+
+/* Status Master */
+.card-ausencia.pendente { background-color: #fffbe6 !important; border: 1px solid #ffe58f; border-left: 8px solid #f1c40f;}
+.btn-aprovar { color: #27ae60; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+.btn-reprovar { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
 .btn-icon-edit { color: #f39c12; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
 .btn-icon-delete { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
 
-/* Cartão de solicitação pendente para o Master */
-.card-ausencia.pendente { background-color: #fffbe6 !important; /* Amarelo Claro */ border: 1px solid #ffe58f; border-left: 8px solid #f1c40f;}
-.btn-aprovar { color: #27ae60; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-.btn-reprovar { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-.btn-icon-edit { color: #f39c12; background: none; border: none; cursor: pointer; font-size: 1.1rem; margin-bottom: 5px;}
-
-/* Badge de Status para o usuário comum */
-.badge-status-ausencia { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; margin-left: 8px; display: inline-block; vertical-align: middle;}
-.status-aprovada { background: #27ae60; color: white; box-shadow: 0 2px 4px rgba(39, 174, 96, 0.2);}
+.badge-status-ausencia { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; margin-left: 8px; }
+.status-aprovada { background: #27ae60; color: white; }
 .status-pendente { background: #f1c40f; color: black; }
 
-/* POP-UP DE ALERTA */
+/* POP-UP */
 .alerta-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
-.alerta-modal { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 420px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border-top: 10px solid #e74c3c; animation: slideDown 0.3s ease; }
+.alerta-modal { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 420px; border-top: 10px solid #e74c3c; animation: slideDown 0.3s ease; }
 .alerta-modal i { font-size: 3.5rem; color: #e74c3c; margin-bottom: 15px; }
 .alerta-modal h2 { color: #2c3e50; margin-bottom: 10px; font-size: 1.4rem; }
 .alerta-modal p { font-size: 1rem; line-height: 1.5; color: #555; margin-bottom: 25px; }
 .alerta-modal button { background: #e74c3c; color: white; border: none; padding: 12px 30px; border-radius: 8px; cursor: pointer; font-weight: bold; text-transform: uppercase; }
-
-@keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); }}

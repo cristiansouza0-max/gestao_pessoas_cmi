@@ -30,7 +30,28 @@
         </nav>
 
         <main class="content">
-            <h1>Registro de Ausências</h1>
+            <div class="header-main">
+                <h1>Registro de Ausências</h1>
+                <div class="filtros-top-global">
+                    <div class="filtro-pill">
+                        <label>Empresa:</label>
+                        <select id="filtro-empresa-global" onchange="atualizarPaginaCompleta()">
+                            <option value="TODAS">TODAS</option>
+                            <option value="AVUL">AVUL</option>
+                            <option value="VCCL">VCCL</option>
+                            <option value="VSBL">VSBL</option>
+                        </select>
+                    </div>
+                    <div class="filtro-pill">
+                        <label>Setor:</label>
+                        <select id="filtro-setor-global" onchange="atualizarPaginaCompleta()">
+                            <option value="TODOS">TODOS</option>
+                            <option value="Tráfego">Tráfego</option>
+                            <option value="Monitoramento">Monitoramento</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             
             <form id="form-ausencia" class="form-container">
                 <input type="hidden" id="edit-id" value="">
@@ -39,7 +60,7 @@
                     <div class="col">
                         <label>Funcionário (Apelido):</label>
                         <select id="select-funcionario" required>
-                            <option value="">Carregando...</option>
+                            <option value="">Selecione...</option>
                         </select>
                     </div>
                     <div class="col">
@@ -90,18 +111,9 @@
             <div class="header-historico">
                 <h2 class="titulo-secao">Histórico de Ausências</h2>
                 <div class="filtros-historico">
-                    <div class="filter-item">
-                        <label>Empresa:</label>
-                        <select id="filtro-empresa-hist" onchange="renderizarAusencias()">
-                            <option value="TODAS">TODAS</option>
-                            <option value="AVUL">AVUL</option>
-                            <option value="VCCL">VCCL</option>
-                            <option value="VSBL">VSBL</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
+                    <div class="filtro-pill">
                         <label>Funcionário:</label>
-                        <select id="filtro-func-hist" onchange="renderizarAusencias()">
+                        <select id="filtro-func-hist" onchange="iniciarEscutaAusencias()">
                             <option value="TODOS">TODOS</option>
                         </select>
                     </div>

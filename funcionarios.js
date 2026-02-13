@@ -65,13 +65,20 @@ async function cachearTodasJornadas() {
 
 function atualizarFiltroJornadas() {
     const empresaSel = document.getElementById('empresa').value;
+    const setorSel = document.getElementById('setor').value;
     const periodoSel = document.getElementById('periodo').value;
     const wrapper = document.getElementById('jornadas-selection-wrapper');
     wrapper.innerHTML = "";
-    const filtradas = todasJornadasCache.filter(j => j.empresa === empresaSel && j.periodo === periodoSel);
+
+    // Filtro refinado: Empresa + Setor + Período
+    const filtradas = todasJornadasCache.filter(j => 
+        j.empresa === empresaSel && 
+        (j.setor === setorSel || !j.setor) && // Compatibilidade com jornadas sem setor salvo
+        j.periodo === periodoSel
+    );
 
     if (filtradas.length === 0) {
-        wrapper.innerHTML = `<p style="font-size: 0.8rem; color: #999; padding: 10px;">Nenhuma jornada cadastrada para ${empresaSel} - ${periodoSel}</p>`;
+        wrapper.innerHTML = `<p style="font-size: 0.8rem; color: #999; padding: 10px;">Nenhuma jornada para: ${empresaSel} | ${setorSel} | ${periodoSel}</p>`;
         return;
     }
 
@@ -187,12 +194,17 @@ async function editarFunc(id) {
     document.getElementById('demissao').value = f.demissao || "";
     document.querySelector(`input[name="status"][value="${f.status}"]`).checked = true;
     toggleDataStatus();
+    
+    // Atualiza a lista de jornadas baseada nos novos dados carregados (Empresa/Setor/Período)
     atualizarFiltroJornadas();
+
+    // Marca os checkboxes das jornadas que o funcionário já possui
     setTimeout(() => {
         document.querySelectorAll('.chk-jornada').forEach(chk => {
             chk.checked = f.jornadasIds && f.jornadasIds.includes(chk.value);
         });
-    }, 100);
+    }, 150);
+
     document.getElementById('edit-id').value = id;
     document.getElementById('btn-submit').innerText = "Atualizar Funcionário";
     window.scrollTo({top: 0, behavior: 'smooth'});

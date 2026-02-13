@@ -34,7 +34,7 @@
                 <div class="header-controls">
                     <div class="filter-group">
                         <label>Mês:</label>
-                        <select id="filtro-mes-param" onchange="renderizarFeriados()">
+                        <select id="filtro-mes-param" onchange="renderizarFeriados(); renderizarAprendizes();">
                             <option value="1">Janeiro</option><option value="2">Fevereiro</option>
                             <option value="3">Março</option><option value="4">Abril</option>
                             <option value="5">Maio</option><option value="6">Junho</option>
@@ -45,7 +45,7 @@
                     </div>
                     <div class="filter-group">
                         <label>Ano:</label>
-                        <input type="number" id="filtro-ano-param" value="2025" onchange="renderizarFeriados()">
+                        <input type="number" id="filtro-ano-param" value="2026" onchange="renderizarFeriados(); renderizarAprendizes();">
                     </div>
                     <div class="filter-group">
                         <label>Folgas:</label>
@@ -70,7 +70,6 @@
                 <h2 class="titulo-secao-aprendiz">Regras de Folgas Específicas</h2>
                 <div id="regras-especiais" class="grid-aprendizes">
                     
-                    <!-- CARTÃO EQUIPE MANHÃ AVUL -->
                     <div class="card-aprendiz" style="border-top-color: #27ae60;">
                         <div class="card-aprendiz-header" style="background: #f0fff4;">
                             <h4>Equipe Manhã (AVUL)</h4>
@@ -90,7 +89,6 @@
                         </div>
                     </div>
 
-                    <!-- CARTÃO OSMAIR -->
                     <div class="card-aprendiz">
                         <div class="card-aprendiz-header">
                             <h4>Osmair (Noite - AVUL)</h4>
@@ -106,7 +104,6 @@
                         </div>
                     </div>
 
-                    <!-- CARTÃO FÁBIO -->
                     <div class="card-aprendiz">
                         <div class="card-aprendiz-header">
                             <h4>Fábio (Noite - VCCL)</h4>
@@ -122,7 +119,6 @@
                         </div>
                     </div>
 
-                    <!-- CARTÃO EQUIPE TARDE AVUL -->
                     <div class="card-aprendiz" style="border-top-color: #3498db;">
                         <div class="card-aprendiz-header" style="background: #eef7ff;">
                             <h4>Equipe Tarde (AVUL)</h4>

@@ -35,18 +35,12 @@
                     <div class="filter-group">
                         <label>Mês:</label>
                         <select id="mapa-mes">
-                            <option value="1">Janeiro</option>
-                            <option value="2">Fevereiro</option>
-                            <option value="3">Março</option>
-                            <option value="4">Abril</option>
-                            <option value="5">Maio</option>
-                            <option value="6">Junho</option>
-                            <option value="7">Julho</option>
-                            <option value="8">Agosto</option>
-                            <option value="9">Setembro</option>
-                            <option value="10">Outubro</option>
-                            <option value="11">Novembro</option>
-                            <option value="12">Dezembro</option>
+                            <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+                            <option value="3">Março</option><option value="4">Abril</option>
+                            <option value="5">Maio</option><option value="6">Junho</option>
+                            <option value="7">Julho</option><option value="8">Agosto</option>
+                            <option value="9">Setembro</option><option value="10">Outubro</option>
+                            <option value="11">Novembro</option><option value="12">Dezembro</option>
                         </select>
                     </div>
                     <div class="filter-group">
@@ -54,14 +48,17 @@
                         <input type="number" id="mapa-ano" style="width: 80px;">
                     </div>
 
-                    <!-- NOVO FILTRO DE EMPRESA VISÍVEL -->
                     <div class="filter-group-visible">
                         <label class="check-item"><input type="checkbox" class="filtro-emp" value="AVUL" checked> AVUL</label>
                         <label class="check-item"><input type="checkbox" class="filtro-emp" value="VCCL" checked> VCCL</label>
                         <label class="check-item"><input type="checkbox" class="filtro-emp" value="VSBL" checked> VSBL</label>
                     </div>
 
-                    <!-- FILTRO DE PERÍODO VISÍVEL -->
+                    <div class="filter-group-visible">
+                        <label class="check-item"><input type="checkbox" class="filtro-set" value="Tráfego" checked> Tráfego</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-set" value="Monitoramento" checked> Monitoramento</label>
+                    </div>
+
                     <div class="filter-group-visible">
                         <label class="check-item"><input type="checkbox" class="filtro-per" value="Manhã" checked> Manhã</label>
                         <label class="check-item"><input type="checkbox" class="filtro-per" value="Intermediário" checked> Intermediário</label>
@@ -99,7 +96,7 @@
             </div>
 
             <div id="mapa-container" class="mapa-scroll-area">
-                <p class="instrucao">Ajuste os filtros e clique em Gerar.</p>
+                <p class="instrucao">Ajuste os filtros para visualizar o mapa.</p>
             </div>
         </main>
     </div>

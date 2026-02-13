@@ -32,14 +32,11 @@ function ajustarSidebar() {
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
         
-        // --- A CORREÇÃO ESTÁ AQUI ---
-        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
         if (link.getAttribute('href') === "#" || href === "index") {
             link.parentElement.style.display = 'block';
-            return; // Pula para o próximo link
+            return; 
         }
 
-        // Regra para as outras páginas
         if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
@@ -47,7 +44,6 @@ function ajustarSidebar() {
         }
     });
 
-    // Trava de segurança para acesso via URL
     if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
@@ -65,6 +61,7 @@ function calcularDataVencimento(admissaoStr) {
 
 async function carregarDashboard() {
     const fEmpresa = document.getElementById('filtro-empresa-home').value;
+    const fSetor = document.getElementById('filtro-setor-home').value; 
     const dataHoje = new Date();
     configurarTitulosDinamicos(dataHoje);
 
@@ -85,25 +82,29 @@ async function carregarDashboard() {
         snapAus.forEach(doc => cacheAusencias.push(doc.data()));
 
         let funcsAtivos = cacheFuncionarios.filter(f => f.status !== "Inativo");
+        
         if (fEmpresa !== "TODAS") {
             funcsAtivos = funcsAtivos.filter(f => f.empresa === fEmpresa);
         }
-
-        const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
-        const meuApelido = meuFunc ? meuFunc.apelido : "---";
+        if (fSetor !== "TODOS") {
+            funcsAtivos = funcsAtivos.filter(f => f.setor === fSetor);
+        }
 
         renderizarResumos(funcsAtivos, dataHoje);
         
         let ausenciasParaResumo = cacheAusencias;
+        const apelidosFiltrados = funcsAtivos.map(f => f.apelido);
+
         if (!isMaster) {
+            const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
+            const meuApelido = meuFunc ? meuFunc.apelido : "---";
             ausenciasParaResumo = cacheAusencias.filter(a => a.funcionario === meuApelido);
-        } else if (fEmpresa !== "TODAS") {
-            const apelidosAtivos = funcsAtivos.map(f => f.apelido);
-            ausenciasParaResumo = cacheAusencias.filter(a => apelidosAtivos.includes(a.funcionario));
+        } else {
+            ausenciasParaResumo = cacheAusencias.filter(a => apelidosFiltrados.includes(a.funcionario));
         }
 
         processarResumosAusencia(ausenciasParaResumo, dataHoje);
-        renderizarAprendizesDashboard(fEmpresa);
+        renderizarAprendizesDashboard(fEmpresa, fSetor);
         
         popularFiltroFuncTimeline(funcsAtivos);
         renderizarTimelineFerias();
@@ -132,28 +133,16 @@ function renderizarResumos(lista, hoje) {
 function processarResumosAusencia(ausencias, dataHoje) {
     const mesA = dataHoje.getMonth();
     const anoA = dataHoje.getFullYear();
-
-    const mesPassado = mesA === 0 ? 11 : mesA - 1;
-    const anoPassado = mesA === 0 ? anoA - 1 : anoA;
-
     const mesProximo = mesA === 11 ? 0 : mesA + 1;
     const anoProximo = mesA === 11 ? anoA + 1 : anoA;
 
-    // Acumuladores de dados por funcionário
-    let faltasData = {}, folgasData = {}, afastData = { anterior: {}, atual: {}, proximo: {} };
+    let faltasData = {}, folgasData = {};
 
-    // Funções auxiliares de formatação
     const formatarDiasLista = (dias) => {
         const d = [...new Set(dias)].sort((a, b) => a - b);
         if (d.length === 1) return String(d[0]).padStart(2, '0');
         const ultimo = d.pop();
         return d.map(n => String(n).padStart(2, '0')).join(', ') + ' e ' + String(ultimo).padStart(2, '0');
-    };
-
-    const formatarDeAa = (dias) => {
-        const d = [...new Set(dias)].sort((a, b) => a - b);
-        if (d.length === 1) return String(d[0]).padStart(2, '0');
-        return `de ${String(d[0]).padStart(2, '0')} a ${String(d[d.length - 1]).padStart(2, '0')}`;
     };
 
     ausencias.forEach(a => {
@@ -163,85 +152,58 @@ function processarResumosAusencia(ausencias, dataHoje) {
             const m = d.getMonth();
             const y = d.getFullYear();
 
-            // Faltas (Mês Atual)
             if (a.tipo === "Falta" && m === mesA && y === anoA) {
                 if (!faltasData[a.funcionario]) faltasData[a.funcionario] = [];
                 faltasData[a.funcionario].push(diaNum);
             }
-
-            // Folgas (Próximo Mês)
             if (a.tipo === "Folga" && m === mesProximo && y === anoProximo) {
                 const dataFormatada = `${String(diaNum).padStart(2, '0')}/${String(m + 1).padStart(2, '0')}`;
                 if (!folgasData[a.funcionario]) folgasData[a.funcionario] = { texto: dataFormatada, qtd: 0 };
                 folgasData[a.funcionario].qtd++;
             }
-
-            // Afastamentos / Licenças
-            if (["Afastamento", "Licença"].includes(a.tipo)) {
-                let ref;
-                if (m === mesPassado && y === anoPassado) ref = afastData.anterior;
-                else if (m === mesA && y === anoA) ref = afastData.atual;
-                else if (m === mesProximo && y === anoProximo) ref = afastData.proximo;
-
-                if (ref) {
-                    if (!ref[a.funcionario]) ref[a.funcionario] = [];
-                    ref[a.funcionario].push(diaNum);
-                }
-            }
         });
     });
 
-    // Renderizar Faltas
-    const elFaltas = document.getElementById('lista-faltas-mes');
-    elFaltas.innerHTML = Object.entries(faltasData).map(([nome, dias]) => 
+    document.getElementById('lista-faltas-mes').innerHTML = Object.entries(faltasData).map(([nome, dias]) => 
         `<li class="summary-item"><span>${nome} - ${formatarDiasLista(dias)}</span> <span class="qty">${dias.length} dias</span></li>`
     ).join('') || '<li class="empty-info">Nenhuma falta</li>';
 
-    // Renderizar Folgas
-    const elFolgas = document.getElementById('lista-folgas-proximo');
-    elFolgas.innerHTML = Object.entries(folgasData).map(([nome, info]) => 
+    document.getElementById('lista-folgas-proximo').innerHTML = Object.entries(folgasData).map(([nome, info]) => 
         `<li class="summary-item"><span>${nome} ${info.texto}</span> <span class="qty">${info.qtd} ${info.qtd > 1 ? 'dias' : 'dia'}</span></li>`
     ).join('') || '<li class="empty-info">Nenhuma folga</li>';
-
-    // Renderizar Afastamentos
-    const elAfast = document.getElementById('lista-afastamentos-ativos');
-    const gerarSetor = (titulo, obj) => {
-        const itens = Object.entries(obj);
-        if (itens.length === 0) return "";
-        let html = `<li class="summary-item" style="background:#fff3e0; font-weight:bold; font-size:0.65rem; color:#e67e22; border:none; margin-top:5px; padding-left:5px;">${titulo}</li>`;
-        html += itens.map(([nome, dias]) => 
-            `<li class="summary-item"><span>${nome} ${formatarDeAa(dias)}</span> <span class="qty">${dias.length} dias</span></li>`
-        ).join('');
-        return html;
-    };
-
-    let htmlAfast = gerarSetor(`${mesesNomes[mesPassado]} (Anterior)`, afastData.anterior) +
-                    gerarSetor(`${mesesNomes[mesA]} (Atual)`, afastData.atual) +
-                    gerarSetor(`${mesesNomes[mesProximo]} (Próximo)`, afastData.proximo);
-    elAfast.innerHTML = htmlAfast || '<li class="empty-info">Nenhum registro</li>';
 }
 
 async function renderizarTimelineFerias() {
     const fEmpresa = document.getElementById('filtro-empresa-home').value;
+    const fSetor = document.getElementById('filtro-setor-home').value;
     const fPeriodo = document.getElementById('filtro-periodo-timeline').value;
     const fFunc = document.getElementById('filtro-func-timeline').value;
     const fDataInicio = new Date(document.getElementById('filtro-data-timeline').value + 'T00:00:00');
     const fDataFim = new Date(document.getElementById('filtro-data-fim-timeline').value + 'T00:00:00');
+    
     const corpo = document.getElementById('corpo-timeline');
     const header = document.getElementById('header-timeline');
-    if (!corpo || isNaN(fDataInicio)) return;
+    if (!corpo || isNaN(fDataInicio.getTime())) return;
+
     let lista = cacheFuncionarios.filter(f => f.status !== "Inativo" && f.funcao !== "Aprendiz");
+    
     if (fEmpresa !== "TODAS") lista = lista.filter(f => f.empresa === fEmpresa);
-    if (!isMaster) lista = lista.filter(f => f.nome === usuarioLogado.nomeCompleto);
-    else {
+    if (fSetor !== "TODOS") lista = lista.filter(f => f.setor === fSetor);
+
+    if (!isMaster) {
+        lista = lista.filter(f => f.nome === usuarioLogado.nomeCompleto);
+    } else {
         if (fPeriodo !== "TODOS") lista = lista.filter(f => f.periodo === fPeriodo);
         if (fFunc !== "TODOS") lista = lista.filter(f => f.apelido === fFunc);
     }
+
     const dias = [];
     let temp = new Date(fDataInicio);
     while (temp <= fDataFim) { dias.push(new Date(temp)); temp.setDate(temp.getDate() + 1); }
+    
     header.innerHTML = '<th class="col-fixa">Funcionários</th><th class="col-vencimento">Vencimento</th>';
     dias.forEach(d => header.innerHTML += `<th>${d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit'})}</th>`);
+    
     corpo.innerHTML = "";
     lista.forEach(f => {
         let tr = `<tr><td class="col-fixa">${f.apelido}</td><td class="col-vencimento">${calcularDataVencimento(f.admissao)}</td>`;
@@ -256,6 +218,36 @@ async function renderizarTimelineFerias() {
         }
         corpo.innerHTML += tr + "</tr>";
     });
+}
+
+async function renderizarAprendizesDashboard(empFiltro, setorFiltro) {
+    const hojeObj = new Date();
+    const hojeD = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][hojeObj.getDay()];
+    const el = document.getElementById('lista-aprendizes-hoje');
+    if (!el) return;
+
+    try {
+        const [sConf, sEsc] = await Promise.all([db.collection("config_aprendizes").get(), db.collection("escalas").get()]);
+        const confs = {}; sConf.forEach(d => confs[d.id] = d.data());
+        const escs = {}; sEsc.forEach(d => escs[d.id] = d.data());
+        
+        let listaParaSort = [];
+        // Filtro: Somente Aprendizes && Status Ativo
+        cacheFuncionarios.filter(f => f.funcao === "Aprendiz" && f.status === "Ativo").forEach(f => {
+            if (empFiltro !== "TODAS" && f.empresa !== empFiltro) return;
+            if (setorFiltro !== "TODOS" && f.setor !== setorFiltro) return;
+
+            const c = confs[f.id];
+            if (c && c.dias.includes(hojeD)) {
+                const e = escs[c.escalaId];
+                const h = e ? e.inicioJornada : "00:00";
+                listaParaSort.push({ apelido: f.apelido, empresa: f.empresa, horario: h });
+            }
+        });
+
+        listaParaSort.sort((a, b) => a.horario.localeCompare(b.horario));
+        el.innerHTML = listaParaSort.map(item => `<li class="anniversary-item"><span>${item.apelido} <small>(${item.empresa})</small></span><span class="anniversary-date">${item.horario}</span></li>`).join('') || '<li class="empty-info">Ninguém hoje</li>';
+    } catch (e) { console.error(e); }
 }
 
 function popularFiltroFuncTimeline(lista) {
@@ -287,96 +279,4 @@ function parseDatas(reg) {
     return reg.datas.split(' ; ').map(toD);
 }
 
-async function renderizarAprendizesDashboard(empFiltro) {
-    const diasS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
-    const hojeObj = new Date();
-    const hojeD = diasS[hojeObj.getDay()];
-    const el = document.getElementById('lista-aprendizes-hoje');
-    if (!el) return;
-
-    try {
-        const [sConf, sEsc] = await Promise.all([
-            db.collection("config_aprendizes").get(), 
-            db.collection("escalas").get()
-        ]);
-        const confs = {}; sConf.forEach(d => confs[d.id] = d.data());
-        const escs = {}; sEsc.forEach(d => escs[d.id] = d.data());
-        
-        const hojeDataApenas = new Date(hojeObj.getFullYear(), hojeObj.getMonth(), hojeObj.getDate());
-        let listaParaSort = [];
-
-        cacheFuncionarios.filter(f => f.funcao === "Aprendiz").forEach(f => {
-            if (empFiltro !== "TODAS" && f.empresa !== empFiltro) return;
-
-            const dtDem = f.demissao ? new Date(f.demissao + "T00:00:00") : null;
-            
-            // 1. Caso: Demitido (Tarja Preta)
-            if (f.status === "Inativo" && dtDem && hojeDataApenas >= dtDem) {
-                const mesAtual = hojeObj.getMonth();
-                const anoAtual = hojeObj.getFullYear();
-                if (dtDem.getMonth() === mesAtual && dtDem.getFullYear() === anoAtual) {
-                    listaParaSort.push({
-                        apelido: f.apelido,
-                        empresa: f.empresa,
-                        horario: "99:99", // Vai para o fim da lista no sort de horário
-                        exibicao: "DEMITIDO",
-                        estilo: "background:#000; color:#fff; padding:2px 8px; border-radius:4px; margin-bottom:2px;"
-                    });
-                }
-                return;
-            }
-
-            // 2. Caso: Ativo ou Demissão Futura (Horário Normal)
-            const c = confs[f.id];
-            if (c && c.dias.includes(hojeD)) {
-                const e = escs[c.escalaId];
-                const h = e ? e.inicioJornada : "00:00";
-                listaParaSort.push({
-                    apelido: f.apelido,
-                    empresa: f.empresa,
-                    horario: h,
-                    exibicao: h,
-                    estilo: ""
-                });
-            }
-        });
-
-        // --- ORDENAÇÃO: Primeiro por Horário (Jornada), depois por Empresa ---
-        listaParaSort.sort((a, b) => {
-            if (a.horario !== b.horario) return a.horario.localeCompare(b.horario);
-            return a.empresa.localeCompare(b.empresa);
-        });
-
-        // Gerar HTML final
-        let html = "";
-        listaParaSort.forEach(item => {
-            const corTextoHorario = item.exibicao === "DEMITIDO" ? "color:#fff" : "";
-            html += `<li class="anniversary-item" style="${item.estilo}">
-                        <span>${item.apelido} <small style="font-size:0.6rem; opacity:0.6">(${item.empresa})</small></span>
-                        <span class="anniversary-date" style="${corTextoHorario}">${item.exibicao}</span>
-                     </li>`;
-        });
-
-        el.innerHTML = html || '<li class="empty-info">Ninguém hoje</li>';
-    } catch (e) { console.error(e); }
-}
-
-function verificarAlertasVencimento() {}
-function verificarConflitosFerias() {}
-
-if (isMaster) {
-    db.collection("pedidos_reset").where("status", "==", "Pendente")
-    .onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-                const pedido = change.doc.data();
-                const confirmacao = confirm(`⚠️ SOLICITAÇÃO:\n\nO funcionário ${pedido.nomeCompleto} solicita reset de senha.\n\nDeseja marcar como visto?`);
-                if (confirmacao) db.collection("pedidos_reset").doc(change.doc.id).update({ status: "Visto" });
-            }
-        });
-    });
-}
-function logout() {
-    sessionStorage.removeItem('usuarioAtivo');
-    window.location.href = 'login.html';
-}
+function logout() { sessionStorage.removeItem('usuarioAtivo'); window.location.href = 'login.html'; }

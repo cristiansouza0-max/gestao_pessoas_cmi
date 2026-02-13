@@ -40,6 +40,14 @@
                             <option value="VSBL">VSBL</option>
                         </select>
                     </div>
+                    <div class="filter-group">
+                        <label>Filtrar Setor:</label>
+                        <select id="filtro-setor-home" onchange="carregarDashboard()">
+                            <option value="TODOS">Todos</option>
+                            <option value="Tráfego">Tráfego</option>
+                            <option value="Monitoramento">Monitoramento</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -120,23 +128,12 @@
                 </div>
             </div>
 
-            <!-- Modais de Alerta -->
             <div id="alerta-vencimento-overlay" class="alerta-vencimento-overlay" style="display: none;">
                 <div class="alerta-vencimento-modal">
                     <i class="fa-solid fa-bell-exclamation"></i>
                     <h2>Vencimento de Férias</h2>
                     <div id="lista-alertas-vencimento" class="lista-alertas"></div>
                     <button class="btn-fechar-alerta" onclick="fecharAlertaVencimento()">Fechar</button>
-                </div>
-            </div>
-
-            <div id="alerta-conflito-overlay" class="alerta-vencimento-overlay" style="display: none;">
-                <div class="alerta-vencimento-modal" style="border-top-color: #f39c12;">
-                    <i class="fa-solid fa-triangle-exclamation" style="color: #f39c12;"></i>
-                    <h2>Conflito Identificado</h2>
-                    <p style="font-size: 0.85rem; margin-bottom: 10px;">Sobreposição de férias no mesmo setor (> 1 dia):</p>
-                    <div id="lista-alertas-conflito" class="lista-alertas"></div>
-                    <button class="btn-fechar-alerta" onclick="document.getElementById('alerta-conflito-overlay').style.display='none'">Fechar</button>
                 </div>
             </div>
         </main>

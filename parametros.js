@@ -3,9 +3,6 @@ if (!sessionStorage.getItem('usuarioAtivo')) window.location.href = 'login.html'
 const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
 const isMaster = usuarioLogado.perfilMaster === true;
 
-// =============================================================================
-// BLOCO 1: BASE DE FERIADOS (INCLUINDO SÃO PAULO / VSBL)
-// =============================================================================
 const feriadosBase = [
     { dia: 1, mes: 1, nome: "Confraternização Universal", tipo: "nacional" },
     { dia: 25, mes: 1, nome: "Aniversário São Paulo", tipo: "municipal", empresa: "VSBL" },
@@ -27,9 +24,6 @@ const feriadosBase = [
 const periodosNomes = ["Manhã", "Intermediário", "Tarde", "Noite", "Integral"];
 const diasSemanaArr = ["Seg", "Ter", "Qua", "Qui", "Sex"];
 
-// =============================================================================
-// BLOCO 2: INICIALIZAÇÃO E SEGURANÇA
-// =============================================================================
 document.addEventListener('DOMContentLoaded', () => {
     ajustarSidebar();
     configurarDataPadrao();
@@ -44,30 +38,21 @@ function ajustarSidebar() {
         window.location.href = 'login.html';
         return;
     }
-
     const isMaster = usuarioLogado.perfilMaster === true;
     const permissoes = usuarioLogado.permissoes || [];
     const paginaAtual = window.location.pathname.split("/").pop().replace(".html", "");
-
     document.querySelectorAll('.sidebar ul li a').forEach(link => {
         const href = link.getAttribute('href').replace('.html', '');
-        
-        // --- A CORREÇÃO ESTÁ AQUI ---
-        // Se for o link de Logout (href="#"), ou a página de Início (index), não esconde nunca.
         if (link.getAttribute('href') === "#" || href === "index") {
             link.parentElement.style.display = 'block';
-            return; // Pula para o próximo link
+            return;
         }
-
-        // Regra para as outras páginas
         if (!isMaster && !permissoes.includes(href)) {
             link.parentElement.style.display = 'none';
         } else {
             link.parentElement.style.display = 'block';
         }
     });
-
-    // Trava de segurança para acesso via URL
     if (!isMaster && paginaAtual !== "index" && paginaAtual !== "" && !permissoes.includes(paginaAtual)) {
         window.location.href = "index.html";
     }
@@ -82,53 +67,27 @@ function configurarDataPadrao() {
     document.getElementById('filtro-ano-param').value = ano;
 }
 
-// =============================================================================
-// BLOCO 3: FERIADOS (3 COLUNAS)
-// =============================================================================
 async function renderizarFeriados() {
     const mes = parseInt(document.getElementById('filtro-mes-param').value);
     const ano = parseInt(document.getElementById('filtro-ano-param').value);
-    
     const docSnap = await db.collection("parametros_feriados").doc(`${ano}-${mes}`).get();
     const dados = docSnap.exists ? docSnap.data() : {};
-    
     document.getElementById('folgas-mes-param').value = dados.folgasDoMes || 5;
-
-    const containers = { 
-        "AVUL": document.getElementById('lista-feriados-avul'), 
-        "VCCL": document.getElementById('lista-feriados-vccl'),
-        "VSBL": document.getElementById('lista-feriados-vsbl') 
-    };
-
+    const containers = { "AVUL": document.getElementById('lista-feriados-avul'), "VCCL": document.getElementById('lista-feriados-vccl'), "VSBL": document.getElementById('lista-feriados-vsbl') };
     Object.values(containers).forEach(c => { if(c) c.innerHTML = ""; });
-
     feriadosBase.filter(f => f.mes === mes).forEach(f => {
         ["AVUL", "VCCL", "VSBL"].forEach(empresa => {
             if (f.tipo === "municipal" && f.empresa !== empresa) return;
-
             const d = new Date(ano, mes - 1, f.dia);
             const diaSem = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"][d.getDay()];
-            
             const card = document.createElement('div');
             card.className = `card-feriado`;
-            
             let inputs = "";
             periodosNomes.forEach(p => {
                 const idRef = `${empresa}-${f.dia}-${p}`;
-                inputs += `
-                    <div class="periodo-input-box">
-                        <label>${p.substring(0,3)}</label>
-                        <input type="number" class="input-feriado-val" data-ref="${idRef}" value="${dados[idRef] || 0}">
-                    </div>`;
+                inputs += `<div class="periodo-input-box"><label>${p.substring(0,3)}</label><input type="number" class="input-feriado-val" data-ref="${idRef}" value="${dados[idRef] || 0}"></div>`;
             });
-
-            card.innerHTML = `
-                <div class="feriado-header">
-                    <span>${f.dia.toString().padStart(2,'0')}/${mes.toString().padStart(2,'0')} - ${diaSem} - ${f.nome}</span>
-                </div>
-                <div class="grid-periodos">${inputs}</div>
-            `;
-            
+            card.innerHTML = `<div class="feriado-header"><span>${f.dia.toString().padStart(2,'0')}/${mes.toString().padStart(2,'0')} - ${diaSem} - ${f.nome}</span></div><div class="grid-periodos">${inputs}</div>`;
             if(containers[empresa]) containers[empresa].appendChild(card);
         });
     });
@@ -138,22 +97,13 @@ async function salvarConfiguracaoFeriados() {
     const mes = document.getElementById('filtro-mes-param').value;
     const ano = document.getElementById('filtro-ano-param').value;
     const dados = { folgasDoMes: document.getElementById('folgas-mes-param').value };
-    
-    document.querySelectorAll('.input-feriado-val').forEach(i => {
-        dados[i.dataset.ref] = i.value;
-    });
-
+    document.querySelectorAll('.input-feriado-val').forEach(i => { dados[i.dataset.ref] = i.value; });
     try {
         await db.collection("parametros_feriados").doc(`${ano}-${mes}`).set(dados);
         alert("Parâmetros de feriados salvos com sucesso!");
-    } catch (e) {
-        alert("Erro ao salvar parâmetros.");
-    }
+    } catch (e) { alert("Erro ao salvar parâmetros."); }
 }
 
-// =============================================================================
-// BLOCO 4: APRENDIZES E REGRAS ESPECIAIS
-// =============================================================================
 async function carregarRegrasEspeciais() {
     const doc = await db.collection("parametros_regras").doc("especiais").get();
     if (doc.exists) {
@@ -166,17 +116,22 @@ async function carregarRegrasEspeciais() {
 }
 
 async function salvarRegraEspecial(regra) {
-    let idElemento = `regra-osmair`; 
-    if(regra === 'fabio') idElemento = `regra-fabio`;
-    if(regra === 'equipeTarde') idElemento = `regra-equipe-tarde`;
-    if(regra === 'equipeManha') idElemento = `regra-equipe-manha`;
-
+    let idElemento = `regra-${regra.toLowerCase()}`; 
+    if(regra === 'equipeManha') idElemento = 'regra-equipe-manha';
+    if(regra === 'equipeTarde') idElemento = 'regra-equipe-tarde';
     const status = document.getElementById(idElemento).checked;
     await db.collection("parametros_regras").doc("especiais").set({ [regra]: status }, { merge: true });
 }
 
+// --- LOGICA ATUALIZADA DOS APRENDIZES ---
 async function renderizarAprendizes() {
     const container = document.getElementById('lista-aprendizes');
+    const mesFiltro = parseInt(document.getElementById('filtro-mes-param').value);
+    const anoFiltro = parseInt(document.getElementById('filtro-ano-param').value);
+    
+    // Data de referência: primeiro dia do mês selecionado para o cálculo histórico
+    const dataRefInicio = new Date(anoFiltro, mesFiltro - 1, 1);
+
     const [snapEscalas, snapFuncs, snapConfigs] = await Promise.all([
         db.collection("escalas").get(),
         db.collection("funcionarios").where("funcao", "==", "Aprendiz").get(),
@@ -189,33 +144,36 @@ async function renderizarAprendizes() {
     container.innerHTML = "";
 
     snapFuncs.forEach(doc => {
-        const fId = doc.id, f = doc.data(), c = configs[fId] || { dias: [], escalaId: "" };
+        const fId = doc.id, f = doc.data();
+        const c = configs[fId] || { dias: [], escalaId: "" };
+        
+        // LOGICA DE FILTRO:
+        // 1. Mostrar se o status for "Ativo"
+        // 2. Se for "Inativo", mostrar apenas se a data de demissão for maior ou igual ao mês selecionado
+        let deveMostrar = false;
+        if (f.status === "Ativo") {
+            deveMostrar = true;
+        } else if (f.status === "Inativo" && f.demissao) {
+            const dtDem = new Date(f.demissao + "T00:00:00");
+            // Se a demissão ocorreu depois ou durante o mês selecionado, ele ainda era "atuante" para essa escala
+            if (dtDem >= dataRefInicio) deveMostrar = true;
+        }
+
+        if (!deveMostrar) return;
+
         const card = document.createElement('div'); 
         card.className = "card-aprendiz";
-
-        let flags = diasSemanaArr.map(d => `
-            <label class="flag-dia">
-                ${d}
-                <input type="checkbox" class="chk-${fId}" value="${d}" ${c.dias.includes(d)?'checked':''}>
-            </label>`).join('');
-
-        let options = escalas.map(e => `
-            <option value="${e.id}" ${c.escalaId===e.id?'selected':''}>
-                ${e.inicioJornada}-${e.fimJornada}
-            </option>`).join('');
+        let flags = diasSemanaArr.map(d => `<label class="flag-dia">${d}<input type="checkbox" class="chk-${fId}" value="${d}" ${c.dias.includes(d)?'checked':''}></label>`).join('');
+        let options = escalas.map(e => `<option value="${e.id}" ${c.escalaId===e.id?'selected':''}>${e.inicioJornada}-${e.fimJornada}</option>`).join('');
 
         card.innerHTML = `
             <div class="card-aprendiz-header">
-                <h4>${f.nome}</h4>
-                <div class="aprendiz-actions">
-                    <i class="fa-solid fa-floppy-disk" onclick="salvarAprendiz('${fId}')"></i>
-                </div>
+                <h4>${f.nome} ${f.status === 'Inativo' ? '<small style="color:red">(INATIVO)</small>' : ''}</h4>
+                <div class="aprendiz-actions"><i class="fa-solid fa-floppy-disk" onclick="salvarAprendiz('${fId}')"></i></div>
             </div>
             <div class="card-aprendiz-body">
                 <div class="dias-uteis-group">${flags}</div>
-                <div class="escala-aprendiz-group">
-                    <select id="sel-escala-${fId}"><option value="">Escala...</option>${options}</select>
-                </div>
+                <div class="escala-aprendiz-group"><select id="sel-escala-${fId}"><option value="">Escala...</option>${options}</select></div>
             </div>`;
         container.appendChild(card);
     });
@@ -228,21 +186,15 @@ async function salvarAprendiz(id) {
     alert("Configuração do aprendiz salva!");
 }
 
-// =============================================================================
-// BLOCO 5: CALENDÁRIO CONSULTA
-// =============================================================================
 function abrirCalendarioConsulta() {
     const mes = parseInt(document.getElementById('filtro-mes-param').value);
     const ano = parseInt(document.getElementById('filtro-ano-param').value);
     const grid = document.getElementById('calendar-grid');
     const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    
     document.getElementById('modal-titulo').innerText = `${meses[mes-1]} / ${ano}`;
     grid.innerHTML = "";
-
     const pDia = new Date(ano, mes - 1, 1).getDay();
     const uDia = new Date(ano, mes, 0).getDate();
-
     for (let i = 0; i < pDia; i++) grid.appendChild(Object.assign(document.createElement('div'), {className: "calendar-day day-empty"}));
     for (let dia = 1; dia <= uDia; dia++) {
         const d = document.createElement('div'); 
@@ -258,7 +210,4 @@ function abrirCalendarioConsulta() {
 function fecharModal() { document.getElementById('modal-calendario').style.display = "none"; }
 window.onclick = function(e) { if (e.target == document.getElementById('modal-calendario')) fecharModal(); }
 
-function logout() {
-    sessionStorage.removeItem('usuarioAtivo');
-    window.location.href = 'login.html';
-}
+function logout() { sessionStorage.removeItem('usuarioAtivo'); window.location.href = 'login.html'; }

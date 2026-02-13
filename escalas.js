@@ -47,21 +47,14 @@ async function renderizarEscalas() {
     containersChecks.forEach(c => c.innerHTML = "");
 
     snap.forEach(doc => {
-        const e = doc.data();
-        const id = doc.id;
+        const e = doc.data(); const id = doc.id;
         const carga = calcularCargaInteligente(e.inicioJornada, e.fimJornada);
         cacheEscalasParaChecks.push({ id, ...e });
 
         containerCards.innerHTML += `
             <div class="card-escala-mini">
-                <div class="info-escala-mini">
-                    <b>${e.inicioJornada} - ${e.fimJornada}</b>
-                    <span>${carga}</span>
-                </div>
-                <div class="actions">
-                    <i class="fa-solid fa-pencil" style="color:#f39c12" onclick="editarEscala('${id}')"></i>
-                    <i class="fa-solid fa-trash-can" style="color:#e74c3c" onclick="excluirEscala('${id}')"></i>
-                </div>
+                <div class="info-escala-mini"><b>${e.inicioJornada}-${e.fimJornada}</b><span>${carga}</span></div>
+                <div class="actions"><i class="fa-solid fa-pencil" onclick="editarEscala('${id}')"></i><i class="fa-solid fa-trash-can" onclick="excluirEscala('${id}')"></i></div>
             </div>`;
 
         containersChecks.forEach(container => {
@@ -69,7 +62,7 @@ async function renderizarEscalas() {
             container.innerHTML += `
                 <label class="scale-option">
                     <input type="checkbox" class="chk-escala-${grupo}" value="${id}">
-                    ${e.inicioJornada}-${e.fimJornada}
+                    <span>${e.inicioJornada.substring(0,5)}</span>
                 </label>`;
         });
     });
@@ -81,10 +74,17 @@ document.getElementById('form-jornada').addEventListener('submit', async (e) => 
     const id = document.getElementById('edit-id-jornada').value;
     const getSelecionados = (classe) => Array.from(document.querySelectorAll(classe + ':checked')).map(cb => cb.value);
 
+    const empresa = document.getElementById('filtro-empresa-jornada').value;
+    const setor = document.getElementById('filtro-setor-jornada').value;
+    const periodo = document.getElementById('filtro-periodo-jornada').value;
+
+    if (empresa === "TODAS" || setor === "TODOS" || periodo === "TODOS") {
+        alert("Para salvar uma jornada, selecione uma Empresa, Setor e Período específicos nos filtros do topo.");
+        return;
+    }
+
     const dados = {
-        empresa: document.getElementById('jornada-empresa').value,
-        setor: document.getElementById('jornada-setor').value, // Novo campo
-        periodo: document.getElementById('jornada-periodo').value,
+        empresa, setor, periodo,
         ordem: parseInt(document.getElementById('jornada-ordem').value) || 1,
         escalas: {
             uteis: getSelecionados('.chk-escala-util'),
@@ -104,48 +104,50 @@ document.getElementById('form-jornada').addEventListener('submit', async (e) => 
 
 async function renderizarJornadas() {
     const empresaFiltro = document.getElementById('filtro-empresa-jornada').value;
-    const setorFiltro = document.getElementById('filtro-setor-jornada').value; // Novo Filtro
+    const setorFiltro = document.getElementById('filtro-setor-jornada').value;
+    const periodoFiltro = document.getElementById('filtro-periodo-jornada').value;
 
+    document.getElementById('label-periodo-atual').innerText = periodoFiltro === "TODOS" ? "TODAS AS JORNADAS" : periodoFiltro.toUpperCase();
+    
     const [snapJor, snapEsc] = await Promise.all([db.collection("jornadas").get(), db.collection("escalas").get()]);
     const escalasMap = {}; snapEsc.forEach(d => { escalasMap[d.id] = d.data(); });
-
-    const periodos = ["Manhã", "Intermediário", "Tarde", "Noite", "Integral"];
-    periodos.forEach(p => { document.getElementById(`col-j-${p}`).innerHTML = ""; });
+    const container = document.getElementById('grid-jornadas-cadastradas');
+    container.innerHTML = "";
 
     let lista = []; snapJor.forEach(doc => { lista.push({ id: doc.id, ...doc.data() }); });
     
-    lista.filter(j => j.empresa === empresaFiltro && (j.setor === setorFiltro || !j.setor))
+    lista.filter(j => 
+        (empresaFiltro === "TODAS" || j.empresa === empresaFiltro) && 
+        (setorFiltro === "TODOS" || j.setor === setorFiltro) && 
+        (periodoFiltro === "TODOS" || j.periodo === periodoFiltro)
+    )
     .sort((a, b) => a.ordem - b.ordem).forEach(j => {
         
-        const formatarLinhaEscala = (ids) => {
-            if (!ids || ids.length === 0 || ids === "") return '<span class="tag-escala-jornada">Folga</span>';
+        const formatarMiniTags = (ids) => {
+            if (!ids || ids.length === 0 || ids === "") return '<span class="mini-tag-folga">F</span>';
             const normalizedIds = Array.isArray(ids) ? ids : [ids];
-            let tagsHtml = normalizedIds.map(id => {
+            return normalizedIds.map(id => {
                 const e = escalasMap[id];
-                return e ? `<span class="tag-escala-jornada">${e.inicioJornada}-${e.fimJornada}</span>` : "";
+                return e ? `<span class="mini-tag-horario">${e.inicioJornada.substring(0,5)}</span>` : "";
             }).join('');
-            return `<div class="tags-wrapper-jornada">${tagsHtml}</div>`;
         };
 
-        const container = document.getElementById(`col-j-${j.periodo}`);
-        if (container) {
-            container.innerHTML += `
-                <div class="card-jornada">
-                    <div class="card-jornada-header">
-                        <span>Jornada ${j.ordem} ${j.setor ? '('+j.setor.substring(0,3)+')' : ''}</span>
-                        <div class="actions-j">
-                            <i class="fa-solid fa-pencil" style="color:#f39c12" onclick="editarJornada('${j.id}')"></i>
-                            <i class="fa-solid fa-trash-can" style="color:#e74c3c" onclick="excluirJornada('${j.id}')"></i>
-                        </div>
+        container.innerHTML += `
+            <div class="mini-card-jornada">
+                <div class="mini-card-header">
+                    <span>${j.periodo.substring(0,3)} - J${j.ordem}</span>
+                    <div class="mini-actions">
+                        <i class="fa-solid fa-pencil" onclick="editarJornada('${j.id}')"></i>
+                        <i class="fa-solid fa-trash-can" onclick="excluirJornada('${j.id}')"></i>
                     </div>
-                    <div class="card-jornada-body">
-                        <div><b>Útil:</b> ${formatarLinhaEscala(j.escalas.uteis)}</div>
-                        <div><b>Sábado:</b> ${formatarLinhaEscala(j.escalas.sabado)}</div>
-                        <div><b>Domingo:</b> ${formatarLinhaEscala(j.escalas.domingo)}</div>
-                        <div><b>Feriado:</b> ${formatarLinhaEscala(j.escalas.feriado)}</div>
-                    </div>
-                </div>`;
-        }
+                </div>
+                <div class="mini-card-content">
+                    <div class="mini-row"><b>U:</b> ${formatarMiniTags(j.escalas.uteis)}</div>
+                    <div class="mini-row"><b>S:</b> ${formatarMiniTags(j.escalas.sabado)}</div>
+                    <div class="mini-row"><b>D:</b> ${formatarMiniTags(j.escalas.domingo)}</div>
+                    <div class="mini-row"><b>F:</b> ${formatarMiniTags(j.escalas.feriado)}</div>
+                </div>
+            </div>`;
     });
 }
 
@@ -153,11 +155,11 @@ async function editarJornada(id) {
     const doc = await db.collection("jornadas").doc(id).get();
     const j = doc.data();
     
-    document.getElementById('jornada-empresa').value = j.empresa;
-    document.getElementById('jornada-setor').value = j.setor || "Tráfego"; // Novo campo
-    document.getElementById('jornada-periodo').value = j.periodo;
+    document.getElementById('filtro-empresa-jornada').value = j.empresa;
+    document.getElementById('filtro-setor-jornada').value = j.setor;
+    document.getElementById('filtro-periodo-jornada').value = j.periodo;
+    
     document.getElementById('jornada-ordem').value = j.ordem;
-
     document.querySelectorAll('[class^="chk-escala-"]').forEach(cb => cb.checked = false);
     
     const marcar = (ids, classe) => {
@@ -168,22 +170,22 @@ async function editarJornada(id) {
             if(cb) cb.checked = true;
         });
     };
-
     marcar(j.escalas.uteis, '.chk-escala-util');
     marcar(j.escalas.sabado, '.chk-escala-sabado');
     marcar(j.escalas.domingo, '.chk-escala-domingo');
     marcar(j.escalas.feriado, '.chk-escala-feriado');
-
+    
     document.getElementById('edit-id-jornada').value = id;
+    document.getElementById('btn-save-jornada').innerText = "Atualizar";
 }
 
 function limparFormJornada() { 
     document.getElementById('form-jornada').reset(); 
     document.querySelectorAll('[class^="chk-escala-"]').forEach(cb => cb.checked = false);
     document.getElementById('edit-id-jornada').value = ""; 
+    document.getElementById('btn-save-jornada').innerText = "Salvar Jornada";
 }
-
-async function excluirJornada(id) { if (confirm("Excluir jornada?")) { await db.collection("jornadas").doc(id).delete(); renderizarJornadas(); } }
+async function excluirJornada(id) { if (confirm("Excluir?")) { await db.collection("jornadas").doc(id).delete(); renderizarJornadas(); } }
 async function editarEscala(id) { 
     const doc = await db.collection("escalas").doc(id).get();
     const e = doc.data();

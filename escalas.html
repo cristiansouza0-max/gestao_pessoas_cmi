@@ -31,13 +31,19 @@
         <main class="content">
             <h1>Configuração de Escalas e Jornadas</h1>
             
-            <!-- BLOCO 1: ESCALAS -->
+            <!-- BLOCO 1: CADASTRO DE ESCALAS -->
             <div class="section-container-escalas">
                 <h2 class="titulo-secao-interna">Cadastro de Escalas</h2>
                 <form id="form-escala" class="form-linha">
                     <input type="hidden" id="edit-id-escala" value="">
-                    <div class="input-group-compact"><label>Início</label><input type="time" id="inicio-jornada" required></div>
-                    <div class="input-group-compact"><label>Fim</label><input type="time" id="fim-jornada" required></div>
+                    <div class="input-group-compact">
+                        <label>Início</label>
+                        <input type="time" id="inicio-jornada" required>
+                    </div>
+                    <div class="input-group-compact">
+                        <label>Fim</label>
+                        <input type="time" id="fim-jornada" required>
+                    </div>
                     <div class="btn-group-linha">
                         <button type="submit" class="btn-save" id="btn-save-escala">Salvar Escala</button>
                         <button type="button" onclick="limparFormEscala()" class="btn-clear">Limpar</button>
@@ -46,7 +52,7 @@
                 <div id="lista-escalas-cards" class="grid-escalas-wrap"></div>
             </div>
 
-            <!-- BLOCO 2: JORNADAS -->
+            <!-- BLOCO 2: CADASTRO DE JORNADAS -->
             <div class="section-container-jornadas">
                 <div class="header-jornada-top">
                     <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
@@ -54,6 +60,7 @@
                         <div class="filtro-pill">
                             <label>Empresa:</label>
                             <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
+                                <option value="TODAS">TODAS</option>
                                 <option value="AVUL">AVUL</option>
                                 <option value="VCCL">VCCL</option>
                                 <option value="VSBL">VSBL</option>
@@ -62,70 +69,61 @@
                         <div class="filtro-pill">
                             <label>Setor:</label>
                             <select id="filtro-setor-jornada" onchange="renderizarJornadas()">
+                                <option value="TODOS">TODOS</option>
                                 <option value="Tráfego">Tráfego</option>
                                 <option value="Monitoramento">Monitoramento</option>
+                            </select>
+                        </div>
+                        <div class="filtro-pill">
+                            <label>Período:</label>
+                            <select id="filtro-periodo-jornada" onchange="renderizarJornadas()">
+                                <option value="TODOS">TODOS</option>
+                                <option value="Manhã">Manhã</option>
+                                <option value="Intermediário">Intermediário</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Noite">Noite</option>
+                                <option value="Integral">Integral</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <form id="form-jornada" class="form-jornada-linha" style="flex-wrap: wrap; height: auto; gap: 10px;">
+                <form id="form-jornada" class="form-jornada-cols">
                     <input type="hidden" id="edit-id-jornada" value="">
                     
-                    <div class="input-group-j" style="min-width: 100px;"><label>Empresa</label>
-                        <select id="jornada-empresa">
-                            <option value="AVUL">AVUL</option>
-                            <option value="VCCL">VCCL</option>
-                            <option value="VSBL">VSBL</option>
-                        </select>
+                    <div class="col-ordem">
+                        <label>Ordem</label>
+                        <input type="number" id="jornada-ordem" min="1" placeholder="Nº" required>
                     </div>
 
-                    <div class="input-group-j" style="min-width: 100px;"><label>Setor</label>
-                        <select id="jornada-setor" required>
-                            <option value="Tráfego">Tráfego</option>
-                            <option value="Monitoramento">Monitoramento</option>
-                        </select>
+                    <div class="grid-check-days">
+                        <div class="day-group">
+                            <label>Úteis</label>
+                            <div id="container-check-util" class="multi-scale-container"></div>
+                        </div>
+                        <div class="day-group">
+                            <label>Sábado</label>
+                            <div id="container-check-sabado" class="multi-scale-container"></div>
+                        </div>
+                        <div class="day-group">
+                            <label>Domingo</label>
+                            <div id="container-check-domingo" class="multi-scale-container"></div>
+                        </div>
+                        <div class="day-group">
+                            <label>Feriado</label>
+                            <div id="container-check-feriado" class="multi-scale-container"></div>
+                        </div>
                     </div>
 
-                    <div class="input-group-j" style="min-width: 100px;"><label>Período</label>
-                        <select id="jornada-periodo">
-                            <option value="Manhã">Manhã</option>
-                            <option value="Intermediário">Intermediário</option>
-                            <option value="Tarde">Tarde</option>
-                            <option value="Noite">Noite</option>
-                            <option value="Integral">Integral</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group-j" style="max-width: 60px;"><label>Ordem</label>
-                        <input type="number" id="jornada-ordem" min="1" placeholder="Nº">
-                    </div>
-
-                    <div class="input-group-j"><label>Úteis</label>
-                        <div id="container-check-util" class="multi-scale-container"></div>
-                    </div>
-                    <div class="input-group-j"><label>Sábado</label>
-                        <div id="container-check-sabado" class="multi-scale-container"></div>
-                    </div>
-                    <div class="input-group-j"><label>Domingo</label>
-                        <div id="container-check-domingo" class="multi-scale-container"></div>
-                    </div>
-                    <div class="input-group-j"><label>Feriado</label>
-                        <div id="container-check-feriado" class="multi-scale-container"></div>
-                    </div>
-
-                    <div class="btn-group-j" style="align-self: flex-end; padding-bottom: 5px;">
-                        <button type="submit" class="btn-save">Salvar Jornada</button>
+                    <div class="btn-group-jornada">
+                        <button type="submit" class="btn-save" id="btn-save-jornada">Salvar Jornada</button>
                         <button type="button" onclick="limparFormJornada()" class="btn-clear">Limpar</button>
                     </div>
                 </form>
 
-                <div class="colunas-jornadas-wrapper">
-                    <div class="jor-col"><h3 class="t-col manha">Manhã</h3><div id="col-j-Manhã" class="scroll-v"></div></div>
-                    <div class="jor-col"><h3 class="t-col intermediario">Intermediário</h3><div id="col-j-Intermediário" class="scroll-v"></div></div>
-                    <div class="jor-col"><h3 class="t-col tarde">Tarde</h3><div id="col-j-Tarde" class="scroll-v"></div></div>
-                    <div class="jor-col"><h3 class="t-col noite">Noite</h3><div id="col-j-Noite" class="scroll-v"></div></div>
-                    <div class="jor-col"><h3 class="t-col integral">Integral</h3><div id="col-j-Integral" class="scroll-v"></div></div>
+                <div class="wrapper-horizontal-jornadas">
+                    <div class="header-periodo-label" id="label-periodo-atual">JORNADAS CADASTRADAS</div>
+                    <div id="grid-jornadas-cadastradas" class="grid-10-colunas"></div>
                 </div>
             </div>
         </main>

@@ -14,12 +14,12 @@ body { background-color: #f0f2f5; display: flex; overflow: hidden; }
 .header-dashboard { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
 h1 { font-size: 1.8rem; color: #000; font-weight: bold; }
 
-.header-controls { display: flex; gap: 10px; }
+.header-controls { display: flex; gap: 12px; flex-wrap: wrap; }
 .filter-group { display: flex; align-items: center; gap: 8px; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .filter-group label { font-size: 0.75rem; font-weight: bold; color: #666; }
-.filter-group select { border: 1px solid #ddd; padding: 4px; border-radius: 4px; font-size: 0.8rem; outline: none; }
+.filter-group select { border: 1px solid #ddd; padding: 4px; border-radius: 4px; font-size: 0.8rem; outline: none; cursor: pointer; }
 
-/* ÁREA DE ROLAGEM COM PADDING SIMÉTRICO */
+/* ÁREA DE ROLAGEM */
 .dashboard-scroll-area { flex-grow: 1; overflow-y: auto; padding-right: 15px; padding-bottom: 40px; }
 .dashboard-scroll-area::-webkit-scrollbar { width: 8px; }
 .dashboard-scroll-area::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
@@ -48,7 +48,7 @@ h1 { font-size: 1.8rem; color: #000; font-weight: bold; }
 
 .red { border-top-color: #e74c3c; } .green { border-top-color: #27ae60; } .orange { border-top-color: #f39c12; }
 
-/* TIMELINE - DESIGN RIGOROSO */
+/* TIMELINE */
 .card-header-timeline { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; margin-bottom: 15px; padding-bottom: 10px; }
 .timeline-title { font-size: 1.1rem; color: #2c3e50; font-weight: 800; }
 .timeline-filters { display: flex; gap: 8px; align-items: flex-end; }
@@ -57,33 +57,13 @@ h1 { font-size: 1.8rem; color: #000; font-weight: bold; }
 .filter-item select, .filter-item input { padding: 3px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.75rem; outline: none; }
 
 .timeline-wrapper { overflow: auto; border: 2px solid black; border-radius: 4px; position: relative; max-height: 500px; }
-
 #tabela-ferias-timeline { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; }
-
-#tabela-ferias-timeline th, 
-#tabela-ferias-timeline td { border: 1px solid black; width: 70px; height: 50px; text-align: center; font-size: 0.65rem; vertical-align: middle; }
-
-/* HEADER FIXO */
+#tabela-ferias-timeline th, #tabela-ferias-timeline td { border: 1px solid black; width: 70px; height: 50px; text-align: center; font-size: 0.65rem; vertical-align: middle; }
 #tabela-ferias-timeline thead th { background: #2c3e50; color: white; position: sticky; top: 0; z-index: 100; }
-
-/* COLUNAS FIXAS COM TÍTULOS EM PRETO E SOMBRA PARA SIMULAR BORDA */
-#tabela-ferias-timeline thead th.col-fixa, 
-#tabela-ferias-timeline thead th.col-vencimento { background: #f8f9fa !important; color: black !important; z-index: 101; box-shadow: inset -1px -1px 0 #000, 0 1px 0 #000; }
-
+#tabela-ferias-timeline thead th.col-fixa, #tabela-ferias-timeline thead th.col-vencimento { background: #f8f9fa !important; color: black !important; z-index: 101; box-shadow: inset -1px -1px 0 #000, 0 1px 0 #000; }
 .col-fixa { position: sticky; left: 0; background: #f8f9fa !important; z-index: 50; width: 130px !important; text-align: center !important; padding-left: 10px !important; color: black !important; font-weight: bold; box-shadow: inset -1px -1px 0 #000; }
 .col-vencimento { position: sticky; left: 130px; background: #fdfdfd !important; z-index: 50; width: 90px !important; color: #e74c3c !important; font-weight: bold; box-shadow: inset -1px -1px 0 #000; }
 
-/* SEPARADOR DE MÊS */
-.separador-mes { border-left: 3px solid black !important; }
-
-.celula-ferias-ativa { background-color: #9b59b6; color: white; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.65rem; display: flex; align-items: center; justify-content: center; height: 40px; margin: 0 2px; text-align: center; }
-
-/* MODAIS */
 .alerta-vencimento-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .alerta-vencimento-modal { background: white; padding: 25px; border-radius: 12px; width: 450px; max-height: 80vh; display: flex; flex-direction: column; border-top: 8px solid #e74c3c; }
-.alerta-vencimento-modal i { color: #e74c3c; font-size: 2.5rem; text-align: center; margin-bottom: 15px; }
-.alerta-vencimento-modal h2 { text-align: center; margin-bottom: 15px; color: #2c3e50; font-size: 1.2rem; }
-.lista-alertas { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; font-size: 0.85rem; }
-.item-alerta { padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
 .btn-fechar-alerta { background: #2c3e50; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-.btn-visto { background: #27ae60; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.7rem; }

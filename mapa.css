@@ -10,15 +10,16 @@ body { background-color: #f0f2f5; display: flex; }
 .header-dashboard h1 { font-size: 1.8rem; text-align: center; width: 100%; margin: 0;}
 
 /* Área dos Filtros: Centraliza os grupos de filtros e botões */
-.header-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; width: 100%;}
+.header-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; width: 100%;}
 
 .filter-group { display: flex; align-items: center; gap: 8px; background: white; padding: 8px 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+.filter-group-visible { display: flex; gap: 8px; background: white; padding: 6px 12px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); align-items: center; }
 .filter-group label { font-size: 0.8rem; font-weight: bold; color: #000; }
 .filter-group select, .filter-group input { border: 1px solid #ddd; padding: 4px; border-radius: 4px; outline: none; font-size: 0.85rem; text-align: center; text-align-last: center; }
 
 /* Novo Estilo para os Filtros Visíveis de Empresa e Período */
 .filter-group-visible { display: flex; gap: 12px; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); align-items: center; }
-.check-item { font-size: 0.8rem; font-weight: bold; color: #444; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.check-item { font-size: 0.75rem; font-weight: bold; color: #444; cursor: pointer; display: flex; align-items: center; gap: 4px; }
 .check-item input { cursor: pointer; accent-color: #3498db; width: 15px; height: 15px; }
 
 /* Legenda */
