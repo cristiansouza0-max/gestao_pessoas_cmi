@@ -7,7 +7,7 @@ h1 { font-size: 1.4rem; margin-bottom: 15px; font-weight: 800; }
 
 /* ESCALAS */
 .form-linha { display: flex; gap: 20px; align-items: flex-end; margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 8px; }
-.input-group-compact { display: flex; align-items: center; gap: 12px; } /* Gap solicitado */
+.input-group-compact { display: flex; align-items: center; gap: 12px; }
 .input-group-compact label { font-size: 0.65rem; font-weight: bold; color: #555; text-transform: uppercase; }
 .input-group-compact input { padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.85rem; width: 85px; }
 
@@ -18,13 +18,11 @@ h1 { font-size: 1.4rem; margin-bottom: 15px; font-weight: 800; }
 .card-escala-mini .actions i { cursor: pointer; font-size: 0.7rem; margin-left: 4px; color: #f39c12; }
 .card-escala-mini .actions i:last-child { color: #e74c3c; }
 
-/* JORNADAS FILTROS (PADRÃO PILL ESCURO) */
+/* JORNADAS FILTROS */
 .header-jornada-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .filtros-visualizacao-jornada { display: flex; gap: 8px; }
 .filtro-pill { background: #2c3e50; color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.filtro-pill label { font-weight: 800; text-transform: uppercase; font-size: 0.65rem; color: #bdc3c7; }
 .filtro-pill select { background: transparent; color: white; border: none; font-weight: bold; outline: none; cursor: pointer; }
-.filtro-pill select option { background: #2c3e50; color: white; }
 
 /* JORNADAS FORM */
 .form-jornada-cols { display: flex; gap: 20px; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px; align-items: flex-start; }
@@ -36,10 +34,10 @@ h1 { font-size: 1.4rem; margin-bottom: 15px; font-weight: 800; }
 .day-group { display: flex; flex-direction: column; gap: 5px; }
 .day-group label { font-size: 0.65rem; font-weight: 800; color: #34495e; text-transform: uppercase; text-align: center; }
 
-/* Checkbox em 3 colunas solicitado */
-.multi-scale-container { background: white; border: 1px solid #ddd; border-radius: 6px; height: 120px; overflow-y: auto; padding: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-.scale-option { font-size: 0.55rem; display: flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; padding: 2px; }
-.scale-option input { width: 12px; height: 12px; cursor: pointer; accent-color: #27ae60; }
+/* Checkbox em 3 colunas e ajuste para horário completo */
+.multi-scale-container { background: white; border: 1px solid #ddd; border-radius: 6px; height: 130px; overflow-y: auto; padding: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.scale-option { font-size: 0.5rem; display: flex; align-items: center; gap: 4px; white-space: nowrap; cursor: pointer; padding: 2px; }
+.scale-option input { width: 11px; height: 11px; cursor: pointer; accent-color: #27ae60; }
 
 .btn-group-jornada { display: flex; flex-direction: column; gap: 8px; align-self: center; }
 
@@ -48,7 +46,6 @@ h1 { font-size: 1.4rem; margin-bottom: 15px; font-weight: 800; }
 .header-periodo-label { background: #34495e; color: white; text-align: center; font-weight: 900; font-size: 0.85rem; padding: 6px; margin-bottom: 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
 .grid-10-colunas { display: grid; grid-template-columns: repeat(10, minmax(135px, 1fr)); gap: 8px; padding-bottom: 10px; }
 
-/* MINI CARDS */
 .mini-card-jornada { background: white; border: 1px solid #bdc3c7; border-radius: 5px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 .mini-card-header { background: #34495e; color: white; padding: 4px 8px; font-size: 0.7rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
 .mini-actions i { cursor: pointer; font-size: 0.65rem; transition: 0.2s; }

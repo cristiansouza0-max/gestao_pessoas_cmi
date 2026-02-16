@@ -9,9 +9,9 @@ body { background: #2c3e50; height: 100vh; display: flex; align-items: center; j
 }
 
 .login-header { text-align: center; margin-bottom: 30px; }
-.login-header i { font-size: 3rem; color: #3498db; margin-bottom: 10px; }
-.login-header h1 { color: #2c3e50; font-size: 1.8rem; font-weight: 800; line-height: 1; }
-.login-header p { color: #3498db; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.85rem; margin-top: 8px; }
+.login-header i { font-size: 2rem; color: #3498db; margin-bottom: 10px; }
+.login-header h1 { color: #2c3e50; font-size: 1rem; font-weight: 800; line-height: 1; }
+.login-header p { color: #3498db; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7rem; margin-top: 8px; }
 
 .input-group { margin-bottom: 20px; }
 .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: #7f8c8d; text-transform: uppercase; margin-bottom: 5px; }

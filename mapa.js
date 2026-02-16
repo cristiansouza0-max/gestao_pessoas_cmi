@@ -2,9 +2,9 @@ if (!sessionStorage.getItem('usuarioAtivo')) window.location.href = 'login.html'
 const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
 const isMaster = usuarioLogado.perfilMaster === true;
 
-const SEQ_TARDE_AVUL = ["Lucas P.", "Roberto", "Valter", "Angelo", "Renato"];
+const SEQ_TARDE_AVUL = ["Lucas Pazorine", "José Roberto", "Valter Lúcio", "Angelo de Melo", "Claudio Renato"];
 // --- SEQUÊNCIA MANHÃ (VIGENTE A PARTIR DE MARÇO/2026) ---
-const SEQ_MANHA_BASE = ["Geovana", "Maria Ap.", "Emerson", "Valeria", "Milena"];
+const SEQ_MANHA_BASE = ["Geovana Fanyne", "Maria Aparecida", "Emerson Silva", "Valeria Ribeiro", "Milena Benites"];
 
 const feriadosBase = [
     { dia: 1, mes: 1, nome: "Confraternização Universal", tipo: "nacional" },
@@ -115,30 +115,30 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
         if (dSim < dataNovaRegraMarço) {
             // JANEIRO E FEVEREIRO: REGRAS ANTIGAS
             if (sem === 6) {
-                const equipeBase = ["Geovana", "Maria Ap.", "Emerson", "Valeria"];
+                const equipeBase = ["Geovana Fanyne", "Maria Aparecida", "Emerson Silva", "Valeria Ribeiro"];
                 const dRefSab = dSim;
                 const idxFDS = Math.floor((dRefSab.getTime() - dataMarcoZeroFDSManha.getTime()) / (1000 * 60 * 60 * 24 * 7));
                 
-                let manual = equipeBase.find(n => fPediuManualGlobal(n, d, m, y, ausencias)) || (fPediuManualGlobal("Milena", d, m, y, ausencias) ? "Milena" : null);
+                let manual = equipeBase.find(n => fPediuManualGlobal(n, d, m, y, ausencias)) || (fPediuManualGlobal("Milena Benites", d, m, y, ausencias) ? "Milena Bennites" : null);
                 
                 if (manual) {
                     mManhaAvul[`${chave}-${manual}`] = true;
                     quemFolgouSabadoManha = manual;
                 } else if (dSim >= dataMarcoZeroFDSManha) {
-                    let escala = (idxFDS % 2 !== 0) ? "Milena" : equipeBase[pManhaRodizio % equipeBase.length];
+                    let escala = (idxFDS % 2 !== 0) ? "Milena Benites" : equipeBase[pManhaRodizio % equipeBase.length];
                     mManhaAvul[`${chave}-${escala}`] = true;
                     quemFolgouSabadoManha = escala;
                     if (idxFDS % 2 === 0) pManhaRodizio++;
                 }
             } else if (sem === 0) {
-                const equipeEspelho = ["Geovana", "Maria Ap.", "Emerson", "Valeria", "Milena"];
+                const equipeEspelho = ["Geovana Fanyne", "Maria Aparecida", "Emerson Silva", "Valeria Ribeiro", "Milena Benites"];
                 equipeEspelho.forEach(n => { if(n !== quemFolgouSabadoManha) mManhaAvul[`${chave}-${n}`] = true; });
-                mManhaAvul[`${chave}-Eloah`] = true;
+                mManhaAvul[`${chave}-Eloah Batista`] = true;
             }
         } else {
             // A PARTIR DE MARÇO: NOVA REGRA SEQUENCIAL
             const equipeNova = [...SEQ_MANHA_BASE];
-            if (regrasAtivas.equipeManha) equipeNova.push("Eloah");
+            if (regrasAtivas.equipeManha) equipeNova.push("Eloah Batista");
 
             if (sem === 6) {
                 quemFolgouSabadoManha = null;
@@ -169,7 +169,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                         mManhaAvul[`${chave}-${nome}`] = true;
                     }
                 });
-                if (!regrasAtivas.equipeManha) mManhaAvul[`${chave}-Eloah`] = true;
+                if (!regrasAtivas.equipeManha) mManhaAvul[`${chave}-Eloah Batista`] = true;
             }
         }
 
@@ -183,7 +183,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             }
         }
         if (regrasAtivas.equipeTarde && sem === 6) {
-            if (!precisaSubstituicao("Márcia", dSim) && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia`] = true;
+            if (!precisaSubstituicao("Márcia Cristina", dSim) && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia Cristina`] = true;
             else {
                 let t = 0; while (t < 5) {
                     let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
@@ -193,7 +193,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             }
         } else if (regrasAtivas.equipeTarde && sem === 0) {
             const chaveSab = `${new Date(dSim.getTime() - 86400000).getDate()}-${m}-${y}`;
-            if (!mTardeAvul[`${chaveSab}-Márcia`]) mTardeAvul[`${chave}-Márcia`] = true;
+            if (!mTardeAvul[`${chaveSab}-Márcia Cristina`]) mTardeAvul[`${chave}-Márcia Cristina`] = true;
             SEQ_TARDE_AVUL.forEach(nome => { if (!mTardeAvul[`${chaveSab}-${nome}`]) mTardeAvul[`${chave}-${nome}`] = true; });
         }
         if (sem === 6 || sem === 0) {
@@ -306,8 +306,8 @@ async function gerarMapa() {
                         if (!decidido && empresa === "AVUL" && per === "Manhã" && sim.manhaAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && empresa === "AVUL" && per === "Tarde" && sim.tardeAvul[`${chave}-${f.apelido}`]) { conteudo = '<b>X</b>'; decidido = true; }
                         if (!decidido && f.periodo === "Noite") { 
-                            if (sem === 6) { if (f.apelido === "Fábio" && d === (obterUltimoDomingo(ano,mes)-1)) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave+"-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave+"-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } }
-                            else if (sem === 0) { if (f.apelido === "Osmair" && d === obterUltimoDomingo(ano,mes)) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave+"-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave+"-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } }
+                            if (sem === 6) { if (f.apelido === "Fábio Miguel" && d === (obterUltimoDomingo(ano,mes)-1)) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave+"-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave+"-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } }
+                            else if (sem === 0) { if (f.apelido === "Osmair Lopes" && d === obterUltimoDomingo(ano,mes)) { conteudo = '<b>X</b>'; decidido = true; } else if ((sim.noite[chave+"-VCCL"] && f.empresa === "VCCL") || (sim.noite[chave+"-AVUL"] && f.empresa === "AVUL")) { conteudo = '<b>X</b>'; decidido = true; } }
                         }
                         if (!decidido) { if (f.funcao === "Líder" && (sem === 0 || sem === 6 || eFer)) conteudo = '<b>X</b>'; else if (sem === 0 && d < diasNoMes && new Date(ano,mes-1,d+1).getDay() === 1 && emFeriasGlobal(f.apelido, d+1, mes, ano, ausencias)) conteudo = '<b>X</b>'; }
                         tableHtml += `<td class="${eFer?'dia-feriado':(sem===0?'dia-domingo':(sem===6?'dia-sabado':''))}">${simboloA}${conteudo}</td>`;

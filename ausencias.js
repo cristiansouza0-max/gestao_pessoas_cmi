@@ -56,7 +56,7 @@ async function carregarFuncionarios() {
         cacheFuncionarios = [];
         
         selectForm.innerHTML = '<option value="">Selecione...</option>';
-        filtroHist.innerHTML = '<option value="TODOS">TODOS</option>';
+        filtroHist.innerHTML = '<option value="TODOS">Todos</option>';
 
         snapshot.forEach(doc => {
             const f = doc.data();
