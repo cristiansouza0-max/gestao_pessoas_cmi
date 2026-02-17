@@ -28,56 +28,59 @@
             </ul>
         </nav>
 
-<main class="content">
-    <div class="header-dashboard no-print">
-        <h1>Escala de Trabalho - CMI Tráfego</h1>
-        
-        <div class="header-controls">
-            <!-- Bloco de Mês e Ano -->
-            <div class="filter-group">
-                <label>Mês:</label>
-                <select id="mes-jornada" onchange="gerarEscalaEquipe()">
-                    <option value="0">Janeiro</option><option value="1">Fevereiro</option>
-                    <option value="2">Março</option><option value="3">Abril</option>
-                    <option value="4">Maio</option><option value="5">Junho</option>
-                    <option value="6">Julho</option><option value="7">Agosto</option>
-                    <option value="8">Setembro</option><option value="9">Outubro</option>
-                    <option value="10">Novembro</option><option value="11">Dezembro</option>
-                </select>
-                <label style="margin-left: 10px;">Ano:</label>
-                <input type="number" id="ano-jornada" value="2026" style="width: 80px; text-align: center;" onchange="gerarEscalaEquipe()">
-            </div>
+        <main class="content">
+            <div class="header-dashboard no-print">
+                <h1>Escala de Trabalho - CMI Tráfego</h1>
+                
+                <div class="header-controls">
+                    <!-- Bloco de Mês e Ano -->
+                    <div class="filter-group">
+                        <label>Mês:</label>
+                        <select id="mes-jornada" onchange="gerarEscalaEquipe()">
+                            <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+                            <option value="2">Março</option><option value="3">Abril</option>
+                            <option value="4">Maio</option><option value="5">Junho</option>
+                            <option value="6">Julho</option><option value="7">Agosto</option>
+                            <option value="8">Setembro</option><option value="9">Outubro</option>
+                            <option value="10">Novembro</option><option value="11">Dezembro</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Ano:</label>
+                        <input type="number" id="ano-jornada" style="width: 80px;" onchange="gerarEscalaEquipe()">
+                    </div>
 
-            <!-- Bloco de Empresa -->
-            <div class="filter-group" id="container-filtro-empresa">
-                <label>Empresa:</label>
-                <select id="empresa-jornada" onchange="gerarEscalaEquipe()">
-                    <option value="TODAS">TODAS</option>
-                    <option value="AVUL">AVUL</option>
-                    <option value="VCCL">VCCL</option>
-                    <option value="VSBL">VSBL</option>
-                </select>
-            </div>
+                    <!-- Filtro de Empresa Visível (Igual ao Mapa) -->
+                    <div class="filter-group-visible">
+                        <label class="check-item"><input type="checkbox" class="filtro-emp-jor" value="AVUL" checked onchange="gerarEscalaEquipe()"> AVUL</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-emp-jor" value="VCCL" checked onchange="gerarEscalaEquipe()"> VCCL</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-emp-jor" value="VSBL" checked onchange="gerarEscalaEquipe()"> VSBL</label>
+                    </div>
 
-            <!-- Bloco de Períodos (Múltipla Seleção) -->
-            <div class="filter-group-checkboxes" id="container-filtro-periodo">
-                <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Manhã" checked onchange="gerarEscalaEquipe()"> Manhã</label>
-                <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Intermediário" checked onchange="gerarEscalaEquipe()"> Intermediário</label>
-                <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Tarde" checked onchange="gerarEscalaEquipe()"> Tarde</label>
-                <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Noite" checked onchange="gerarEscalaEquipe()"> Noite</label>
-                <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Integral" checked onchange="gerarEscalaEquipe()"> Integral</label>
-            </div>
+                    <!-- Filtro de Setor Visível (Igual ao Mapa) -->
+                    <div class="filter-group-visible">
+                        <label class="check-item"><input type="checkbox" class="filtro-set-jor" value="Tráfego" checked onchange="gerarEscalaEquipe()"> Tráfego</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-set-jor" value="Monitoramento" checked onchange="gerarEscalaEquipe()"> Monitoramento</label>
+                    </div>
 
-            <button onclick="salvarJornadaDefinitiva()" class="btn-save-blue" id="btn-salvar-jornada">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Escala
-            </button>
-        </div>
+                    <!-- Filtro de Período Visível (Igual ao Mapa) -->
+                    <div class="filter-group-visible">
+                        <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Manhã" checked onchange="gerarEscalaEquipe()"> Manhã</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Intermediário" checked onchange="gerarEscalaEquipe()"> Intermediário</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Tarde" checked onchange="gerarEscalaEquipe()"> Tarde</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Noite" checked onchange="gerarEscalaEquipe()"> Noite</label>
+                        <label class="check-item"><input type="checkbox" class="filtro-per-jor" value="Integral" checked onchange="gerarEscalaEquipe()"> Integral</label>
+                    </div>
+
+                    <button onclick="window.print()" class="btn-print-red"><i class="fa-solid fa-print"></i> Imprimir</button>
+                </div>
+            </div>
+            
+            <div id="cabecalho-impressao" class="cabecalho-equipe-master"></div>
+            <div id="equipe-jornada-container" class="escala-grid-6-columns"></div>
+        </main>
     </div>
-    
-    <div id="cabecalho-impressao" class="cabecalho-equipe-master"></div>
-    <div id="equipe-jornada-container" class="escala-grid-6-columns"></div>
-</main>
-    </div>
+
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="firebase-config.js"></script>

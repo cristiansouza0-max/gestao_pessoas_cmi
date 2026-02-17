@@ -55,38 +55,38 @@
             <!-- BLOCO 2: CADASTRO DE JORNADAS -->
             <div class="section-container-jornadas">
                 <div class="header-jornada-top">
-                    <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
-                    <div class="filtros-visualizacao-jornada">
-                        <div class="filtro-pill">
-                            <label>Empresa:</label>
-                            <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
-                                <option value="TODAS">TODAS</option>
-                                <option value="AVUL">AVUL</option>
-                                <option value="VCCL">VCCL</option>
-                                <option value="VSBL">VSBL</option>
-                            </select>
-                        </div>
-                        <div class="filtro-pill">
-                            <label>Setor:</label>
-                            <select id="filtro-setor-jornada" onchange="renderizarJornadas()">
-                                <option value="TODOS">TODOS</option>
-                                <option value="Tráfego">Tráfego</option>
-                                <option value="Monitoramento">Monitoramento</option>
-                            </select>
-                        </div>
-                        <div class="filtro-pill">
-                            <label>Período:</label>
-                            <select id="filtro-periodo-jornada" onchange="renderizarJornadas()">
-                                <option value="TODOS">TODOS</option>
-                                <option value="Manhã">Manhã</option>
-                                <option value="Intermediário">Intermediário</option>
-                                <option value="Tarde">Tarde</option>
-                                <option value="Noite">Noite</option>
-                                <option value="Integral">Integral</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+    <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
+    <div class="filtros-visualizacao-jornada">
+        <div class="filtro-pill">
+            <label>Empresa:</label>
+            <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
+                <option value="TODAS">Todas</option>
+                <option value="AVUL">AVUL</option>
+                <option value="VCCL">VCCL</option>
+                <option value="VSBL">VSBL</option>
+            </select>
+        </div>
+        <div class="filtro-pill">
+            <label>Setor:</label>
+            <select id="filtro-setor-jornada" onchange="renderizarJornadas()">
+                <option value="TODOS">Todos</option>
+                <option value="Tráfego">Tráfego</option>
+                <option value="Monitoramento">Monitoramento</option>
+            </select>
+        </div>
+        <div class="filtro-pill">
+            <label>Período:</label>
+            <select id="filtro-periodo-jornada" onchange="renderizarJornadas()">
+                <option value="TODOS">Todos</option>
+                <option value="Manhã">Manhã</option>
+                <option value="Intermediário">Intermediário</option>
+                <option value="Tarde">Tarde</option>
+                <option value="Noite">Noite</option>
+                <option value="Integral">Integral</option>
+            </select>
+        </div>
+    </div>
+</div>
 
                 <form id="form-jornada" class="form-jornada-cols">
                     <input type="hidden" id="edit-id-jornada" value="">

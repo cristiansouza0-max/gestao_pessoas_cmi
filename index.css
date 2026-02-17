@@ -1,118 +1,409 @@
-/* RESET E ESTRUTURA */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-body { background-color: #f0f2f5; display: flex; overflow: hidden; }
+/* RESET E ESTRUTURA GLOBAL */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+}
 
-.container { display: flex; width: 100%; }
-.sidebar { width: 250px; height: 100vh; background: #2c3e50; color: white; padding: 20px; position: fixed; z-index: 1000; }
-.sidebar h2 { margin-bottom: 20px; color: #3498db; font-size: 1.2rem; text-align: center; }
-.sidebar ul { list-style: none; }
-.sidebar ul li a { color: #bdc3c7; text-decoration: none; padding: 12px; display: block; border-radius: 5px; transition: 0.3s; }
-.sidebar ul li a.active { background: #34495e; color: white; border-left: 4px solid #3498db; }
-.sidebar hr { border: 0; border-top: 1px solid #455a64; margin: 15px 0; }
+body { 
+    background-color: #f0f2f5; 
+    display: flex; 
+    overflow: hidden; /* O corpo não rola, quem rola é a .content */
+}
 
-.content { margin-left: 250px; padding: 20px 40px; width: calc(100% - 250px); height: 100vh; display: flex; flex-direction: column; }
-.header-dashboard { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
-h1 { font-size: 1.8rem; color: #000; font-weight: bold; }
+.container { 
+    display: flex; 
+    width: 100%; 
+}
 
-.header-controls { display: flex; gap: 12px; flex-wrap: wrap; }
-.filter-group { display: flex; align-items: center; gap: 8px; background: white; padding: 8px 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-.filter-group label { font-size: 0.75rem; font-weight: bold; color: black; }
-.filter-group select { border: 1px solid #ddd; padding: 4px; border-radius: 4px; font-size: 0.8rem; outline: none; cursor: pointer; }
+/* SIDEBAR */
+.sidebar { 
+    width: 250px; 
+    height: 100vh; 
+    background: #2c3e50; 
+    color: white; 
+    padding: 20px; 
+    position: fixed; 
+    z-index: 1000; 
+}
 
-/* ÁREA DE ROLAGEM */
-.dashboard-scroll-area { flex-grow: 1; overflow-y: auto; padding-right: 15px; padding-bottom: 40px; }
+.sidebar h2 { 
+    margin-bottom: 20px; 
+    color: #3498db; 
+    font-size: 1.2rem; 
+    text-align: center; 
+}
+
+.sidebar ul { 
+    list-style: none; 
+}
+
+.sidebar ul li a { 
+    color: #bdc3c7; 
+    text-decoration: none; 
+    padding: 12px; 
+    display: block; 
+    border-radius: 5px; 
+    transition: 0.3s; 
+}
+
+.sidebar ul li a.active { 
+    background: #34495e; 
+    color: white; 
+    border-left: 4px solid #3498db; 
+}
+
+.sidebar hr { 
+    border: 0; 
+    border-top: 1px solid #455a64; 
+    margin: 15px 0; 
+}
+
+/* CONTEÚDO PRINCIPAL */
+.content { 
+    margin-left: 250px; 
+    padding: 20px 40px; 
+    width: calc(100% - 250px); 
+    height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+}
+
+.header-dashboard { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+    flex-shrink: 0; 
+}
+
+h1 { 
+    font-size: 1.8rem; 
+    color: #000; 
+    font-weight: bold; 
+}
+
+.header-controls { 
+    display: flex; 
+    gap: 12px; 
+    flex-wrap: wrap; 
+}
+
+.filter-group { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    background: white; 
+    padding: 8px 15px; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+}
+
+.filter-group label { 
+    font-size: 0.75rem; 
+    font-weight: bold; 
+    color: black; 
+}
+
+.filter-group select { 
+    border: 1px solid #ddd; 
+    padding: 4px; 
+    border-radius: 4px; 
+    font-size: 0.8rem; 
+    outline: none; 
+    cursor: pointer; 
+}
+
+/* ÁREA DE ROLAGEM PRINCIPAL DO DASHBOARD */
+.dashboard-scroll-area { 
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding-right: 15px; 
+    padding-bottom: 40px; 
+}
+
 .dashboard-scroll-area::-webkit-scrollbar { width: 8px; }
 .dashboard-scroll-area::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
 
-/* CARDS */
-.stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 20px; }
-.card-stat { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
-.card-stat h3 { font-size: 0.65rem; color: black; text-transform: uppercase; margin-bottom: 5px; }
-.card-stat p { font-size: 1.5rem; font-weight: bold; color: #2c3e50; }
+/* GRIDS DE CARDS STATS */
+.stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(6, 1fr); 
+    gap: 12px; 
+    margin-bottom: 20px; 
+}
+
+.card-stat { 
+    background: white; 
+    padding: 15px; 
+    border-radius: 10px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    text-align: center; 
+}
+
+.card-stat h3 { 
+    font-size: 0.65rem; 
+    color: black; 
+    text-transform: uppercase; 
+    margin-bottom: 5px; 
+}
+
+.card-stat p { 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    color: #2c3e50; 
+}
+
 .card-stat span { font-size: 0.65rem; color: black; }
 
-.anniversaries-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
-.card-large { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-.card-header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; margin-bottom: 15px; padding-bottom: 10px; }
+/* ANIVERSARIANTES E RESUMOS */
+.anniversaries-container { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+    margin-bottom: 20px; 
+}
+
+.card-large { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 10px; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+}
+
+.card-header-flex { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 2px solid #f0f2f5; 
+    margin-bottom: 15px; 
+    padding-bottom: 10px; 
+}
 
 .anniversary-list { list-style: none; padding: 0; }
-.anniversary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f9f9f9; font-size: 0.85rem; }
+.anniversary-item { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 8px 0; 
+    border-bottom: 1px solid #f9f9f9; 
+    font-size: 0.85rem; 
+}
+
 .anniversary-date { font-weight: bold; color: #3498db; }
-.empty-info { list-style: none; color: #999; font-style: italic; font-size: 0.85rem; padding: 10px 0; text-align: center; }
+.empty-info { 
+    list-style: none; 
+    color: #999; 
+    font-style: italic; 
+    font-size: 0.85rem; 
+    padding: 10px 0; 
+    text-align: center; 
+}
 
-.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
-.card-summary { background: white; padding: 15px; border-radius: 10px; border-top: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.05); min-height: 150px; }
-.card-summary h3 { font-size: 0.8rem; color: #555; margin-bottom: 12px; font-weight: bold; text-transform: uppercase; }
-.summary-item { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 0.6px dashed #eee; }
-.summary-item .qty { font-weight: bold; color: #2c3e50; background: #f0f2f5; padding: 2px 6px; border-radius: 4px; }
+.summary-row { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+    margin-bottom: 20px; 
+}
 
-.red { border-top-color: #e74c3c; } .green { border-top-color: #27ae60; } .orange { border-top-color: #f39c12; }
+.card-summary { 
+    background: white; 
+    padding: 15px; 
+    border-radius: 10px; 
+    border-top: 5px solid #ccc; 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05); 
+    min-height: 150px; 
+}
 
-/* TIMELINE - AJUSTE FILTROS LADO ESQUERDO */
-.card-header-timeline { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f0f2f5; margin-bottom: 15px; padding-bottom: 10px; }
-.timeline-title { font-size: 1rem; color: #2c3e50; font-weight: 800; }
-.timeline-filters { display: flex; gap: 15px; align-items: center; }
+.card-summary h3 { 
+    font-size: 0.8rem; 
+    color: #555; 
+    margin-bottom: 12px; 
+    font-weight: bold; 
+    text-transform: uppercase; 
+}
 
-.filter-item { display: flex; flex-direction: row; align-items: center; gap: 8px; }
-.filter-item label { font-size: 0.6rem; font-weight: bold; color: black; text-transform: uppercase; white-space: nowrap; }
-.filter-item select, .filter-item input { padding: 3px 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.75rem; outline: none; }
+.summary-item { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 4px 0; 
+    border-bottom: 0.6px dashed #eee; 
+}
 
-/* TABELA E BORDAS CINZA ESCURO */
-.timeline-wrapper { overflow: auto; border: 2px solid black; border-radius: 4px; position: relative; max-height: 500px; }
-#tabela-ferias-timeline { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; border: 1px solid black; }
+.summary-item .qty { 
+    font-weight: bold; 
+    color: #2c3e50; 
+    background: #f0f2f5; 
+    padding: 2px 6px; 
+    border-radius: 4px; 
+}
 
-/* Células padrão (Linhas internas em cinza escuro) */
+.red { border-top-color: #e74c3c; } 
+.green { border-top-color: #27ae60; } 
+.orange { border-top-color: #f39c12; }
+
+/* --- PLANEJAMENTO DE FÉRIAS (TIMELINE) --- */
+
+.card-header-timeline { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-bottom: 2px solid #f0f2f5; 
+    margin-bottom: 15px; 
+    padding-bottom: 10px; 
+}
+
+.timeline-title { 
+    font-size: 1rem; 
+    color: #2c3e50; 
+    font-weight: 800; 
+}
+
+.timeline-filters { 
+    display: flex; 
+    gap: 15px; 
+    align-items: center; 
+}
+
+.filter-item { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: center; 
+    gap: 8px; 
+}
+
+.filter-item label { 
+    font-size: 0.6rem; 
+    font-weight: bold; 
+    color: black; 
+    text-transform: uppercase; 
+    white-space: nowrap; 
+}
+
+.filter-item select { 
+    padding: 3px 6px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px; 
+    font-size: 0.75rem; 
+    outline: none; 
+}
+
+/* Wrapper da Tabela - Rola apenas horizontalmente, vertical cresce com os dados */
+.timeline-wrapper { 
+    overflow-x: auto; 
+    overflow-y: hidden; 
+    border: 2px solid black; 
+    border-radius: 4px; 
+    position: relative; 
+    width: 100%;
+    max-height: none; /* Sem limite de altura para não criar barra vertical interna */
+}
+
+#tabela-ferias-timeline { 
+    border-collapse: separate; 
+    border-spacing: 0; 
+    width: max-content; /* Impede as colunas de encolherem */
+    table-layout: fixed; 
+}
+
+/* Configuração de Células */
 #tabela-ferias-timeline th, 
 #tabela-ferias-timeline td { 
-    border: 1px solid #555; /* Cinza Escuro solicitado */
-    width: 35px; 
+    border: 1px solid #555;
+    width: 41.2px; 
+    min-width: 41.1px;
     height: 25px; 
     text-align: center; 
-    font-size: 0.65rem; 
+    font-size: 0.60rem; 
     vertical-align: middle; 
 }
 
-/* HEADER FIXO (Borda preta para destacar o topo) */
+/* Cabeçalho da Tabela - Ajustado para Data e Dia da Semana */
 #tabela-ferias-timeline thead th { 
     background: #2c3e50; 
     color: white; 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
-    border: 1px solid black; 
+    height: 45px; /* Altura para comportar as duas linhas */
+    line-height: 1.1;
+    padding: 4px 2px;
 }
 
-/* COLUNAS FIXAS (Borda preta para destacar a lateral) */
-#tabela-ferias-timeline thead th.col-fixa, 
-#tabela-ferias-timeline thead th.col-vencimento { 
-    background: #f8f9fa !important; 
-    color: black !important; 
-    z-index: 101; 
-    border: 1px solid black;
-}
-
+/* Colunas Fixas Laterais */
 .col-fixa { 
     position: sticky; 
     left: 0; 
     background: #f8f9fa !important; 
-    z-index: 50; 
-    width: 120px !important; 
+    z-index: 50 !important; 
+    width: 140px !important; 
+    min-width: 140px !important;
     color: black !important; 
     font-weight: bold; 
-    border-right: 1px solid black !important; 
+    border-right: 2px solid black !important; 
+    text-align: left !important;
+    padding-left: 8px !important;
 }
 
 .col-vencimento { 
     position: sticky; 
-    left: 130px; 
+    left: 140px; 
     background: #fdfdfd !important; 
-    z-index: 50; 
-    width: 90px !important; 
+    z-index: 50 !important; 
+    width: 100px !important; 
+    min-width: 100px !important;
     color: #e74c3c !important; 
     font-weight: bold; 
     border-right: 2px solid black !important; 
 }
 
-.alerta-vencimento-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-.alerta-vencimento-modal { background: white; padding: 25px; border-radius: 12px; width: 450px; max-height: 80vh; display: flex; flex-direction: column; border-top: 8px solid #e74c3c; }
-.btn-fechar-alerta { background: #2c3e50; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+/* Z-index superior para o cruzamento de Header e Coluna Fixa */
+#tabela-ferias-timeline thead th.col-fixa { 
+    z-index: 100 !important; 
+    left: 0; 
+    position: sticky; 
+}
+
+#tabela-ferias-timeline thead th.col-vencimento { 
+    z-index: 100 !important; 
+    left: 140px; 
+    position: sticky; 
+}
+
+/* Estilo para as Barras de Férias */
+.ferias-celula {
+    color: white; 
+    font-size: 9px; 
+    font-weight: bold; 
+    text-align: center; 
+    white-space: nowrap; 
+    border: 1px solid black;
+}
+
+/* MODAL DE ALERTA */
+.alerta-vencimento-overlay { 
+    position: fixed; 
+    top: 0; left: 0; width: 100%; height: 100%; 
+    background: rgba(0,0,0,0.8); 
+    display: flex; align-items: center; justify-content: center; 
+    z-index: 9999; 
+}
+
+.alerta-vencimento-modal { 
+    background: white; 
+    padding: 25px; 
+    border-radius: 12px; 
+    width: 450px; 
+    max-height: 80vh; 
+    display: flex; 
+    flex-direction: column; 
+    border-top: 8px solid #e74c3c; 
+}
+
+.btn-fechar-alerta { 
+    background: #2c3e50; 
+    color: white; 
+    border: none; 
+    padding: 10px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}

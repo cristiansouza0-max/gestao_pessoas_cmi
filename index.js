@@ -4,6 +4,7 @@ const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
 const isMaster = usuarioLogado.perfilMaster === true;
 
 document.addEventListener('DOMContentLoaded', () => {
+    popularAnosFiltro();
     ajustarSidebar();
     carregarDashboard();
 });
@@ -11,6 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
 const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 let cacheFuncionarios = [];
 let cacheAusencias = [];
+
+// Popular seletor de anos de forma dinâmica
+function popularAnosFiltro() {
+    const s = document.getElementById('filtro-ano-timeline');
+    const anoAtual = new Date().getFullYear();
+    s.innerHTML = "";
+    for (let i = 2020; i <= 2035; i++) {
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.text = i;
+        if (i === anoAtual ) opt.selected = true;
+        s.appendChild(opt);
+    }
+}
 
 function ajustarSidebar() {
     const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
@@ -31,8 +46,17 @@ function ajustarSidebar() {
 
 function calcularVencimentoNoAno(admissaoStr, anoFiltro) {
     if (!admissaoStr) return null;
+    
+    // 1. Extrai o ano, mês e dia da admissão original
     const [anoA, mesA, diaA] = admissaoStr.split('-').map(Number);
-    return new Date(anoFiltro, mesA - 1, diaA);
+    
+    // 2. Cria uma data usando o Ano do Filtro, mas com o Mês e Dia originais
+    let dataVenc = new Date(anoFiltro, mesA - 1, diaA);
+    
+    // 3. Subtrai 1 dia do resultado
+    dataVenc.setDate(dataVenc.getDate() - 1);
+    
+    return dataVenc;
 }
 
 async function carregarDashboard() {
@@ -114,10 +138,17 @@ async function renderizarTimelineFerias() {
     const fFunc = document.getElementById('filtro-func-timeline').value;
     
     const anoFiltro = parseInt(document.getElementById('filtro-ano-timeline').value);
-    const mesFiltro = parseInt(document.getElementById('filtro-mes-timeline').value);
+    const mesValor = document.getElementById('filtro-mes-timeline').value;
 
-    const dataInicioTabela = new Date(anoFiltro, mesFiltro, 1);
-    const dataFimTabela = new Date(anoFiltro, mesFiltro + 1, 0);
+    let dataInicioTabela, dataFimTabela;
+    if (mesValor === "TODOS") {
+        dataInicioTabela = new Date(anoFiltro, 0, 1);
+        dataFimTabela = new Date(anoFiltro, 11, 31);
+    } else {
+        const mesFiltro = parseInt(mesValor);
+        dataInicioTabela = new Date(anoFiltro, mesFiltro, 1);
+        dataFimTabela = new Date(anoFiltro, mesFiltro + 1, 0);
+    }
 
     const corpo = document.getElementById('corpo-timeline');
     const header = document.getElementById('header-timeline');
@@ -143,8 +174,16 @@ async function renderizarTimelineFerias() {
     let temp = new Date(dataInicioTabela);
     while (temp <= dataFimTabela) { dias.push(new Date(temp)); temp.setDate(temp.getDate() + 1); }
     
+    // Array para os dias da semana
+    const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
     header.innerHTML = '<th class="col-fixa">Funcionários</th><th class="col-vencimento">Vencimento</th>';
-    dias.forEach(d => header.innerHTML += `<th>${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}</th>`);
+    
+    dias.forEach(d => {
+        const diaNome = diasSemana[d.getDay()];
+        // Adiciona a Data e o Dia da Semana abaixo
+        header.innerHTML += `<th>${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}<br><span style="font-size: 0.55rem; opacity: 0.8;">${diaNome}</span></th>`;
+    });
     
     corpo.innerHTML = "";
     lista.forEach(f => {
@@ -160,7 +199,17 @@ async function renderizarTimelineFerias() {
             if (aus) {
                 const datesInAus = parseDatas(aus).filter(dt => dt >= dias[i] && dt <= dataFimTabela);
                 const span = datesInAus.length;
-                tr += `<td colspan="${span}" style="background:#9b59b6; color:white; font-size:10px; font-weight:bold; text-align:center;">FÉRIAS</td>`;
+                const obsLimpa = (aus.observacao || "").toLowerCase().trim();
+                
+                let corBarra = "#9b59b6"; 
+                let textoBarra = "Férias Marcada";
+
+                if (obsLimpa === "programada") {
+                    corBarra = "#f39c12"; 
+                    textoBarra = "Férias Programada";
+                }
+
+                tr += `<td colspan="${span}" style="background:${corBarra}; color:white; font-size:8px; font-weight:bold; text-align:center; white-space: nowrap; border: 1px solid black;">${textoBarra}</td>`;
                 i += (span - 1);
             } else {
                 tr += `<td></td>`;

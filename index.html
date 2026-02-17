@@ -107,20 +107,25 @@
                             <div class="filter-item">
                                 <label>Ano:</label>
                                 <select id="filtro-ano-timeline" onchange="renderizarTimelineFerias()">
-                                    <option value="2025">2025</option>
-                                    <option value="2026" selected>2026</option>
-                                    <option value="2027">2027</option>
+                                    <!-- Preenchido via JS -->
                                 </select>
                             </div>
                             <div class="filter-item">
                                 <label>Mês:</label>
                                 <select id="filtro-mes-timeline" onchange="renderizarTimelineFerias()">
-                                    <option value="0">Janeiro</option><option value="1">Fevereiro</option>
-                                    <option value="2">Março</option><option value="3" selected>Abril</option>
-                                    <option value="4">Maio</option><option value="5">Junho</option>
-                                    <option value="6">Julho</option><option value="7">Agosto</option>
-                                    <option value="8">Setembro</option><option value="9">Outubro</option>
-                                    <option value="10">Novembro</option><option value="11">Dezembro</option>
+                                    <option value="TODOS"select>Todos</option>
+                                    <option value="0">Janeiro</option>
+                                    <option value="1">Fevereiro</option>
+                                    <option value="2">Março</option>
+                                    <option value="3">Abril</option>
+                                    <option value="4">Maio</option>
+                                    <option value="5">Junho</option>
+                                    <option value="6">Julho</option>
+                                    <option value="7">Agosto</option>
+                                    <option value="8">Setembro</option>
+                                    <option value="9">Outubro</option>
+                                    <option value="10">Novembro</option>
+                                    <option value="11">Dezembro</option>
                                 </select>
                             </div>
                         </div>
@@ -131,6 +136,7 @@
                                 <tr id="header-timeline">
                                     <th class="col-fixa">Funcionários</th>
                                     <th class="col-vencimento">Vencimento</th>
+                                    <!-- Dias aqui -->
                                 </tr>
                             </thead>
                             <tbody id="corpo-timeline"></tbody>

@@ -19,10 +19,12 @@ h1 { font-size: 1.4rem; margin-bottom: 15px; font-weight: 800; }
 .card-escala-mini .actions i:last-child { color: #e74c3c; }
 
 /* JORNADAS FILTROS */
-.header-jornada-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.filtros-visualizacao-jornada { display: flex; gap: 8px; }
-.filtro-pill { background: #2c3e50; color: white; padding: 6px 15px; border-radius: 20px; font-size: 0.75rem; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.filtro-pill select { background: transparent; color: white; border: none; font-weight: bold; outline: none; cursor: pointer; }
+.header-jornada-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.filtros-visualizacao-jornada { display: flex; gap: 12px; }
+.filtro-pill { background: #2c3e50; color: white; padding: 6px 18px; border-radius: 25px; font-size: 0.75rem; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+.filtro-pill label { font-size: 0.65rem; font-weight: 900; color: #bdc3c7; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; }
+.filtro-pill select { background: transparent; color: white; border: none; font-weight: bold; outline: none; cursor: pointer; padding: 2px 0; }
+.filtro-pill select option { background: #2c3e50; color: white; }
 
 /* JORNADAS FORM */
 .form-jornada-cols { display: flex; gap: 20px; background: #f8f9fa; padding: 15px; border-radius: 10px; border: 1px solid #eee; margin-bottom: 20px; align-items: flex-start; }
