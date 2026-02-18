@@ -28,6 +28,9 @@
 .col label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #34495e; }
 .col input, .col select { padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; }
 
+/* Destaque para o campo de Vencimento */
+#col-vencimento select { border: 1px solid #3498db; background-color: #f0f7ff; font-weight: bold; }
+
 .btn-group { flex-direction: row !important; align-items: flex-end; gap: 10px; }
 .btn-save { background: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 2; font-weight: bold; }
 .btn-clear { background: #95a5a6; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; }

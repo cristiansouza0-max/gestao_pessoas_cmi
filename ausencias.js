@@ -84,6 +84,88 @@ async function carregarFuncionarios() {
     } catch (e) { console.error(e); }
 }
 
+// Lógica para mostrar/esconder campo de Vencimento e calcular datas
+function verificarTipoAusencia() {
+    const tipo = document.getElementById('tipo-ausencia').value;
+    const colVencimento = document.getElementById('col-vencimento');
+    const funcApelido = document.getElementById('select-funcionario').value;
+
+    if (tipo === 'Férias' && funcApelido) {
+        colVencimento.style.display = 'flex';
+        gerarOpcoesVencimento(funcApelido);
+    } else {
+        colVencimento.style.display = 'none';
+    }
+}
+
+function gerarOpcoesVencimento(apelido) {
+    const funcionario = cacheFuncionarios.find(f => f.apelido === apelido);
+    const selectVenc = document.getElementById('vencimento-ferias');
+    selectVenc.innerHTML = '<option value="">Selecione o período...</option>';
+
+    if (!funcionario) return;
+
+    // Tenta encontrar o campo de admissão
+    let rawData = funcionario.dataAdmissao || funcionario.admissao || funcionario.data_admissao || funcionario.dataAdmissao_formatada;
+
+    if (!rawData) {
+        selectVenc.innerHTML = '<option value="">Admissão não encontrada</option>';
+        return;
+    }
+
+    let d;
+
+    // 1. Se for Timestamp do Firebase
+    if (rawData.seconds) {
+        d = rawData.toDate();
+    } 
+    // 2. Se for uma String
+    else if (typeof rawData === 'string') {
+        if (rawData.includes('/')) {
+            // Formato DD/MM/YYYY
+            const partes = rawData.split('/');
+            d = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+        } else if (rawData.includes('-')) {
+            // Formato YYYY-MM-DD (Internacional)
+            const partes = rawData.split('-');
+            if (partes[0].length === 4) {
+                d = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
+            } else {
+                // Formato DD-MM-YYYY
+                d = new Date(parseInt(partes[2]), parseInt(partes[1]) - 1, parseInt(partes[0]));
+            }
+        }
+    } 
+    // 3. Se for um número (milissegundos)
+    else if (typeof rawData === 'number') {
+        d = new Date(rawData);
+    }
+
+    // Validação final da data convertida
+    if (!d || isNaN(d.getTime())) {
+        console.error("Erro ao converter data. Valor bruto:", rawData);
+        selectVenc.innerHTML = '<option value="">Erro no formato da data</option>';
+        return;
+    }
+
+    const diaAdm = d.getDate();
+    const mesAdm = d.getMonth();
+
+    // Gerar as opções de 2025 a 2030
+    for (let ano = 2025; ano <= 2030; ano++) {
+        // Criamos a data de aniversário da admissão no ano específico
+        let dataVenc = new Date(ano, mesAdm, diaAdm);
+        // Subtraímos 1 dia para ser o vencimento
+        dataVenc.setDate(dataVenc.getDate() - 1);
+        
+        const dataFormatada = dataVenc.toLocaleDateString('pt-BR');
+        const option = document.createElement('option');
+        option.value = dataFormatada;
+        option.textContent = dataFormatada;
+        selectVenc.appendChild(option);
+    }
+}
+
 function configurarCalendario() {
     const modo = document.getElementById('modo-data').value;
     if (fp) fp.destroy();
@@ -128,11 +210,17 @@ function iniciarEscutaAusencias() {
                 if (target) {
                     const total = calcularTotalDias(aus.datas, aus.modo);
                     const isPendente = statusAtual === "Pendente";
+                    
+                    let infoTexto = `${aus.datas} - ${aus.observacao}`;
+                    if (aus.tipo === "Férias" && aus.vencimentoReferencia) {
+                        infoTexto = `<strong style="display:block; color:#2980b9; margin-bottom:4px; font-size:0.75rem;">Referente ao Vencimento ${aus.vencimentoReferencia}</strong>` + infoTexto;
+                    }
+
                     const card = document.createElement('div');
                     card.className = `card-ausencia ${isPendente ? 'pendente' : ''}`;
                     let acoes = isMaster ? (isPendente ? `<button onclick="decidirAusencia('${id}', 'Aprovada', '${aus.funcionario}')" class="btn-aprovar"><i class="fa-solid fa-circle-check"></i></button><button onclick="decidirAusencia('${id}', 'Recusada', '${aus.funcionario}')" class="btn-reprovar"><i class="fa-solid fa-circle-xmark"></i></button>` : `<button onclick="editarAusencia('${id}')" class="btn-icon-edit"><i class="fa-solid fa-pencil"></i></button><button onclick="excluirAusencia('${id}')" class="btn-icon-delete"><i class="fa-solid fa-trash-can"></i></button>`) : "";
 
-                    card.innerHTML = `<div class="card-header-func">${aus.funcionario} <span class="badge-status-ausencia ${isPendente?'status-pendente':'status-aprovada'}">${statusAtual}</span> <span class="badge-dias">${total} d</span></div><div class="card-body-ausencia"><div class="ausencia-info">${aus.datas} - ${aus.observacao}</div><div class="card-action-column">${acoes}</div></div>`;
+                    card.innerHTML = `<div class="card-header-func">${aus.funcionario} <span class="badge-status-ausencia ${isPendente?'status-pendente':'status-aprovada'}">${statusAtual}</span> <span class="badge-dias">${total} d</span></div><div class="card-body-ausencia"><div class="ausencia-info">${infoTexto}</div><div class="card-action-column">${acoes}</div></div>`;
                     target.appendChild(card);
                 }
             }
@@ -144,7 +232,20 @@ function iniciarEscutaAusencias() {
 document.getElementById('form-ausencia').addEventListener('submit', async function(e) {
     e.preventDefault();
     const idEdicao = document.getElementById('edit-id').value;
-    const dados = { funcionario: document.getElementById('select-funcionario').value, tipo: document.getElementById('tipo-ausencia').value, observacao: document.getElementById('obs-ausencia').value, datas: document.getElementById('calendario-dinamico').value, modo: document.getElementById('modo-data').value, status: isMaster ? "Aprovada" : "Pendente", notificadoMaster: isMaster, notificadoUser: false, justificativa: "", solicitadoPor: usuarioLogado.nomeCompleto, atualizadoEm: new Date().getTime() };
+    const dados = { 
+        funcionario: document.getElementById('select-funcionario').value, 
+        tipo: document.getElementById('tipo-ausencia').value, 
+        observacao: document.getElementById('obs-ausencia').value, 
+        datas: document.getElementById('calendario-dinamico').value, 
+        modo: document.getElementById('modo-data').value, 
+        vencimentoReferencia: document.getElementById('vencimento-ferias').value,
+        status: isMaster ? "Aprovada" : "Pendente", 
+        notificadoMaster: isMaster, 
+        notificadoUser: false, 
+        justificativa: "", 
+        solicitadoPor: usuarioLogado.nomeCompleto, 
+        atualizadoEm: new Date().getTime() 
+    };
     try {
         if (idEdicao === "") { dados.criadoEm = new Date().getTime(); await db.collection("ausencias").add(dados); }
         else { await db.collection("ausencias").doc(idEdicao).update(dados); }
@@ -189,6 +290,12 @@ function editarAusencia(id) {
     document.getElementById('edit-id').value = id;
     document.getElementById('select-funcionario').value = aus.funcionario;
     document.getElementById('tipo-ausencia').value = aus.tipo;
+    
+    verificarTipoAusencia();
+    if(aus.tipo === 'Férias') {
+        document.getElementById('vencimento-ferias').value = aus.vencimentoReferencia || "";
+    }
+
     document.getElementById('obs-ausencia').value = aus.observacao;
     document.getElementById('modo-data').value = aus.modo;
     configurarCalendario();
@@ -205,5 +312,11 @@ function calcularTotalDias(str, modo) {
     return Math.ceil(Math.abs(parse(p[1]) - parse(p[0])) / 86400000) + 1;
 }
 
-function limparFormulario() { document.getElementById('form-ausencia').reset(); document.getElementById('edit-id').value = ""; document.getElementById('btn-submit').innerText = "Registrar"; configurarCalendario(); }
+function limparFormulario() { 
+    document.getElementById('form-ausencia').reset(); 
+    document.getElementById('edit-id').value = ""; 
+    document.getElementById('btn-submit').innerText = "Registrar"; 
+    document.getElementById('col-vencimento').style.display = 'none';
+    configurarCalendario(); 
+}
 function logout() { sessionStorage.removeItem('usuarioAtivo'); window.location.href = 'login.html'; }

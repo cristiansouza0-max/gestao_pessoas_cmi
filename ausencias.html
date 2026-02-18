@@ -59,18 +59,25 @@
                 <div class="row">
                     <div class="col">
                         <label>Funcionário (Apelido):</label>
-                        <select id="select-funcionario" required>
+                        <select id="select-funcionario" required onchange="verificarTipoAusencia()">
                             <option value="">Selecione...</option>
                         </select>
                     </div>
                     <div class="col">
                         <label>Tipo de Ausência:</label>
-                        <select id="tipo-ausencia" required>
+                        <select id="tipo-ausencia" required onchange="verificarTipoAusencia()">
                             <option value="Folga">Folga</option>
                             <option value="Falta">Falta</option>
                             <option value="Férias">Férias</option>
                             <option value="Licença">Licença</option>
                             <option value="Afastamento">Afastamento</option>
+                        </select>
+                    </div>
+                    <!-- Coluna de Vencimento (Inicia oculta) -->
+                    <div class="col" id="col-vencimento" style="display: none;">
+                        <label>Vencimento das Férias:</label>
+                        <select id="vencimento-ferias">
+                            <option value="">Selecione o período...</option>
                         </select>
                     </div>
                     <div class="col">
