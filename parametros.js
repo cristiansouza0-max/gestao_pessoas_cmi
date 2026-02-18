@@ -108,19 +108,40 @@ async function carregarRegrasEspeciais() {
     const doc = await db.collection("parametros_regras").doc("especiais").get();
     if (doc.exists) {
         const d = doc.data();
-        document.getElementById('regra-osmair').checked = d.osmair || false;
-        document.getElementById('regra-fabio').checked = d.fabio || false;
-        document.getElementById('regra-equipe-tarde').checked = d.equipeTarde || false;
-        document.getElementById('regra-equipe-manha').checked = d.equipeManha || false;
+        // Mapeia os dados do banco para os novos IDs do HTML
+        if (document.getElementById('regra-equipe-manha')) 
+            document.getElementById('regra-equipe-manha').checked = d.equipeManha || false;
+        
+        if (document.getElementById('regra-equipe-noite')) 
+            document.getElementById('regra-equipe-noite').checked = d.equipeNoite || false;
+        
+        if (document.getElementById('regra-equipe-tarde')) 
+            document.getElementById('regra-equipe-tarde').checked = d.equipeTarde || false;
     }
 }
 
 async function salvarRegraEspecial(regra) {
-    let idElemento = `regra-${regra.toLowerCase()}`; 
-    if(regra === 'equipeManha') idElemento = 'regra-equipe-manha';
-    if(regra === 'equipeTarde') idElemento = 'regra-equipe-tarde';
-    const status = document.getElementById(idElemento).checked;
-    await db.collection("parametros_regras").doc("especiais").set({ [regra]: status }, { merge: true });
+    let idElemento = "";
+    
+    // Define qual ID de elemento HTML ler com base no nome da regra
+    switch(regra) {
+        case 'equipeManha': idElemento = 'regra-equipe-manha'; break;
+        case 'equipeNoite': idElemento = 'regra-equipe-noite'; break;
+        case 'equipeTarde': idElemento = 'regra-equipe-tarde'; break;
+    }
+
+    if (idElemento) {
+        const status = document.getElementById(idElemento).checked;
+        try {
+            await db.collection("parametros_regras").doc("especiais").set({ 
+                [regra]: status 
+            }, { merge: true });
+            console.log(`Regra ${regra} atualizada para ${status}`);
+        } catch (error) {
+            console.error("Erro ao salvar regra:", error);
+            alert("Erro ao salvar a configuração.");
+        }
+    }
 }
 
 // --- LOGICA ATUALIZADA DOS APRENDIZES ---

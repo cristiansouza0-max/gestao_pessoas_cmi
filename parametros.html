@@ -68,75 +68,66 @@
                 <div id="lista-aprendizes" class="grid-aprendizes"></div>
 
                 <h2 class="titulo-secao-aprendiz">Regras de Folgas Específicas</h2>
-                <div id="regras-especiais" class="grid-aprendizes">
-                    
-                    <div class="card-aprendiz" style="border-top-color: #27ae60;">
-                        <div class="card-aprendiz-header" style="background: #f0fff4;">
-                            <h4>Equipe Manhã (AVUL)</h4>
-                            <div class="aprendiz-actions">
-                                <label class="switch">
-                                    <input type="checkbox" id="regra-equipe-manha" onchange="salvarRegraEspecial('equipeManha')">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="card-aprendiz-body">
-                            <p style="font-size: 0.7rem; color: #666;">
-                                <strong>Milena </strong> Intercala Sábado e Domingo. <br>
-                                <strong>Habilitado:</strong> Inclui <b>Eloah</b> no rodízio de Sábado. <br>
-                                <strong>Desabilitado:</strong> <b>Eloah</b> folga todos os Domingos.
-                            </p>
-                        </div>
-                    </div>
+<div id="regras-especiais" class="grid-aprendizes">
+    
+    <!-- REGRA 1: EQUIPE MANHÃ -->
+    <div class="card-aprendiz" style="border-top-color: #27ae60;">
+        <div class="card-aprendiz-header" style="background: #f0fff4;">
+            <h4>Equipe Manhã (AVUL)</h4>
+            <div class="aprendiz-actions">
+                <label class="switch">
+                    <input type="checkbox" id="regra-equipe-manha" onchange="salvarRegraEspecial('equipeManha')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card-aprendiz-body">
+            <p style="font-size: 0.75rem; color: #666;">
+                <strong>Habilitado:</strong> Inclui <b>Eloah</b> no rodízio de Sábado (intercalando com Milena). <br><br>
+                <strong>Desabilitado:</strong> <b>Eloah</b> passa a ter folga fixa em todos os Domingos.
+            </p>
+        </div>
+    </div>
 
-                    <div class="card-aprendiz">
-                        <div class="card-aprendiz-header">
-                            <h4>Osmair (Noite - AVUL)</h4>
-                            <div class="aprendiz-actions">
-                                <label class="switch">
-                                    <input type="checkbox" id="regra-osmair" onchange="salvarRegraEspecial('osmair')">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="card-aprendiz-body">
-                            <p style="font-size: 0.8rem; color: #666;">Folga fixa no <strong>último Domingo</strong> de cada mês.</p>
-                        </div>
-                    </div>
+    <!-- REGRA 2 e 3 JUNÇÃO: EQUIPE NOITE -->
+    <div class="card-aprendiz" style="border-top-color: #e67e22;">
+        <div class="card-aprendiz-header" style="background: #fff5eb;">
+            <h4>Equipe Noite (AVUL / VCCL)</h4>
+            <div class="aprendiz-actions">
+                <label class="switch">
+                    <input type="checkbox" id="regra-equipe-noite" onchange="salvarRegraEspecial('equipeNoite')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card-aprendiz-body">
+            <p style="font-size: 0.75rem; color: #666;">
+                <strong>Osmair (AVUL):</strong> Folga fixa no <b>último Domingo</b> do mês.<br><br>
+                <strong>Fábio (VCCL):</strong> Folga fixa no <b>Sábado que antecede</b> o último Domingo.
+            </p>
+        </div>
+    </div>
 
-                    <div class="card-aprendiz">
-                        <div class="card-aprendiz-header">
-                            <h4>Fábio (Noite - VCCL)</h4>
-                            <div class="aprendiz-actions">
-                                <label class="switch">
-                                    <input type="checkbox" id="regra-fabio" onchange="salvarRegraEspecial('fabio')">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="card-aprendiz-body">
-                            <p style="font-size: 0.8rem; color: #666;">Folga fixa no <strong>Sábado que antecede</strong> o último Domingo.</p>
-                        </div>
-                    </div>
+    <!-- REGRA 4: EQUIPE TARDE -->
+    <div class="card-aprendiz" style="border-top-color: #3498db;">
+        <div class="card-aprendiz-header" style="background: #eef7ff;">
+            <h4>Equipe Tarde (AVUL)</h4>
+            <div class="aprendiz-actions">
+                <label class="switch">
+                    <input type="checkbox" id="regra-equipe-tarde" onchange="salvarRegraEspecial('equipeTarde')">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+        </div>
+        <div class="card-aprendiz-body">
+            <p style="font-size: 0.72rem; color: #666;">
+                <strong>Rodízio Inteligente:</strong> <b>Márcia</b> folga todos os Sábados.<br><br>
+                <strong>Rodízio de Domingo:</strong> Lucas P. > Angelo > Renato > Lucas > Roberto > Valter.
+            </p>
+        </div>
+    </div>
 
-                    <div class="card-aprendiz" style="border-top-color: #3498db;">
-                        <div class="card-aprendiz-header" style="background: #eef7ff;">
-                            <h4>Equipe Tarde (AVUL)</h4>
-                            <div class="aprendiz-actions">
-                                <label class="switch">
-                                    <input type="checkbox" id="regra-equipe-tarde" onchange="salvarRegraEspecial('equipeTarde')">
-                                    <span class="slider round"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="card-aprendiz-body">
-                            <p style="font-size: 0.72rem; color: #666;">
-                                <strong>Rodízio Inteligente:</strong> Márcia Folgas nos Sábados e Rodízio entre Lucas P. > Angelo > Renato > Lucas > Roberto > Valter.
-                            </p>
-                        </div>
-                    </div>
-
-                </div>
+</div>
             </div>
         </main>
     </div>

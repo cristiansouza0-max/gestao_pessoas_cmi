@@ -182,20 +182,76 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
                 else { mNoite[chave + "-VCCL"] = true; mNoite[`${dDom.getDate()}-${dDom.getMonth()+1}-${dDom.getFullYear()}-AVUL`] = true; }
             }
         }
-        if (regrasAtivas.equipeTarde && sem === 6) {
-            if (!precisaSubstituicao("Márcia Cristina", dSim) && d !== (obterUltimoDomingo(y,m)-1)) mTardeAvul[`${chave}-Márcia Cristina`] = true;
-            else {
-                let t = 0; while (t < 5) {
-                    let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
-                    if (!precisaSubstituicao(cand, dSim)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
-                    pTardeAvul++; t++;
-                }
-            }
-        } else if (regrasAtivas.equipeTarde && sem === 0) {
-            const chaveSab = `${new Date(dSim.getTime() - 86400000).getDate()}-${m}-${y}`;
-            if (!mTardeAvul[`${chaveSab}-Márcia Cristina`]) mTardeAvul[`${chave}-Márcia Cristina`] = true;
-            SEQ_TARDE_AVUL.forEach(nome => { if (!mTardeAvul[`${chaveSab}-${nome}`]) mTardeAvul[`${chave}-${nome}`] = true; });
+// --- EQUIPE TARDE AVUL ---
+if (regrasAtivas.equipeTarde && sem === 6) { // SÁBADO
+    const ultDom = obterUltimoDomingo(y, m);
+    const ehSabadoAntesUltimoDom = (d === ultDom - 1);
+
+    // 1. Verificar se ela já folgou algum DOMINGO neste mês até agora
+    let marciaJaFolgouDomingoEsteMes = false;
+    for (let diaA = 1; diaA < d; diaA++) {
+        const dataA = new Date(y, m - 1, diaA);
+        if (dataA.getDay() === 0 && mTardeAvul[`${diaA}-${m}-${y}-Márcia Cristina`]) {
+            marciaJaFolgouDomingoEsteMes = true;
+            break;
         }
+    }
+
+    // 2. Regra das Férias na Segunda (Obriga a trabalhar o sábado para folgar o domingo)
+    const dSeg = new Date(dSim.getTime() + (2 * 86400000));
+    const marciaComecaFeriasNaSegunda = emFeriasGlobal("Márcia Cristina", dSeg.getDate(), dSeg.getMonth() + 1, dSeg.getFullYear(), ausencias) && 
+                                       !emFeriasGlobal("Márcia Cristina", dSim.getDate(), dSim.getMonth() + 1, dSim.getFullYear(), ausencias);
+
+    // 3. Decisão: Márcia trabalha no sábado se:
+    // - For o último fim de semana E ela ainda não folgou nenhum domingo no mês
+    // - OU se ela vai entrar em férias na segunda (precisa do domingo livre)
+    // - OU se ela estiver ausente (precisa de substituição)
+    let marciaTrabalhaSabado = (ehSabadoAntesUltimoDom && !marciaJaFolgouDomingoEsteMes) || 
+                                marciaComecaFeriasNaSegunda || 
+                                precisaSubstituicao("Márcia Cristina", dSim);
+
+    if (!marciaTrabalhaSabado) {
+        // Márcia folga o sábado
+        mTardeAvul[`${chave}-Márcia Cristina`] = true;
+    } else {
+        // Sequência assume a folga do sábado
+        let t = 0; 
+        while (t < 5) {
+            let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
+            if (!precisaSubstituicao(cand, dSim)) {
+                mTardeAvul[`${chave}-${cand}`] = true;
+                pTardeAvul++;
+                break;
+            }
+            pTardeAvul++; t++;
+        }
+    }
+} 
+else if (regrasAtivas.equipeTarde && sem === 0) { // DOMINGO
+    const dOntem = new Date(dSim.getTime() - 86400000);
+    const chaveSab = `${dOntem.getDate()}-${dOntem.getMonth() + 1}-${dOntem.getFullYear()}`;
+    
+    const dAmanha = new Date(dSim.getTime() + 86400000);
+    const marciaComecaFeriasNaSegunda = emFeriasGlobal("Márcia Cristina", dAmanha.getDate(), dAmanha.getMonth() + 1, dAmanha.getFullYear(), ausencias) && 
+                                       !emFeriasGlobal("Márcia Cristina", dSim.getDate(), dSim.getMonth() + 1, dSim.getFullYear(), ausencias);
+
+    // Márcia folga no domingo se:
+    // Trabalhou no sábado (folga foi para outro) OU se entra em férias amanhã
+    if (!mTardeAvul[`${chaveSab}-Márcia Cristina`] || marciaComecaFeriasNaSegunda) {
+        if (!precisaSubstituicao("Márcia Cristina", dSim)) {
+            mTardeAvul[`${chave}-Márcia Cristina`] = true;
+        }
+    }
+
+    // Sequência (Inversão: quem folgou sábado trabalha domingo e vice-versa)
+    SEQ_TARDE_AVUL.forEach(nome => {
+        if (!mTardeAvul[`${chaveSab}-${nome}`]) {
+            if (!precisaSubstituicao(nome, dSim)) {
+                mTardeAvul[`${chave}-${nome}`] = true;
+            }
+        }
+    });
+}
         if (sem === 6 || sem === 0) {
             const m_vccl = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Manhã");
             const t_vccl = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Tarde");
