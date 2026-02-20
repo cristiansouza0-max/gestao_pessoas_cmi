@@ -191,7 +191,7 @@ async function renderizarTimelineFerias() {
         const vencFmt = vencObj ? vencObj.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'2-digit'}) : "--";
         
         let tr = `<tr><td class="col-fixa">${f.apelido}</td><td class="col-vencimento">${vencFmt}</td>`;
-        
+
         for (let i = 0; i < dias.length; i++) {
             const dStr = dias[i].toDateString();
             const aus = cacheAusencias.find(a => a.funcionario === f.apelido && a.tipo === "Férias" && parseDatas(a).some(dt => dt.toDateString() === dStr));
@@ -202,19 +202,36 @@ async function renderizarTimelineFerias() {
                 const obsLimpa = (aus.observacao || "").toLowerCase().trim();
                 
                 let corBarra = "#9b59b6"; 
-                let textoBarra = "Férias Marcada";
+                let textoBarra = (obsLimpa === "programada") ? "Férias Programada" : "Férias Marcada";
+
+                // --- NOVA LÓGICA DE TEXTO DINÂMICO ---
+                const mesFiltroAtivo = document.getElementById('filtro-mes-timeline').value !== "TODOS";
+                
+                // Verificamos se existe a referência e se há espaço (span de dias)
+                // Se o filtro de mês estiver ativo, o espaço visual é maior, 
+                // mas se o período de férias for curto (ex: < 10 dias), a frase não cabe.
+                if (aus.vencimentoReferencia) {
+                    if (mesFiltroAtivo && span > 10) { textoBarra += ` referente ao vencimento de ${aus.vencimentoReferencia}`;} 
+                    else if (!mesFiltroAtivo && span > 10) {textoBarra += ` referente a  ${aus.vencimentoReferencia}`;}
+                }
 
                 if (obsLimpa === "programada") {
                     corBarra = "#f39c12"; 
-                    textoBarra = "Férias Programada";
                 }
 
-                tr += `<td colspan="${span}" style="background:${corBarra}; color:white; font-size:8px; font-weight:bold; text-align:center; white-space: nowrap; border: 1px solid black;">${textoBarra}</td>`;
+                // Adicionamos 'title' para que ao passar o mouse o usuário veja o texto completo caso esteja cortado
+                tr += `<td colspan="${span}" 
+                           title="${textoBarra}"
+                           style="background:${corBarra}; color:white; font-size:8px; font-weight:bold; text-align:center; white-space: nowrap; border: 1px solid black; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;">
+                           ${textoBarra}
+                       </td>`;
+                
                 i += (span - 1);
             } else {
                 tr += `<td></td>`;
             }
         }
+
         corpo.innerHTML += tr + "</tr>";
     });
 }
