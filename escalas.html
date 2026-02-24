@@ -1,137 +1,140 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
-    <meta charset="UTF-8">
-    <title>Escalas e Jornadas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="escalas.css">
+  <meta charset="UTF-8">
+  <title>Escalas e Jornadas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="escalas.css">
 </head>
+
 <body>
-    <div class="container">
-        <nav class="sidebar">
-            <h2>Gestão de Pessoas</h2>
-            <ul>
-                <li><a href="index.html">🏠 Início</a></li>
-                <li><a href="funcionarios.html">👥 Funcionários</a></li>
-                <li><a href="escalas.html" class="active">📅 Tipos de Escala</a></li>
-                <li><a href="ausencias.html">🤒 Ausências</a></li>
-                <li><a href="parametros.html">⚙️ Parâmetros</a></li>
-                <li><a href="grupos.html">📦 Monitoramento</a></li>
-                <li><a href="usuarios.html">🔐 Usuários</a></li>
-                <hr>
-                <li><a href="monitoramento.html">Importação de Dados</a></li>
-                <li><a href="mapa.html">Mapa de Folgas</a></li>
-                <li><a href="jornada.html">Escala de Trabalho</a></li>
-                <hr>
-                <li><a href="#" onclick="logout()">🚪 Sair</a></li>                
-            </ul>
-        </nav>
+  <div class="container">
+    <nav class="sidebar">
+      <h2>Gestão de Pessoas</h2>
+      <ul>
+        <li><a href="index.html">🏠 Início</a></li>
+        <li><a href="funcionarios.html">👥 Funcionários</a></li>
+        <li><a href="escalas.html" class="active">📅 Tipos de Escala</a></li>
+        <li><a href="ausencias.html">🤒 Ausências</a></li>
+        <li><a href="parametros.html">⚙️ Parâmetros</a></li>
+        <li><a href="grupos.html">📦 Monitoramento</a></li>
+        <li><a href="usuarios.html">🔐 Usuários</a></li>
+        <hr>
+        <li><a href="monitoramento.html">Importação de Dados</a></li>
+        <li><a href="mapa.html">Mapa de Folgas</a></li>
+        <li><a href="jornada.html">Escala de Trabalho</a></li>
+        <hr>
+        <li><a href="#" onclick="logout()">🚪 Sair</a></li>
+      </ul>
+    </nav>
 
-        <main class="content">
-            <h1>Configuração de Escalas e Jornadas</h1>
-            
-            <!-- BLOCO 1: CADASTRO DE ESCALAS -->
-            <div class="section-container-escalas">
-                <h2 class="titulo-secao-interna">Cadastro de Escalas</h2>
-                <form id="form-escala" class="form-linha">
-                    <input type="hidden" id="edit-id-escala" value="">
-                    <div class="input-group-compact">
-                        <label>Início</label>
-                        <input type="time" id="inicio-jornada" required>
-                    </div>
-                    <div class="input-group-compact">
-                        <label>Fim</label>
-                        <input type="time" id="fim-jornada" required>
-                    </div>
-                    <div class="btn-group-linha">
-                        <button type="submit" class="btn-save" id="btn-save-escala">Salvar Escala</button>
-                        <button type="button" onclick="limparFormEscala()" class="btn-clear">Limpar</button>
-                    </div>
-                </form>
-                <div id="lista-escalas-cards" class="grid-escalas-wrap"></div>
-            </div>
+    <main class="content">
+      <h1>Configuração de Escalas e Jornadas</h1>
 
-            <!-- BLOCO 2: CADASTRO DE JORNADAS -->
-            <div class="section-container-jornadas">
-                <div class="header-jornada-top">
-    <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
-    <div class="filtros-visualizacao-jornada">
-        <div class="filtro-pill">
-            <label>Empresa:</label>
-            <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
+      <!-- BLOCO 1: CADASTRO DE ESCALAS -->
+      <div class="section-container-escalas">
+        <h2 class="titulo-secao-interna">Cadastro de Escalas</h2>
+        <form id="form-escala" class="form-linha">
+          <input type="hidden" id="edit-id-escala" value="">
+          <div class="input-group-compact">
+            <label>Início</label>
+            <input type="time" id="inicio-jornada" required>
+          </div>
+          <div class="input-group-compact">
+            <label>Fim</label>
+            <input type="time" id="fim-jornada" required>
+          </div>
+          <div class="btn-group-linha">
+            <button type="submit" class="btn-save" id="btn-save-escala">Salvar Escala</button>
+            <button type="button" onclick="limparFormEscala()" class="btn-clear">Limpar</button>
+          </div>
+        </form>
+        <div id="lista-escalas-cards" class="grid-escalas-wrap"></div>
+      </div>
+
+      <!-- BLOCO 2: CADASTRO DE JORNADAS -->
+      <div class="section-container-jornadas">
+        <div class="header-jornada-top">
+          <h2 class="titulo-secao-interna">Cadastro de Jornadas</h2>
+          <div class="filtros-visualizacao-jornada">
+            <div class="filtro-pill">
+              <label>Empresa:</label>
+              <select id="filtro-empresa-jornada" onchange="renderizarJornadas()">
                 <option value="TODAS">Todas</option>
                 <option value="AVUL">AVUL</option>
                 <option value="VCCL">VCCL</option>
                 <option value="VSBL">VSBL</option>
-            </select>
-        </div>
-        <div class="filtro-pill">
-            <label>Setor:</label>
-            <select id="filtro-setor-jornada" onchange="renderizarJornadas()">
+              </select>
+            </div>
+            <div class="filtro-pill">
+              <label>Setor:</label>
+              <select id="filtro-setor-jornada" onchange="renderizarJornadas()">
                 <option value="TODOS">Todos</option>
                 <option value="Tráfego">Tráfego</option>
                 <option value="Monitoramento">Monitoramento</option>
-            </select>
-        </div>
-        <div class="filtro-pill">
-            <label>Período:</label>
-            <select id="filtro-periodo-jornada" onchange="renderizarJornadas()">
+              </select>
+            </div>
+            <div class="filtro-pill">
+              <label>Período:</label>
+              <select id="filtro-periodo-jornada" onchange="renderizarJornadas()">
                 <option value="TODOS">Todos</option>
                 <option value="Manhã">Manhã</option>
                 <option value="Intermediário">Intermediário</option>
                 <option value="Tarde">Tarde</option>
                 <option value="Noite">Noite</option>
                 <option value="Integral">Integral</option>
-            </select>
-        </div>
-    </div>
-</div>
-
-                <form id="form-jornada" class="form-jornada-cols">
-                    <input type="hidden" id="edit-id-jornada" value="">
-                    
-                    <div class="col-ordem">
-                        <label>Ordem</label>
-                        <input type="number" id="jornada-ordem" min="1" placeholder="Nº" required>
-                    </div>
-
-                    <div class="grid-check-days">
-                        <div class="day-group">
-                            <label>Úteis</label>
-                            <div id="container-check-util" class="multi-scale-container"></div>
-                        </div>
-                        <div class="day-group">
-                            <label>Sábado</label>
-                            <div id="container-check-sabado" class="multi-scale-container"></div>
-                        </div>
-                        <div class="day-group">
-                            <label>Domingo</label>
-                            <div id="container-check-domingo" class="multi-scale-container"></div>
-                        </div>
-                        <div class="day-group">
-                            <label>Feriado</label>
-                            <div id="container-check-feriado" class="multi-scale-container"></div>
-                        </div>
-                    </div>
-
-                    <div class="btn-group-jornada">
-                        <button type="submit" class="btn-save" id="btn-save-jornada">Salvar Jornada</button>
-                        <button type="button" onclick="limparFormJornada()" class="btn-clear">Limpar</button>
-                    </div>
-                </form>
-
-                <div class="wrapper-horizontal-jornadas">
-                    <div class="header-periodo-label" id="label-periodo-atual">JORNADAS CADASTRADAS</div>
-                    <div id="grid-jornadas-cadastradas" class="grid-10-colunas"></div>
-                </div>
+              </select>
             </div>
-        </main>
-    </div>
+          </div>
+        </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="firebase-config.js"></script>
-    <script src="escalas.js"></script>
+        <form id="form-jornada" class="form-jornada-cols">
+          <input type="hidden" id="edit-id-jornada" value="">
+
+          <div class="col-ordem">
+            <label>Ordem</label>
+            <input type="number" id="jornada-ordem" min="1" placeholder="Nº" required>
+          </div>
+
+          <div class="grid-check-days">
+            <div class="day-group">
+              <label>Úteis</label>
+              <div id="container-check-util" class="multi-scale-container"></div>
+            </div>
+            <div class="day-group">
+              <label>Sábado</label>
+              <div id="container-check-sabado" class="multi-scale-container"></div>
+            </div>
+            <div class="day-group">
+              <label>Domingo</label>
+              <div id="container-check-domingo" class="multi-scale-container"></div>
+            </div>
+            <div class="day-group">
+              <label>Feriado</label>
+              <div id="container-check-feriado" class="multi-scale-container"></div>
+            </div>
+          </div>
+
+          <div class="btn-group-jornada">
+            <button type="submit" class="btn-save" id="btn-save-jornada">Salvar Jornada</button>
+            <button type="button" onclick="limparFormJornada()" class="btn-clear">Limpar</button>
+          </div>
+        </form>
+
+        <div class="wrapper-horizontal-jornadas">
+          <div class="header-periodo-label" id="label-periodo-atual">JORNADAS CADASTRADAS</div>
+          <div id="grid-jornadas-cadastradas" class="grid-10-colunas"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="escalas.js"></script>
 </body>
+
 </html>
