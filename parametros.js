@@ -6,50 +6,22 @@ const isMaster = usuarioLogado.perfilMaster === true;
 
 const feriadosBase = [
   { dia: 1, mes: 1, nome: "Confraternização Universal", tipo: "nacional" },
-  {
-    dia: 25,
-    mes: 1,
-    nome: "Aniversário São Paulo",
-    tipo: "municipal",
-    empresa: "VSBL"
-  },
+  { dia: 25, mes: 1, nome: "Aniversário São Paulo", tipo: "municipal", empresa: "VSBL"},
+  { dia: 19, mes: 2, nome: "Emancipação de Osasco", tipo: "municipal", empresa: "AVUL" },
   { dia: 21, mes: 4, nome: "Tiradentes", tipo: "nacional" },
+  { dia: 3, mes: 4, nome: "Sexta-feira da Paixão", tipo: "nacional" },
   { dia: 1, mes: 5, nome: "Dia do Trabalho", tipo: "nacional" },
+  { dia: 4, mes: 6, nome: "Corpus Christi", tipo: "nacional" },
+  { dia: 13, mes: 6, nome: "Santo Antônio", tipo: "municipal", empresa: "AVUL" },
   { dia: 9, mes: 7, nome: "Revolução Constitucionalista", tipo: "estadual" },
   { dia: 7, mes: 9, nome: "Independência do Brasil", tipo: "nacional" },
   { dia: 12, mes: 10, nome: "Nossa Sra. Aparecida", tipo: "nacional" },
   { dia: 2, mes: 11, nome: "Finados", tipo: "nacional" },
   { dia: 15, mes: 11, nome: "Proclamação da República", tipo: "nacional" },
   { dia: 20, mes: 11, nome: "Consciência Negra", tipo: "nacional" },
-  { dia: 25, mes: 12, nome: "Natal", tipo: "nacional" },
-  {
-    dia: 19,
-    mes: 2,
-    nome: "Emancipação de Osasco",
-    tipo: "municipal",
-    empresa: "AVUL"
-  },
-  {
-    dia: 13,
-    mes: 6,
-    nome: "Santo Antônio",
-    tipo: "municipal",
-    empresa: "AVUL"
-  },
-  {
-    dia: 30,
-    mes: 11,
-    nome: "Emancipação de Franco da Rocha",
-    tipo: "municipal",
-    empresa: "VCCL"
-  },
-  {
-    dia: 8,
-    mes: 12,
-    nome: "Imaculada Conceição",
-    tipo: "municipal",
-    empresa: "VCCL"
-  }
+  { dia: 30, mes: 11, nome: "Emancipação de Franco da Rocha", tipo: "municipal", empresa: "VCCL" },
+  { dia: 25, mes: 12, nome: "Natal", tipo: "nacional" },  
+  { dia: 8, mes: 12, nome: "Imaculada Conceição", tipo: "municipal", empresa: "VCCL" },
 ];
 
 const periodosNomes = ["Manhã", "Intermediário", "Tarde", "Noite", "Integral"];
