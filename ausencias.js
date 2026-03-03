@@ -1,10 +1,9 @@
-if (!sessionStorage.getItem("usuarioAtivo"))
-  window.location.href = "login.html";
+if (!sessionStorage.getItem('usuarioAtivo')) window.location.href = 'login.html';
 
-const usuarioLogado = JSON.parse(sessionStorage.getItem("usuarioAtivo"));
+const usuarioLogado = JSON.parse(sessionStorage.getItem('usuarioAtivo'));
 const isMaster = usuarioLogado.perfilMaster === true;
 
-let fp;
+let fp; 
 let cacheFuncionarios = [];
 let cacheAusencias = [];
 let unsubscribeAusencias = null;
@@ -65,9 +64,7 @@ async function carregarFuncionarios() {
             const meuFunc = cacheFuncionarios.find(f => f.nome === usuarioLogado.nomeCompleto);
             if (meuFunc) { selectForm.value = meuFunc.apelido; selectForm.disabled = true; }
         }
-    } catch (e) {
-        console.error(e);
-    }
+    } catch (e) { console.error(e); }
 }
 
 function verificarTodosVencimentos() {
@@ -76,10 +73,8 @@ function verificarTodosVencimentos() {
 
     cacheFuncionarios.forEach(f => {
         if (f.funcao === "Aprendiz") return;
-
         const temFeriasNoHistorico = cacheAusencias.some(aus => 
-            aus.funcionario === f.apelido && 
-            aus.tipo === "Férias" && 
+            aus.funcionario === f.apelido && aus.tipo === "Férias" && 
             (aus.observacao === "Programada" || aus.observacao === "Marcada")
         );
         if (temFeriasNoHistorico) return;
@@ -87,7 +82,6 @@ function verificarTodosVencimentos() {
         let rawData = f.dataAdmissao || f.admissao || f.data_admissao;
         let dBase = converterParaData(rawData);
         if (!dBase) return;
-
         const diaAdm = dBase.getDate();
         const mesAdm = dBase.getMonth();
 
@@ -95,7 +89,6 @@ function verificarTodosVencimentos() {
             let dataVenc = new Date(ano, mesAdm, diaAdm);
             dataVenc.setDate(dataVenc.getDate() - 1);
             const diffDias = Math.ceil((dataVenc - hoje) / (1000 * 60 * 60 * 24));
-            
             if (diffDias > 0 && diffDias <= 90) {
                 funcionariosVencendo.push({ nome: f.apelido, data: dataVenc.toLocaleDateString('pt-BR'), dias: diffDias });
             }
@@ -103,33 +96,22 @@ function verificarTodosVencimentos() {
     });
 
     funcionariosVencendo.sort((a, b) => a.dias - b.dias);
-
     const btn = document.getElementById('btn-alerta-vencimentos');
     const badge = document.getElementById('contagem-vencimentos');
     if (funcionariosVencendo.length > 0) {
         btn.style.display = 'flex'; btn.classList.add('pulsing');
         badge.innerText = funcionariosVencendo.length;
-    } else {
-        btn.style.display = 'none'; btn.classList.remove('pulsing');
-    }
+    } else { btn.style.display = 'none'; btn.classList.remove('pulsing'); }
 }
 
 function abrirModalResumoVencimentos() {
     const overlay = document.createElement('div');
     overlay.className = 'alerta-overlay';
-    
     let listaHtml = funcionariosVencendo.map(item => `
         <div class="item-vencimento">
-            <div class="venc-info-col">
-                <span class="nome-func">${item.nome}</span>
-            </div>
-            <div class="venc-data-col">
-                <span class="data-venc">${item.data}</span>
-                <span class="prazo-venc">${item.dias} dias p/ vencer</span>
-            </div>
-            <button class="btn-alerta-edit" onclick="preencherFeriasDeAlerta('${item.nome}')" title="Programar Férias">
-                <i class="fa-solid fa-pencil"></i>
-            </button>
+            <div class="venc-info-col"><span class="nome-func">${item.nome}</span></div>
+            <div class="venc-data-col"><span class="data-venc">${item.data}</span><span class="prazo-venc">${item.dias} dias p/ vencer</span></div>
+            <button class="btn-alerta-edit" onclick="preencherFeriasDeAlerta('${item.nome}')" title="Programar Férias"><i class="fa-solid fa-pencil"></i></button>
         </div>
     `).join('');
 
@@ -137,9 +119,8 @@ function abrirModalResumoVencimentos() {
         <div class="alerta-modal modal-lista-vencimentos">
             <i class="fa-solid fa-calendar-check" style="color: #f39c12; font-size: 2.8rem; margin-bottom:15px;"></i>
             <h2 style="font-size:1.8rem;">Próximos Vencimentos de Férias</h2>
-            <p style="margin-bottom:20px;">Lista de colaboradores com vencimento nos próximos 90 dias:</p>
             <div class="lista-vencimentos-container">${listaHtml}</div>
-            <button onclick="this.closest('.alerta-overlay').remove();" style="background: #2c3e50; color: white; width:100%; padding:15px; font-size:1rem; margin-top:10px;">FECHAR</button>
+            <button onclick="this.closest('.alerta-overlay').remove();" style="background: #2c3e50; color: white; width:100%; padding:15px; font-size:1rem; margin-top:10px; border-radius:25px;">FECHAR</button>
         </div>`;
     document.body.appendChild(overlay);
 }
@@ -150,8 +131,7 @@ function preencherFeriasDeAlerta(apelido) {
     document.getElementById('select-funcionario').value = apelido;
     document.getElementById('tipo-ausencia').value = 'Férias';
     document.getElementById('modo-data').value = 'range';
-    configurarCalendario();
-    verificarTipoAusencia();
+    configurarCalendario(); verificarTipoAusencia();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -159,12 +139,8 @@ function verificarTipoAusencia() {
     const tipo = document.getElementById('tipo-ausencia').value;
     const colVenc = document.getElementById('col-vencimento');
     const func = document.getElementById('select-funcionario').value;
-    if (tipo === 'Férias' && func) {
-        colVenc.style.display = 'flex';
-        gerarOpcoesVencimento(func);
-    } else {
-        colVenc.style.display = 'none';
-    }
+    if (tipo === 'Férias' && func) { colVenc.style.display = 'flex'; gerarOpcoesVencimento(func); } 
+    else { colVenc.style.display = 'none'; }
 }
 
 function gerarOpcoesVencimento(apelido) {
@@ -241,7 +217,6 @@ function iniciarEscutaAusencias() {
         snapshot.forEach(doc => {
             const aus = doc.data(); const id = doc.id; let status = aus.status || "Aprovada";
             cacheAusencias.push({ id, ...aus });
-
             let passa = true;
             if (isMaster) {
                 const f = cacheFuncionarios.find(x => x.apelido === aus.funcionario);
