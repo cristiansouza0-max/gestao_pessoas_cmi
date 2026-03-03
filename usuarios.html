@@ -30,6 +30,51 @@
       </ul>
     </nav>
 
+<<<<<<< HEAD
+        <main class="content">
+            <div class="header-main">
+                <h1 class="fixed-title">Controle de Acesso</h1>
+                <div class="filtros-top-global">
+                    <div class="filtro-pill">
+                        <label>Empresa:</label>
+                        <select id="global-empresa" onchange="atualizarInterfaceCompleta()">
+                            <option value="TODAS">TODAS</option>
+                            <option value="AVUL">AVUL</option>
+                            <option value="VCCL">VCCL</option>
+                            <option value="VSBL">VSBL</option>
+                        </select>
+                    </div>
+                    <div class="filtro-pill">
+                        <label>Setor:</label>
+                        <select id="global-setor" onchange="atualizarInterfaceCompleta()">
+                            <option value="TODOS">TODOS</option>
+                            <option value="Tráfego">Tráfego</option>
+                            <option value="Monitoramento">Monitoramento</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <form id="form-usuario" class="form-container">
+                <input type="hidden" id="edit-id-usuario" value="">
+                
+                <div class="row">
+                    <div class="col" style="flex: 2;">
+                        <label>Funcionário Responsável</label>
+                        <select id="select-funcionario-usuario" required>
+                            <option value="">Selecione o funcionário...</option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label>Login (Usuário)</label>
+                        <input type="text" id="usuario-login" required>
+                    </div>
+                    <div class="col">
+                        <label>Senha Provisória</label>
+                        <input type="password" id="usuario-senha" required>
+                    </div>
+                </div>
+=======
     <main class="content">
       <div class="header-main">
         <h1 class="fixed-title">Controle de Acesso</h1>
@@ -53,6 +98,7 @@
           </div>
         </div>
       </div>
+>>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
 
       <form id="form-usuario" class="form-container">
         <input type="hidden" id="edit-id-usuario" value="">
@@ -74,12 +120,42 @@
           </div>
         </div>
 
+<<<<<<< HEAD
+                <div class="row" style="justify-content: flex-end; margin-top: 10px;">
+                    <div class="btn-group-user">
+                        <button type="submit" class="btn-save" id="btn-save-usuario">Salvar Usuário</button>
+                        <button type="button" onclick="limparFormUsuario()" class="btn-clear">Limpar</button>
+                    </div>
+                </div>
+            </form>
+
+            <div class="header-secao-lista">
+                <h2 class="titulo-secao">Usuários Cadastrados</h2>
+                <div class="filtros-historico">
+                    <div class="filtro-pill">
+                        <label>Período:</label>
+                        <select id="filtro-periodo-usuarios" onchange="renderizarUsuarios()">
+                            <option value="TODOS">TODOS</option>
+                            <option value="Manhã">Manhã</option>
+                            <option value="Intermediário">Intermediário</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noite">Noite</option>
+                            <option value="Integral">Integral</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="usuarios-scroll-area">
+                <div id="lista-usuarios-grid" class="usuarios-grid"></div>
+=======
         <div class="row">
           <div class="col">
             <label>Status da Conta</label>
             <div class="status-flags">
               <label class="radio-label"><input type="radio" name="usuario-status" value="Ativo" checked> Ativo</label>
               <label class="radio-label"><input type="radio" name="usuario-status" value="Bloqueado"> Bloqueado</label>
+>>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
             </div>
           </div>
           <div class="col">

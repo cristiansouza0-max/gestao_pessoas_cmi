@@ -1,3 +1,73 @@
+<<<<<<< HEAD
+.content { height: 100vh; display: flex; flex-direction: column; overflow: hidden; padding: 20px 40px; }
+
+/* Cabeçalho Principal */
+.header-main { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+.header-main h1 { font-size: 1.8rem; color: #000; margin: 0; font-weight: bold; }
+
+/* Filtros */
+.filtros-top-global, .filtros-historico { display: flex; gap: 10px; align-items: center; }
+.filtro-pill { 
+    background: #2c3e50; 
+    color: white; 
+    padding: 6px 15px; 
+    border-radius: 20px; 
+    font-size: 0.75rem; 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.filtro-pill label { font-weight: 800; text-transform: uppercase; font-size: 0.65rem; color: #bdc3c7; }
+.filtro-pill select { background: transparent; color: white; border: none; font-weight: bold; outline: none; cursor: pointer; font-size: 0.8rem; }
+.filtro-pill select option { background: #2c3e50; color: white; }
+
+/* Ícone de Alerta Pulsante Global */
+.alert-icon-wrapper {
+    position: relative;
+    cursor: pointer;
+    background: #f39c12;
+    color: white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+.alert-icon-wrapper:hover { transform: scale(1.1); }
+.alert-icon-wrapper.pulsing { animation: pulse-orange 2s infinite; }
+
+@keyframes pulse-orange {
+    0% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(243, 156, 18, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(243, 156, 18, 0); }
+}
+
+.badge-vencimento {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #e74c3c;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    border: 2px solid #fff;
+}
+
+/* Formulário e Colunas */
+.form-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); flex-shrink: 0; margin-bottom: 20px; }
+.row { display: flex; gap: 15px; margin-bottom: 15px; }
+.col { flex: 1; display: flex; flex-direction: column; }
+.col label { font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; color: #34495e; }
+.col input, .col select { padding: 8px; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9rem; }
+#col-vencimento select { border: 1px solid #3498db; background-color: #f0f7ff; font-weight: bold; }
+=======
 .content {
   height: 100vh;
   display: flex;
@@ -20,6 +90,7 @@
   margin: 0;
   font-weight: bold;
 }
+>>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
 
 /* Padronização dos Filtros (Estilo Pill Escura) */
 .filtros-top-global,
@@ -28,6 +99,58 @@
   gap: 10px;
 }
 
+<<<<<<< HEAD
+/* Histórico Layout */
+.header-historico { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px; flex-shrink: 0; }
+.titulo-secao { font-size: 1.3rem; color: #2c3e50; font-weight: 800; margin: 0; }
+.colunas-ausencias-wrapper { display: flex; gap: 15px; flex-grow: 1; overflow-x: auto; padding-bottom: 15px; }
+.ausencia-col { flex: 1; background: #ebedef; border-radius: 10px; display: flex; flex-direction: column; min-width: 300px; border-top: 5px solid #bdc3c7; }
+.titulo-col { padding: 12px; font-size: 0.9rem; text-align: center; text-transform: uppercase; font-weight: bold; background: #f8f9fa; border-bottom: 2px solid #ddd; border-radius: 10px 10px 0 0; }
+.titulo-col.folga { color: #2ecc71; border-bottom-color: #2ecc71; }
+.titulo-col.falta { color: #e74c3c; border-bottom-color: #e74c3c; }
+.titulo-col.ferias { color: #3498db; border-bottom-color: #3498db; }
+.titulo-col.outros { color: #e67e22; border-bottom-color: #e67e22; }
+
+.lista-ausencias { padding: 10px; overflow-y: auto; flex-grow: 1; height: 100%; }
+.card-ausencia { background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 12px; display: flex; flex-direction: column; border: 1px solid #eee; }
+.card-header-func { background: #f1f2f6; padding: 8px 12px; font-weight: bold; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; border-radius: 8px 8px 0 0; }
+.badge-dias { background: #2c3e50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+.card-body-ausencia { display: flex; padding: 12px; justify-content: space-between; align-items: center; }
+.ausencia-info { font-size: 0.82rem; line-height: 1.5; flex: 1; color: #333; font-weight: 500; }
+.card-action-column { display: flex; flex-direction: column; gap: 12px; padding-left: 12px; border-left: 1px solid #eee; }
+
+/* Status e Ações */
+.card-ausencia.pendente { background-color: #fffbe6 !important; border: 1px solid #ffe58f; border-left: 8px solid #f1c40f;}
+.btn-aprovar { color: #27ae60; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+.btn-reprovar { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
+
+/* Botões de Ação no Cartão - RESTAURADOS */
+.btn-icon-edit { color: #f39c12; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
+.btn-icon-delete { color: #e74c3c; background: none; border: none; cursor: pointer; font-size: 1.1rem; }
+
+.badge-status-ausencia { font-size: 0.6rem; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; font-weight: 800; margin-left: 8px; }
+.status-aprovada { background: #27ae60; color: white; }
+.status-pendente { background: #f1c40f; color: black; }
+
+/* MODAIS */
+.alerta-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
+.alerta-modal { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 550px; border-top: 10px solid #e74c3c; animation: slideDown 0.3s ease; }
+.alerta-modal h2 { color: #2c3e50; margin-bottom: 15px; font-size: 1.6rem; font-weight: 800; }
+.alerta-modal p { font-size: 1rem; color: #555; margin-bottom: 25px; white-space: nowrap; font-weight: 500; }
+.alerta-modal button { border: none; padding: 12px 40px; border-radius: 25px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; }
+
+/* MODAL DE RESUMO */
+.modal-lista-vencimentos { max-width: 750px !important; text-align: left !important; padding: 40px !important; border-top: 10px solid #f39c12 !important; }
+.lista-vencimentos-container { max-height: 450px; overflow-y: auto; margin: 20px 0; border: 1px solid #eee; border-radius: 8px; }
+.item-vencimento { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid #eee; }
+.item-vencimento:last-child { border: 0; }
+.venc-info-col { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.venc-info-col .nome-func { font-weight: 800; color: #2c3e50; font-size: 1.1rem; }
+.venc-data-col { text-align: right; display: flex; flex-direction: column; gap: 2px; margin-right: 20px; }
+.venc-data-col .data-venc { color: #e67e22; font-weight: 800; font-size: 1rem; white-space: nowrap; }
+.venc-data-col .prazo-venc { color: #d68910; font-weight: 600; font-size: 0.75rem; white-space: nowrap; text-transform: uppercase; }
+.btn-alerta-edit { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 1rem; transition: 0.2s; padding: 5px; }
+=======
 .filtro-pill {
   background: #2c3e50;
   color: white;
@@ -343,3 +466,4 @@
   font-weight: bold;
   text-transform: uppercase;
 }
+>>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b

@@ -29,6 +29,121 @@
       </ul>
     </nav>
 
+<<<<<<< HEAD
+        <main class="content">
+            <div class="header-dashboard">
+                <h1>Painel de Controle</h1>
+                <div class="header-controls">
+                    <div class="filter-group">
+                        <label>Filtrar Empresa:</label>
+                        <select id="filtro-empresa-home" onchange="carregarDashboard()">
+                            <option value="TODAS">Todas</option>
+                            <option value="AVUL">AVUL</option>
+                            <option value="VCCL">VCCL</option>
+                            <option value="VSBL">VSBL</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Filtrar Setor:</label>
+                        <select id="filtro-setor-home" onchange="carregarDashboard()">
+                            <option value="TODOS">Todos</option>
+                            <option value="Tráfego">Tráfego</option>
+                            <option value="Monitoramento">Monitoramento</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-scroll-area">
+                <div class="stats-grid">
+                    <div class="card-stat"><h3>Total</h3><p id="total-func">0</p><span>Efetivo Ativo</span></div>
+                    <div class="card-stat"><h3>Auxiliares</h3><p id="total-aux">0</p></div>
+                    <div class="card-stat"><h3>Assistentes</h3><p id="total-ast">0</p></div>
+                    <div class="card-stat"><h3>Líderes</h3><p id="total-lid">0</p></div>
+                    <div class="card-stat"><h3>Intermediários</h3><p id="total-int">0</p></div>
+                    <div class="card-stat"><h3>Aprendizes</h3><p id="total-apr">0</p></div>
+                </div>
+
+                <div class="anniversaries-container">
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>🎂 Aniversariantes</h3></div>
+                        <ul id="lista-aniversario-vida" class="anniversary-list"></ul>
+                    </div>
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>🏢 Tempo de Casa</h3></div>
+                        <ul id="lista-aniversario-empresa" class="anniversary-list"></ul>
+                    </div>
+                    <div class="card-large">
+                        <div class="card-header-flex"><h3>👨‍🎓 Aprendizes Hoje</h3></div>
+                        <ul id="lista-aprendizes-hoje" class="anniversary-list"></ul>
+                    </div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="card-summary red"><h3 id="titulo-faltas-mes">Faltas do Mês</h3><ul id="lista-faltas-mes" class="summary-list"></ul></div>
+                    <div class="card-summary green"><h3 id="titulo-folgas-proximo">Próximas Folgas</h3><ul id="lista-folgas-proximo" class="summary-list"></ul></div>
+                    <div class="card-summary orange"><h3>Licenças/Afastamentos</h3><ul id="lista-afastamentos-ativos" class="summary-list"></ul></div>
+                </div>
+
+                <div class="card-large timeline-section">
+                    <div class="card-header-timeline">
+                        <h3 class="timeline-title"><i class="fa-solid fa-timeline"></i> Planejamento de Férias</h3>
+                        <div class="timeline-filters">
+                            <div class="filter-item">
+                                <label>Período:</label>
+                                <select id="filtro-periodo-timeline" onchange="renderizarTimelineFerias()">
+                                    <option value="TODOS">Todos</option>
+                                    <option value="Manhã">Manhã</option>
+                                    <option value="Tarde">Tarde</option>
+                                    <option value="Intermediário">Intermediário</option>
+                                    <option value="Integral">Integral</option>
+                                    <option value="Noite">Noite</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Funcionário:</label>
+                                <select id="filtro-func-timeline" onchange="renderizarTimelineFerias()">
+                                    <option value="TODOS">Todos</option>
+                                </select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Ano:</label>
+                                <select id="filtro-ano-timeline" onchange="renderizarTimelineFerias()"></select>
+                            </div>
+                            <div class="filter-item">
+                                <label>Mês:</label>
+                                <select id="filtro-mes-timeline" onchange="renderizarTimelineFerias()">
+                                    <option value="TODOS">Todos</option>
+                                    <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+                                    <option value="2">Março</option><option value="3">Abril</option>
+                                    <option value="4">Maio</option><option value="5">Junho</option>
+                                    <option value="6">Julho</option><option value="7">Agosto</option>
+                                    <option value="8">Setembro</option><option value="9">Outubro</option>
+                                    <option value="10">Novembro</option><option value="11">Dezembro</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-wrapper">
+                        <table id="tabela-ferias-timeline">
+                            <thead>
+                                <tr id="header-timeline">
+                                    <th class="col-fixa">Funcionários</th>
+                                    <th class="col-vencimento">Vencimento</th>
+                                </tr>
+                            </thead>
+                            <tbody id="corpo-timeline"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="index.js"></script>
+=======
     <main class="content">
       <div class="header-dashboard">
         <h1>Painel de Controle</h1>
@@ -195,6 +310,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script src="index.js"></script>
+>>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
 </body>
 
 </html>
