@@ -31,7 +31,6 @@
       </ul>
     </nav>
 
-<<<<<<< HEAD
         <main class="content">
             <div class="header-main">
                 <h1>Registro de Ausências</h1>
@@ -101,36 +100,27 @@
                         </select>
                     </div>
                 </div>
-=======
-    <main class="content">
-      <div class="header-main">
-        <h1>Registro de Ausências</h1>
-        <div class="filtros-top-global">
-          <div class="filtro-pill">
-            <label>Empresa:</label>
-            <select id="filtro-empresa-global" onchange="atualizarPaginaCompleta()">
-              <option value="TODAS">Todas</option>
-              <option value="AVUL">AVUL</option>
-              <option value="VCCL">VCCL</option>
-              <option value="VSBL">VSBL</option>
-            </select>
-          </div>
-          <div class="filtro-pill">
-            <label>Setor:</label>
-            <select id="filtro-setor-global" onchange="atualizarPaginaCompleta()">
-              <option value="TODOS">Todos</option>
-              <option value="Tráfego">Tráfego</option>
-              <option value="Monitoramento">Monitoramento</option>
-            </select>
-          </div>
-        </div>
-      </div>
->>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
 
-      <form id="form-ausencia" class="form-container">
-        <input type="hidden" id="edit-id" value="">
+                <div class="row">
+                  <div class="col">
+                    <label>Modo de Seleção:</label>
+                    <select id="modo-data" onchange="configurarCalendario()">
+                      <option value="single">Data Única</option>
+                      <option value="multiple">Múltiplas Datas</option>
+                      <option value="range">Período (Início e Fim)</option>
+                    </select>
+                  </div>
+                  <div class="col" style="flex: 2;">
+                    <label>Datas Selecionadas:</label>
+                    <input type="text" id="calendario-dinamico" placeholder="Selecione no calendário..." required>
+                  </div>
+                  <div class="col btn-group">
+                    <button type="submit" class="btn-save" id="btn-submit">Registrar</button>
+                    <button type="button" onclick="limparFormulario()" class="btn-clear">Limpar</button>
+                  </div>
+                </div>
+            </form>
 
-<<<<<<< HEAD
             <div class="header-historico">
                 <h2 class="titulo-secao">Histórico de Ausências</h2>
                 <div class="filtros-historico">
@@ -163,99 +153,6 @@
             </div>
         </main>
     </div>
-=======
-        <div class="row">
-          <div class="col">
-            <label>Funcionário (Apelido):</label>
-            <select id="select-funcionario" required onchange="verificarTipoAusencia()">
-              <option value="">Selecione...</option>
-            </select>
-          </div>
-          <div class="col">
-            <label>Tipo de Ausência:</label>
-            <select id="tipo-ausencia" required onchange="verificarTipoAusencia()">
-              <option value="Folga">Folga</option>
-              <option value="Falta">Falta</option>
-              <option value="Férias">Férias</option>
-              <option value="Licença">Licença</option>
-              <option value="Afastamento">Afastamento</option>
-            </select>
-          </div>
-          <!-- Coluna de Vencimento (Inicia oculta) -->
-          <div class="col" id="col-vencimento" style="display: none;">
-            <label>Vencimento das Férias:</label>
-            <select id="vencimento-ferias">
-              <option value="">Selecione o período...</option>
-            </select>
-          </div>
-          <div class="col">
-            <label>Observação:</label>
-            <select id="obs-ausencia" required>
-              <option value="Pedida">Pedida</option>
-              <option value="Programada">Programada</option>
-              <option value="Marcada">Marcada</option>
-              <option value="Atestado Médico">Atestado Médico</option>
-              <option value="Abonar">Abonar</option>
-              <option value="Pagar">Pagar</option>
-              <option value="Maternidade">Maternidade</option>
-              <option value="Médico">Médico</option>
-            </select>
-          </div>
-        </div>
->>>>>>> 95da380d21748e1ffcf794b66cd376a44bbd3e4b
-
-        <div class="row">
-          <div class="col">
-            <label>Modo de Seleção:</label>
-            <select id="modo-data" onchange="configurarCalendario()">
-              <option value="single">Data Única</option>
-              <option value="multiple">Múltiplas Datas</option>
-              <option value="range">Período (Início e Fim)</option>
-            </select>
-          </div>
-          <div class="col" style="flex: 2;">
-            <label>Datas Selecionadas:</label>
-            <input type="text" id="calendario-dinamico" placeholder="Selecione no calendário..." required>
-          </div>
-          <div class="col btn-group">
-            <button type="submit" class="btn-save" id="btn-submit">Registrar</button>
-            <button type="button" onclick="limparFormulario()" class="btn-clear">Limpar</button>
-          </div>
-        </div>
-      </form>
-
-      <div class="header-historico">
-        <h2 class="titulo-secao">Histórico de Ausências</h2>
-        <div class="filtros-historico">
-          <div class="filtro-pill">
-            <label>Funcionário:</label>
-            <select id="filtro-func-hist" onchange="iniciarEscutaAusencias()">
-              <option value="TODOS">TODOS</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="colunas-ausencias-wrapper">
-        <div class="ausencia-col">
-          <h2 class="titulo-col folga">Folgas</h2>
-          <div class="lista-ausencias" id="lista-Folga"></div>
-        </div>
-        <div class="ausencia-col">
-          <h2 class="titulo-col falta">Faltas</h2>
-          <div class="lista-ausencias" id="lista-Falta"></div>
-        </div>
-        <div class="ausencia-col">
-          <h2 class="titulo-col ferias">Férias</h2>
-          <div class="lista-ausencias" id="lista-Férias"></div>
-        </div>
-        <div class="ausencia-col">
-          <h2 class="titulo-col outros">Afastamento/Licença</h2>
-          <div class="lista-ausencias" id="lista-Outros"></div>
-        </div>
-      </div>
-    </main>
-  </div>
 
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -264,5 +161,4 @@
   <script src="firebase-config.js"></script>
   <script src="ausencias.js"></script>
 </body>
-
 </html>
