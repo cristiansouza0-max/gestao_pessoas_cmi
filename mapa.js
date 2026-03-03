@@ -106,6 +106,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             return dSim >= dtAdm && (!dtDem || dSim < dtDem);
         });
 
+        // --- MANHÃ AVUL ---
         if (dSim < dataNovaRegraMarço) {
             if (sem === 6) {
                 const equipeBase = ["Geovana Fanyne", "Maria Aparecida", "Emerson Silva", "Valeria Ribeiro"];
@@ -147,19 +148,38 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             }
         }
 
+        // --- TARDE AVUL (LÓGICA DE FOLGA MANUAL CORRIGIDA) ---
         if (regrasAtivas.equipeTarde && sem === 6) {
             const ultDom = obterUltimoDomingo(y, m);
             const ehSabadoAntesUltimoDom = (d === ultDom - 1);
+
+            // Verifica se ela já folgou algum domingo no mês (incluindo folgas manuais)
             let marciaJaFolgouDomingoEsteMes = false;
             for (let diaA = 1; diaA < d; diaA++) {
                 const dataA = new Date(y, m - 1, diaA);
-                if (dataA.getDay() === 0 && mTardeAvul[`${diaA}-${m}-${y}-Márcia Cristina`]) { marciaJaFolgouDomingoEsteMes = true; break; }
+                if (dataA.getDay() === 0) {
+                    if (mTardeAvul[`${diaA}-${m}-${y}-Márcia Cristina`] || fPediuManualGlobal("Márcia Cristina", diaA, m, y, ausencias)) { 
+                        marciaJaFolgouDomingoEsteMes = true; break; 
+                    }
+                }
             }
+            
+            // Verifica se ela pediu folga manual neste Sábado ou no próximo Domingo
+            const pediuManualFimDeSemana = fPediuManualGlobal("Márcia Cristina", d, m, y, ausencias) || fPediuManualGlobal("Márcia Cristina", d + 1, m, y, ausencias);
+
             const dSeg = new Date(dSim.getTime() + (2 * 86400000));
             const marciaComecaFeriasNaSegunda = emFeriasGlobal("Márcia Cristina", dSeg.getDate(), dSeg.getMonth() + 1, dSeg.getFullYear(), ausencias) && !emFeriasGlobal("Márcia Cristina", dSim.getDate(), dSim.getMonth() + 1, dSim.getFullYear(), ausencias);
-            let marciaTrabalhaSabado = (ehSabadoAntesUltimoDom && !marciaJaFolgouDomingoEsteMes) || marciaComecaFeriasNaSegunda || precisaSubstituicao("Márcia Cristina", dSim);
-            if (!marciaTrabalhaSabado) { mTardeAvul[`${chave}-Márcia Cristina`] = true; } 
-            else {
+            
+            // Márcia TRABALHA no sábado se: 
+            // - For regra do último domingo e não folgou domingo ainda
+            // - OU se começa férias na segunda
+            // - OU se estiver em ausência longa (férias/afastamento)
+            // - OU se ela pediu uma folga manual (Pedida/Marcada) no fim de semana
+            let marciaTrabalhaSabado = (ehSabadoAntesUltimoDom && !marciaJaFolgouDomingoEsteMes) || marciaComecaFeriasNaSegunda || precisaSubstituicao("Márcia Cristina", dSim) || pediuManualFimDeSemana;
+
+            if (!marciaTrabalhaSabado) { 
+                mTardeAvul[`${chave}-Márcia Cristina`] = true; 
+            } else {
                 let t = 0; while (t < 5) {
                     let cand = SEQ_TARDE_AVUL[pTardeAvul % 5];
                     if (!precisaSubstituicao(cand, dSim)) { mTardeAvul[`${chave}-${cand}`] = true; pTardeAvul++; break; }
@@ -171,10 +191,15 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             const chaveSab = `${dOntem.getDate()}-${dOntem.getMonth() + 1}-${dOntem.getFullYear()}`;
             const dAmanha = new Date(dSim.getTime() + 86400000);
             const marciaComecaFeriasNaSegunda = emFeriasGlobal("Márcia Cristina", dAmanha.getDate(), dAmanha.getMonth() + 1, dAmanha.getFullYear(), ausencias) && !emFeriasGlobal("Márcia Cristina", dSim.getDate(), dSim.getMonth() + 1, dSim.getFullYear(), ausencias);
-            if (!mTardeAvul[`${chaveSab}-Márcia Cristina`] || marciaComecaFeriasNaSegunda) { if (!precisaSubstituicao("Márcia Cristina", dSim)) mTardeAvul[`${chave}-Márcia Cristina`] = true; }
+            
+            // Folga de escala da Márcia no domingo (se não for manual)
+            if (!mTardeAvul[`${chaveSab}-Márcia Cristina`] || marciaComecaFeriasNaSegunda) { 
+                if (!precisaSubstituicao("Márcia Cristina", dSim)) mTardeAvul[`${chave}-Márcia Cristina`] = true; 
+            }
             SEQ_TARDE_AVUL.forEach(nome => { if (!mTardeAvul[`${chaveSab}-${nome}`]) { if (!precisaSubstituicao(nome, dSim)) mTardeAvul[`${chave}-${nome}`] = true; } });
         }
 
+        // --- NOITE ---
         if (sem === 6) {
             const dDom = new Date(dSim); dDom.setDate(dDom.getDate() + 1);
             const ultD = obterUltimoDomingo(y, m);
@@ -184,6 +209,7 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
             }
         }
 
+        // --- VCCL ---
         if (sem === 6 || sem === 0) {
             const m_vccl = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Manhã");
             const t_vccl = funcsDia.filter(f => f.empresa === "VCCL" && f.periodo === "Tarde");
@@ -211,8 +237,6 @@ function simularEscalasAnoTodo(ausencias, funcionarios, anoAlvo, regrasAtivas) {
 
 async function gerarMapa() {
     const mes = parseInt(document.getElementById('mapa-mes').value), ano = parseInt(document.getElementById('mapa-ano').value);
-    
-    // Captura dos Filtros Selecionados
     const empSel = isMaster ? Array.from(document.querySelectorAll('.filtro-emp:checked')).map(cb => cb.value) : ["AVUL", "VCCL", "VSBL"];
     const setSel = isMaster ? Array.from(document.querySelectorAll('.filtro-set:checked')).map(cb => cb.value) : ["Tráfego", "Monitoramento"];
     const perSel = isMaster ? Array.from(document.querySelectorAll('.filtro-per:checked')).map(cb => cb.value) : ["Manhã", "Intermediário", "Tarde", "Noite", "Integral"];
@@ -227,12 +251,10 @@ async function gerarMapa() {
         const dataFimMes = new Date(ano, mes, 0);
 
         let funcionarios = snapFunc.docs.map(d => d.data()).filter(f => {
-            // LÓGICA DE FILTRAGEM CORRIGIDA PARA INCLUIR SETOR
             if (f.funcao === "Aprendiz") return false;
             if (!empSel.includes(f.empresa)) return false;
-            if (!setSel.includes(f.setor || "Tráfego")) return false; // Default para Tráfego se setor for vazio
+            if (!setSel.includes(f.setor || "Tráfego")) return false;
             if (!perSel.includes(f.periodo)) return false;
-            
             return new Date(f.admissao + "T00:00:00") <= dataFimMes && (f.status === "Ativo" || (f.demissao && new Date(f.demissao + "T00:00:00") >= new Date(ano, mes-1, 1)));
         });
 
@@ -325,15 +347,10 @@ function logout() { sessionStorage.removeItem('usuarioAtivo'); window.location.h
 document.addEventListener('DOMContentLoaded', () => { 
     ajustarSidebar();
     if (!isMaster) document.querySelectorAll('.filter-group-visible, .btn-save-blue').forEach(el => el.style.display = 'none');
-    
     const inputAno = document.getElementById('mapa-ano');
     if(inputAno && inputAno.value === "") inputAno.value = new Date().getFullYear();
-    
     document.getElementById('mapa-mes').addEventListener('change', gerarMapa);
     inputAno.addEventListener('change', gerarMapa);
-    
-    // ADICIONADO: ESCUTAR MUDANÇAS NO FILTRO DE SETOR
     document.querySelectorAll('.filtro-emp, .filtro-set, .filtro-per').forEach(el => el.addEventListener('change', gerarMapa));
-    
     gerarMapa(); 
 });
